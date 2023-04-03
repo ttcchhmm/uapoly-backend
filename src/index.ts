@@ -1,11 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { AppDataSource } from "./data-source";
 import express, { Express } from "express";
 import * as bodyParser from "body-parser";
-import dotenv from 'dotenv';
 
 import { UserRouter } from "./routes/UserRouter";
-
-dotenv.config();
 
 AppDataSource.initialize().then(async () => {
     console.log('Database connection established');
