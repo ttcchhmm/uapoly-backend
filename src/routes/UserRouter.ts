@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { login, hashPassword } from '../auth/Auth';
+import { login, hashPassword, authenticateRequest } from '../auth/Auth';
+import { AuthenticatedRequest } from '../auth/AuthenticatedRequest';
 import { AppDataSource } from '../data-source';
 import { Account } from '../entity/Account';
 import { checkBody } from '../utils/CheckBody';
@@ -72,4 +73,17 @@ UserRouter.post('/register', async (req, res) => {
     await accountRepo.save(user);
 
     return res.status(201).json({ token: await login(user, req.body.password) });
+});
+
+UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    const user = await accountRepo.createQueryBuilder('account')
+        .where('account.login = :login', { login: req.user.login })
+        .addSelect('account.email')
+        .getOne();
+
+    if(!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.json(user);
 });
