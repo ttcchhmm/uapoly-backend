@@ -14,6 +14,6 @@ To configure the application, you will need to create a `.env` file at the root 
 To start the application, run the following commands :
 ```bash
 npm i
-docker-compose up
+docker-compose up -d
 npm start
 ```
