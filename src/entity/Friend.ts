@@ -19,20 +19,20 @@ export class Friend {
     secondAccountLogin: string;
 
     /**
+     * Whether the friend request has been accepted.
+     */
+    @Column({select: true})
+    accepted: boolean;
+
+    /**
      * The account representing the sender of the friend request.
      */
-    @ManyToOne(() => Account, account => account.sentFriendRequests)
-    firstAccount: Account;
+    @ManyToOne(() => Account, account => account.sentFriendRequests, {eager: false})
+    firstAccount: Promise<Account>;
 
     /**
      * The account representing the receiver of the friend request.
      */
-    @ManyToOne(() => Account, account => account.receivedFriendRequests)
-    secondAccount: Account;
-
-    /**
-     * Whether the friend request has been accepted.
-     */
-    @Column()
-    accepted: boolean;
+    @ManyToOne(() => Account, account => account.receivedFriendRequests, {eager: false})
+    secondAccount: Promise<Account>;
 }

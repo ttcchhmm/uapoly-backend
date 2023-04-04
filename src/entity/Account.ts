@@ -32,21 +32,28 @@ export class Account {
      * The friend requests sent by the account.
      */
     @OneToMany(() => Friend, friend => friend.firstAccount)
-    sentFriendRequests: Friend[];
+    sentFriendRequests: Promise<Friend[]>;
 
     /**
      * The friend requests received by the account.
      */
     @OneToMany(() => Friend, friend => friend.secondAccount)
-    receivedFriendRequests: Friend[];
+    receivedFriendRequests: Promise<Friend[]>;
 
     /**
      * Queries the friends of the account.
      * @returns The friends of the account.
      */
-    getFriends(): Friend[] {
-        return this.sentFriendRequests.filter(friend => friend.accepted).concat(
-                this.receivedFriendRequests.filter(friend => friend.accepted)
+    async getFriends() {
+        const sent = await this.sentFriendRequests;
+        const received = await this.receivedFriendRequests;
+
+        return sent.filter(friend => friend.accepted).concat(
+                received.filter(friend => friend.accepted)
             );
+    }
+
+    async isFriendWith(account: Account) {
+        return (await this.getFriends()).some(friend => friend.firstAccountLogin === account.login || friend.secondAccountLogin === account.login);
     }
 }

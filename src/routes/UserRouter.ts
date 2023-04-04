@@ -83,7 +83,6 @@ UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res
     const user = await accountRepo.createQueryBuilder('account')
         .where('account.login = :login', { login: req.user.login })
         .addSelect('account.email')
-        .loadAllRelationIds()
         .getOne();
 
     if(!user) {
