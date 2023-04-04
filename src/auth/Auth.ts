@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt';
 import jwt, { VerifyErrors } from 'jsonwebtoken';
 import { Account } from '../entity/Account';
 import { Token } from './Token';
+import { AuthenticatedRequest } from './AuthenticatedRequest';
+import { NextFunction, Response } from 'express';
 
 /**
  * Passwords will go through 2^(this constant) rounds of hashing.
@@ -46,5 +48,41 @@ export async function login(account: Account, password: string): Promise<string>
         });
     } else {
         throw new Error('Invalid password');
+    }
+}
+
+/**
+ * An Express middleware that checks if the request is authenticated.
+ * @param req Express request
+ * @param res Express response
+ * @param next Next function
+ */
+export function authenticateRequest(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
+    if(authHeader) { // Check if the header is present
+        const header = authHeader.split(' ');
+
+        // Check if the header is valid
+        if(header.length !== 2 || header[0] !== 'Bearer') {
+            res.status(400).json({
+                error: 'Invalid authorization header',
+            });
+        }
+
+        // Validate the token
+        jwt.verify(header[1], process.env.JWT_SECRET, (err: VerifyErrors | null, payload: object | undefined) => {
+            if(err) { // Invalid token
+                res.status(403).json({
+                    error: 'Invalid token',
+                });
+            } else { // Authorized
+                req.user = payload as Token;
+                next();
+            }
+        });
+    } else { // Invalid header
+        res.status(401).json({
+            error: 'No token provided',
+        });
     }
 }
