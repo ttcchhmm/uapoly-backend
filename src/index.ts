@@ -1,6 +1,16 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import child_process from 'child_process';
+
+if(process.env.ENV === 'dev') {
+    console.warn('WARNING: Running in development mode.');
+    console.warn('WARNING: Using this mode in production CAN CAUSE DATA LOSS !!!');
+    console.warn('WARNING: If this is a production environment, please set the ENV variable to "prod" in the .env file.');
+    console.log('Continuing in 5 seconds...');
+    child_process.execSync('sleep 5'); // Can't use setTimeout because it's async
+}
+
 import { AppDataSource } from "./data-source";
 import express, { Express } from "express";
 import * as bodyParser from "body-parser";
