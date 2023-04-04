@@ -12,6 +12,8 @@ export const UserRouter = Router();
 
 const accountRepo = AppDataSource.getRepository(Account);
 
+// ### ACCOUNT MANAGEMENT ### //
+
 UserRouter.post('/login', async (req, res) => {
     // Check if the body contains the required fields
     if(!checkBody(req.body, 'login', 'password')) {
@@ -75,10 +77,13 @@ UserRouter.post('/register', async (req, res) => {
     return res.status(201).json({ token: await login(user, req.body.password) });
 });
 
+// ### USER INFO ### //
+
 UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     const user = await accountRepo.createQueryBuilder('account')
         .where('account.login = :login', { login: req.user.login })
         .addSelect('account.email')
+        .loadAllRelationIds()
         .getOne();
 
     if(!user) {

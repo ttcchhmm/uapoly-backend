@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
+import { Friend } from "./Friend";
 
 /**
  * Represents an account in the database.
@@ -26,4 +27,26 @@ export class Account {
         select: false, // Don't select the email when querying the database
     })
     email: string;
+
+    /**
+     * The friend requests sent by the account.
+     */
+    @OneToMany(() => Friend, friend => friend.firstAccount)
+    sentFriendRequests: Friend[];
+
+    /**
+     * The friend requests received by the account.
+     */
+    @OneToMany(() => Friend, friend => friend.secondAccount)
+    receivedFriendRequests: Friend[];
+
+    /**
+     * Queries the friends of the account.
+     * @returns The friends of the account.
+     */
+    getFriends(): Friend[] {
+        return this.sentFriendRequests.filter(friend => friend.accepted).concat(
+                this.receivedFriendRequests.filter(friend => friend.accepted)
+            );
+    }
 }
