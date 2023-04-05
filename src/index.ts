@@ -6,6 +6,7 @@ import child_process from 'child_process';
 if(process.env.ENV !== 'prod') {
     console.warn('WARNING: Running in development mode.');
     console.warn('WARNING: Using this mode in production CAN CAUSE DATA LOSS !!!');
+    console.warn('WARNING: CORS will be disabled. (This is a security risk).')
     console.warn('WARNING: If this is a production environment, please set the ENV variable to "prod" in the .env file.');
     console.log('Continuing in 5 seconds...');
     child_process.execSync('sleep 5'); // Can't use setTimeout because it's async
@@ -24,6 +25,14 @@ AppDataSource.initialize().then(async () => {
     // Initialize the express app
     const app: Express = express();
     app.use(bodyParser.json());
+
+    // Disable CORS in development mode
+    if(process.env.ENV !== 'prod') {
+        app.use((req, res, next) => {
+            res.header('Access-Control-Allow-Origin', '*');
+            next();
+        });   
+    }
 
     // Initialize the routes
     app.use('/docs', express.static('docs'));
