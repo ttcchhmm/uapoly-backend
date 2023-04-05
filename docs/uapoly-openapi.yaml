@@ -1,0 +1,435 @@
+openapi: 3.0.3
+info:
+  title: UApoly
+  version: '1.0'
+  description: The API specification for interacting with the UApoly backend.
+  x-logo:
+    url: /docs/Logo.webp
+servers:
+  - url: http://localhost:{port}
+    description: Local instance
+    variables:
+      port:
+        default: '3000'
+        description: The port where the local instance of the UApoly backend is running.
+    x-last-modified: 1680690602604
+paths:
+  /user/login:
+    summary: Log-in an user.
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: 'A JSON object with the following attributes :'
+              required:
+                - login
+                - password
+              type: object
+              properties:
+                login:
+                  description: The name of the account
+                  type: string
+                password:
+                  description: The password of the account
+                  type: string
+            example:
+              login: tchm
+              password: password
+        required: true
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              example:
+                token: USER_TOKEN
+          description: Successful authentification.
+          x-last-modified: 1680685519518
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing login or password
+          description: Missing login or password
+          x-last-modified: 1680685718584
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Invalid password
+          description: Authentification failure.
+          x-last-modified: 1680685787933
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: User not found
+          description: Invalid login.
+          x-last-modified: 1680685662119
+      operationId: /user/login
+      summary: Logs in an user
+      description: Get a security token for a user, effectively logging them in.
+    x-last-modified: 1680684450769
+  /user/register:
+    summary: Create a new account
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: 'A JSON object with the following attributes :'
+              required:
+                - login
+                - password
+                - email
+              type: object
+              properties:
+                login:
+                  description: The name of the new account
+                  type: string
+                password:
+                  description: The password of the new account
+                  type: string
+                email:
+                  description: The email of the new account
+                  type: string
+            example:
+              login: tchm
+              password: password
+              email: tchm@example.org
+        required: true
+      tags: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              example:
+                token: USER_TOKEN
+          description: Account created
+          x-last-modified: 1680686689900
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing login, password or email
+          description: Missing or invalid login, password or email
+          x-last-modified: 1680686490021
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Login already taken
+          description: Login already taken
+          x-last-modified: 1680686627305
+      operationId: /user/register
+      summary: Create a new account
+      description: >-
+        Create a new account. Also returns a security token for the newly
+        created account, logging them in.
+    x-last-modified: 1680686045560
+  /user/me:
+    summary: Get details about the current account
+    get:
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: 'A JSON object with the following attributes :'
+                required:
+                  - login
+                  - email
+                type: object
+                properties:
+                  login:
+                    description: The name of the current account
+                    type: string
+                  email:
+                    description: The email associated with the current account
+                    type: string
+                externalDocs:
+                  description: ''
+                  url: ''
+                example: ''
+              example:
+                login: tchm
+                email: tchm@example.org
+          description: ''
+          x-last-modified: 1680687881073
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: User not found
+          description: User not found
+          x-last-modified: 1680687810041
+      operationId: /user/me
+      summary: Get details about the current account.
+      description: Returns account details for the currently logged in user.
+    x-last-modified: 1680687612749
+  /friend:
+    summary: Get the user's friend list
+    description: Get the friend list associated with the currently logged-in user.
+    get:
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+              example: ''
+          description: A JSON array containing the friend list.
+          x-last-modified: 1680688989769
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Account not found
+          description: Account not found
+          x-last-modified: 1680691111163
+      operationId: /friend
+      summary: Get the user's friend list
+      description: Get the friend list associated with the currently logged-in user.
+    x-last-modified: 1680688852703
+  /friends/pending:
+    summary: Get pending friend requests
+    description: Get pending friend requests, both sent and received.
+    get:
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: An JSON object containing sent and received friend requests
+                required:
+                  - sent
+                  - received
+                type: object
+                properties:
+                  sent:
+                    $ref: '#/components/schemas/FriendList'
+                  received:
+                    $ref: '#/components/schemas/FriendList'
+                externalDocs:
+                  description: ''
+                  url: ''
+                example: ''
+              example:
+                sent: []
+                received:
+                  - firstAccountLogin: Gyrehio
+                    secondAccountLogin: tchm
+                    accepted: false
+          description: Get pending requests, both sent and received
+          x-last-modified: 1680691329433
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Account not found
+          description: Account not found
+          x-last-modified: 1680691354099
+      operationId: /friends/pending
+      summary: Get pending friend requests
+      description: Get pending friend requests, both sent and received.
+    x-last-modified: 1680690055919
+  /friend/add:
+    summary: Send or accept a friend request
+    description: Send or accept a friend request
+    post:
+      requestBody:
+        description: The name of account to send/accept the friend request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountName'
+        required: true
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Friend request accepted
+          description: Friend request sent or accepted
+          x-last-modified: 1680692305903
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing friend login
+          description: Missing account name, already friends or request already sent
+          x-last-modified: 1680691992048
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Account not found
+          description: Account not found
+          x-last-modified: 1680692091144
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Cannot add yourself
+          description: Cannot add yourself
+          x-last-modified: 1680692051833
+      operationId: /friend/add
+      summary: Send or accept a friend request
+      description: Send or accept a friend request
+    x-last-modified: 1680691558576
+  /friend/remove:
+    summary: Remove a friend or deny a friend request
+    description: Remove a friend or deny a friend request
+    post:
+      tags: []
+      summary: Remove a friend or deny a friend request
+      description: Remove a friend or deny a friend request
+      operationId: /friend/remove
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountName'
+            example:
+              login: tchm
+      responses:
+        '200':
+          description: Deleted the friend or friend request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Friend removed
+          x-last-modified: 1680692698733
+          headers: {}
+          links: {}
+        '400':
+          description: Missing friend login, or not friends
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing friend login
+          x-last-modified: 1680692590583
+          headers: {}
+          links: {}
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Recipient not found
+          x-last-modified: 1680692626653
+    x-last-modified: 1680692490961
+components:
+  schemas:
+    Friend:
+      description: Represents a friend request.
+      required:
+        - firstAccountLogin
+        - secondAccountLogin
+        - accepted
+      type: object
+      properties:
+        firstAccountLogin:
+          description: The name of the sender account
+          type: string
+        secondAccountLogin:
+          description: The name of the receiver account
+          type: string
+        accepted:
+          description: True if the request is accepted, false if it's pending.
+          type: boolean
+      x-last-modified: 1680688756160
+    FriendList:
+      description: A JSON array containing a friend list.
+      type: array
+      items:
+        $ref: '#/components/schemas/Friend'
+        description: A friend
+      x-last-modified: 1680689436014
+    Token:
+      description: >-
+        An object containing a security token, allowing to do actions as the
+        user associated with it.
+      required:
+        - token
+      type: object
+      properties:
+        token:
+          description: A security token
+          type: string
+      x-last-modified: 1680690400975
+    AccountName:
+      description: An object representing an account name
+      required:
+        - login
+      type: object
+      properties:
+        login:
+          description: The name of an account
+          type: string
+      x-last-modified: 1680691637662
+    Message:
+      description: Represents an message, either a success or an error
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          description: The message
+          type: string
+      x-last-modified: 1680692391186
+  securitySchemes:
+    JWTAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: |-
+        Example: 
+        > Authorization: Bearer <token>
+      x-last-modified: 1680684271664
+  headers: {}
+  responses: {}
+  parameters: {}
+security:
+  - JWTAuth: []
+tags: []

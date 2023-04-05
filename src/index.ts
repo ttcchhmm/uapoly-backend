@@ -26,6 +26,7 @@ AppDataSource.initialize().then(async () => {
     app.use(bodyParser.json());
 
     // Initialize the routes
+    app.use('/docs', express.static('docs'));
     app.use('/user', UserRouter);
     app.use('/friend', FriendRouter);
 
