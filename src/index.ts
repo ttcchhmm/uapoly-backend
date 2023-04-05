@@ -18,6 +18,7 @@ import * as bodyParser from "body-parser";
 
 import { UserRouter } from "./routes/UserRouter";
 import { FriendRouter } from './routes/FriendRouter';
+import { HTTPError } from './utils/HTTPError';
 
 AppDataSource.initialize().then(async () => {
     console.log('Database connection established');
@@ -38,6 +39,23 @@ AppDataSource.initialize().then(async () => {
     app.use('/docs', express.static('docs'));
     app.use('/user', UserRouter);
     app.use('/friend', FriendRouter);
+
+    // Handle 404
+    app.use((req, res, next) => {
+        next(new HTTPError(404, 'Not Found'));
+    });
+
+    // Handle errors
+    app.use((err: HTTPError, req, res, next) => {
+        // Specific HTTP error
+        if(err.status) {
+            return res.status(err.status).json({ message: err.message });
+        }
+
+        // Generic error, log it and turn it into a 500
+        console.error(err);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    });
 
     // Start the server
     app.listen(process.env.PORT, () => {
