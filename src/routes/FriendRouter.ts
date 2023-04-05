@@ -45,7 +45,7 @@ FriendRouter.post('/add', authenticateRequest, async (req: AuthenticatedRequest,
 
     // Check if the friend is not the current account
     if(req.body.login === req.user.login) {
-        return res.status(400).json({ message: 'Cannot add yourself' });
+        return res.status(409).json({ message: 'Cannot add yourself' });
     }
 
     // Find the current account
