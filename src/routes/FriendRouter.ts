@@ -90,3 +90,52 @@ FriendRouter.post('/add', authenticateRequest, async (req: AuthenticatedRequest,
         return res.json({ message: 'Friend request sent' });
     }
 });
+
+FriendRouter.post('/remove', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
+    if(!checkBody(req.body, 'login')) {
+        return res.status(400).json({ message: 'Missing friend login' });
+    }
+
+    // Find the current account
+    const account = await accountRepo.findOneBy({ login: req.user.login });
+
+    if(!account) {
+        return res.status(404).json({ message: 'Account not found' });
+    }
+
+    // Find the friend
+    const friend = await accountRepo.findOneBy({ login: req.body.login });
+
+    // Check if the friend exists
+    if(!friend) {
+        return res.status(404).json({ message: 'Recipient not found' });
+    }
+
+    // The sent friend request if it exists, null otherwise
+    const sentFriendRequest = friendRepo.findOneBy({
+        firstAccountLogin: account.login,
+        secondAccountLogin: friend.login,
+    });
+
+    // The received friend request if it exists, null otherwise
+    const receivedFriendRequest = friendRepo.findOneBy({
+        firstAccountLogin: friend.login,
+        secondAccountLogin: account.login,
+    });
+
+    // Remove the friend request if it exists
+    Promise.all([receivedFriendRequest, sentFriendRequest]).then(([received, sent]) => {
+        if(received) {
+            friendRepo.remove(received);
+        } if(sent) {
+            friendRepo.remove(sent);
+        }
+
+        if(received || sent) {
+            return res.json({ message: 'Friend removed' });
+        } else {
+            return res.status(400).json({ message: 'Not friends' });
+        }
+    });
+});
