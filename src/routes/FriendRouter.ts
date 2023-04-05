@@ -76,14 +76,6 @@ FriendRouter.post('/add', authenticateRequest, async (req: AuthenticatedRequest,
     // The received friend request if it exists, undefined otherwise
     const receivedRequest = (await account.receivedFriendRequests).find(friend => friend.firstAccountLogin === req.body.login && !friend.accepted);
 
-    console.log({
-        receivedRequest,
-        friends: account.getFriends(),
-        isFriend: account.isFriendWith(friend),
-        receivedRequests: account.receivedFriendRequests,
-        sentRequest: account.sentFriendRequests,
-    });
-
     if(receivedRequest) { // Accept the friend request
         receivedRequest.accepted = true;
         await friendRepo.save(receivedRequest);
