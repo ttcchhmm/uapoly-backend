@@ -53,6 +53,11 @@ export class Account {
             );
     }
 
+    /**
+     * Checks if the account is friend with another account.
+     * @param account The account to check if the account is friend with.
+     * @returns True if the account is friend with the account, false otherwise.
+     */
     async isFriendWith(account: Account) {
         return (await this.getFriends()).some(friend => friend.firstAccountLogin === account.login || friend.secondAccountLogin === account.login);
     }
