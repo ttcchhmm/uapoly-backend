@@ -64,7 +64,7 @@ FriendRouter.post('/add', authenticateRequest, async (req: AuthenticatedRequest,
     }
 
     // Check if the friend is already added
-    if(account.isFriendWith(friend)) {
+    if(await account.isFriendWith(friend)) {
         return res.status(400).json({ message: 'Already friends' });
     }
 
