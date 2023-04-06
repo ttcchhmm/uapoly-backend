@@ -314,51 +314,106 @@ paths:
     summary: Remove a friend or deny a friend request
     description: Remove a friend or deny a friend request
     post:
-      tags: []
-      summary: Remove a friend or deny a friend request
-      description: Remove a friend or deny a friend request
-      operationId: /friend/remove
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/AccountName'
             example:
               login: tchm
+        required: true
+      tags: []
       responses:
         '200':
-          description: Deleted the friend or friend request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Friend removed
+          description: Deleted the friend or friend request
           x-last-modified: 1680692698733
-          headers: {}
-          links: {}
         '400':
-          description: Missing friend login, or not friends
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Missing friend login
+          description: Missing friend login, or not friends
           x-last-modified: 1680692590583
-          headers: {}
-          links: {}
         '404':
-          description: Account not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Recipient not found
+          description: Account not found
           x-last-modified: 1680692626653
+      operationId: /friend/remove
+      summary: Remove a friend or deny a friend request
+      description: Remove a friend or deny a friend request
     x-last-modified: 1680692490961
+  /user/search:
+    summary: Search for usernames.
+    description: Search for usernames.
+    post:
+      tags: []
+      operationId: /user/search
+      summary: Search for usernames
+      description: Search for usernames
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+              properties:
+                login:
+                  description: The search query
+                  type: string
+                page:
+                  description: >-
+                    If there are more than 10 results, select the page to get.
+                    Defaults to 1 if unspecified
+                  type: integer
+                  minimum: 1
+              enum: null
+              description: ''
+              example: ''
+              externalDocs:
+                url: ''
+                description: ''
+            example:
+              login: h
+              page: 1
+            encoding: ''
+      responses:
+        '200':
+          description: A JSON array containing the results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountList'
+              example:
+                - login: tchm
+                - login: Gyrehio
+          x-last-modified: 1680771346183
+          headers: {}
+          links: {}
+        '400':
+          description: Missing login or invalid page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Invalid page
+          x-last-modified: 1680771629794
+    x-last-modified: 1680771177197
 components:
   schemas:
     Friend:
@@ -418,6 +473,12 @@ components:
           description: The message
           type: string
       x-last-modified: 1680692391186
+    AccountList:
+      type: array
+      description: A list of accounts with their logins.
+      items:
+        $ref: '#/components/schemas/AccountName'
+      x-last-modified: 1680771126932
   securitySchemes:
     JWTAuth:
       scheme: bearer

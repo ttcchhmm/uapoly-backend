@@ -91,3 +91,24 @@ UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res
 
     return res.json(user);
 });
+
+UserRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    if(!checkBody(req.body, 'login')) {
+        return res.status(400).json({ message: 'Missing login' });
+    }
+
+    if(req.body.page && isNaN(req.body.page) || req.body.page < 1) {
+        return res.status(400).json({ message: 'Invalid page' });
+    }
+
+    const pageSize = 10;
+    const skipOffset = req.body.page ? (req.body.page - 1) * pageSize : 0;
+
+    const users = await accountRepo.createQueryBuilder('account')
+        .where('account.login LIKE :login', { login: `%${req.body.login}%` })
+        .skip(skipOffset)
+        .take(pageSize)
+        .getMany();
+
+    return res.json(users);
+});
