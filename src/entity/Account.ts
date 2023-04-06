@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
 import { Friend } from "./Friend";
+import { Player } from "./Player";
 
 /**
  * Represents an account in the database.
@@ -39,6 +40,12 @@ export class Account {
      */
     @OneToMany(() => Friend, friend => friend.secondAccount)
     receivedFriendRequests: Promise<Friend[]>;
+
+    /**
+     * The players represented by the account.
+     */
+    @OneToMany(() => Player, player => player.account, {eager: false})
+    players: Promise<Player[]>;
 
     /**
      * Queries the friends of the account.
