@@ -8,8 +8,12 @@ if(process.env.ENV !== 'prod') {
     console.warn('WARNING: Using this mode in production CAN CAUSE DATA LOSS !!!');
     console.warn('WARNING: CORS will be disabled. (This is a security risk).')
     console.warn('WARNING: If this is a production environment, please set the ENV variable to "prod" in the .env file.');
-    console.log('Continuing in 5 seconds...');
-    child_process.execSync('sleep 5'); // Can't use setTimeout because it's async
+    
+    // Allows the user to skip the wait (useful for debugging with nodemon)
+    if(!process.argv.includes('--skip-warnings-wait')) {
+        console.warn('WARNING: Waiting 5 seconds before continuing... (Use --skip-warnings-wait to skip this warning)')
+        child_process.execSync('sleep 5'); // Can't use setTimeout because it's async
+    }
 }
 
 import { AppDataSource } from "./data-source";
