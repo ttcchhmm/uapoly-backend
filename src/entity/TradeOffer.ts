@@ -1,5 +1,5 @@
 import { Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
-import { TradeItem } from "./Trade";
+import { TradeItem } from "./TradeItem";
 import { Message } from "./Message";
 
 /**

@@ -1,5 +1,5 @@
 import { ChildEntity, Column } from "typeorm";
-import { TradeItem } from "./Trade";
+import { TradeItem } from "./TradeItem";
 
 /**
  * A trade of out-of-jail cards.

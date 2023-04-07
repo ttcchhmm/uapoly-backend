@@ -1,6 +1,6 @@
 import { ChildEntity, ManyToOne } from "typeorm";
 import { BuyableSlot } from "./BuyableSlot";
-import { TradeItem } from "./Trade";
+import { TradeItem } from "./TradeItem";
 
 /**
  * A trade of a buyable slot.
