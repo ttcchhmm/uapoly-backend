@@ -8,9 +8,9 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USER || "uapoly",
     password: process.env.DB_PASSWORD || "uapoly",
     database: process.env.DB_NAME || "uapoly",
-    synchronize: process.env.ENV !== 'prod',
-    logging: false,
+    synchronize: false, // Never synchronise, even in development. Often breaks things.
+    logging: process.env.ENV !== 'prod',
     entities: ["src/entity/*.{js,ts}"],
-    migrations: [],
+    migrations: ["src/migrations/*.{js,ts}"],
     subscribers: [],
 });
