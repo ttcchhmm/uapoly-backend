@@ -212,7 +212,7 @@ paths:
       summary: Get the user's friend list
       description: Get the friend list associated with the currently logged-in user.
     x-last-modified: 1680688852703
-  /friends/pending:
+  /friend/pending:
     summary: Get pending friend requests
     description: Get pending friend requests, both sent and received.
     get:
@@ -253,7 +253,7 @@ paths:
                 message: Account not found
           description: Account not found
           x-last-modified: 1680691354099
-      operationId: /friends/pending
+      operationId: /friend/pending
       summary: Get pending friend requests
       description: Get pending friend requests, both sent and received.
     x-last-modified: 1680690055919
