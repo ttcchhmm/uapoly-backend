@@ -1,10 +1,11 @@
-import { Column } from "typeorm";
+import { ChildEntity, Column } from "typeorm";
 import { BoardSlot } from "./BoardSlot";
 import { Player } from "./Player";
 
 /**
  * Represents a slot that makes the player pay taxes.
  */
+@ChildEntity()
 export class TaxSlot extends BoardSlot {
     /**
      * The amount of money the player has to pay.

@@ -28,6 +28,9 @@ export class Board {
     @Column()
     salary: number;
 
+    /**
+     * The slots in the board.
+     */
     @OneToMany(() => BoardSlot, slot => slot.board, {eager: true})
     slots: BoardSlot[];
 }

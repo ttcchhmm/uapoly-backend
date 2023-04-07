@@ -1,11 +1,11 @@
-import { Entity } from "typeorm";
+import { ChildEntity } from "typeorm";
 import { BoardSlot } from "./BoardSlot";
 import { Player } from "./Player";
 
 /**
  * Represents a slot that sends the player to jail.
  */
-@Entity()
+@ChildEntity()
 export class GoToJailSlot extends BoardSlot {
     constructor() {
         super();

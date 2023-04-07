@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn, TableInheritance } from "typeorm";
 import { Board } from "./Board";
 import { Player } from "./Player";
 
@@ -6,6 +6,7 @@ import { Player } from "./Player";
  * Represents a slot in a board.
  */
 @Entity()
+@TableInheritance({column: {type: "varchar", name: "type"}})
 export abstract class BoardSlot {
     /**
      * The ID of the board the slot is in.

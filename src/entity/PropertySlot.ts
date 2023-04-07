@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from "typeorm";
+import { ChildEntity, Column, OneToOne } from "typeorm";
 import { BuyableSlot } from "./BuyableSlot";
 import { Player } from "./Player";
 import { PropertyRent } from "./PropertyRent";
@@ -6,13 +6,13 @@ import { PropertyRent } from "./PropertyRent";
 /**
  * Represents a property slot.
  */
-@Entity()
+@ChildEntity()
 export class PropertySlot extends BuyableSlot {
     /**
      * The rent of the property.
      */
-    @OneToOne(() => PropertyRent)
-    rent: PropertyRent;
+    @Column(() => PropertyRent)
+    propertyRent: PropertyRent;
 
     /**
      * The color of the property.

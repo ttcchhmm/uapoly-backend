@@ -1,16 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, PrimaryGeneratedColumn } from "typeorm";
 
 /**
  * Utility rent
  */
-@Entity()
 export class UtilityRent {
-    /**
-     * The ID of the rent.
-     */
-    @PrimaryGeneratedColumn()
-    id: number;
-
     /**
      * The rent multiplier for 1 utility.
      */

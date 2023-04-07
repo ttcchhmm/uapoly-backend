@@ -1,16 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, PrimaryGeneratedColumn } from "typeorm";
 
 /**
  * Property rent
  */
-@Entity()
 export class PropertyRent {
-    /**
-     * The ID of the rent.
-     */
-    @PrimaryGeneratedColumn()
-    id: number;
-
     /**
      * The rent for 0 buildings.
      */
@@ -46,4 +39,4 @@ export class PropertyRent {
      */
     @Column()
     hotel: number;
-}
+}   

@@ -1,10 +1,16 @@
 import { BoardSlot } from "./BoardSlot";
 import { Player } from "./Player";
 import { CardStyle } from "../enums/CardStyle";
-import { Column, Entity } from "typeorm";
+import { Column, ChildEntity } from "typeorm";
 
-@Entity()
+/**
+ * Represents a slot that draws a card.
+ */
+@ChildEntity()
 export class CardSlot extends BoardSlot {
+    /**
+     * The style of the card.
+     */
     @Column()
     cardStyle: CardStyle;
 

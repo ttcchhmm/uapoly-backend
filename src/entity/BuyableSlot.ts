@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { ChildEntity, Column, ManyToOne } from "typeorm";
 import { BoardSlot } from "./BoardSlot";
 import { Player } from "./Player";
 import { BuyableSlotState } from "../enums/BuyableSlotState";
@@ -6,7 +6,7 @@ import { BuyableSlotState } from "../enums/BuyableSlotState";
 /**
  * Represents a slot that can be bought by a player.
  */
-@Entity()
+@ChildEntity()
 export abstract class BuyableSlot extends BoardSlot {
     /**
      * The price of the slot.
