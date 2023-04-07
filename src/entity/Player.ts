@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedCo
 import { Account } from "./Account";
 import { Board } from "./Board";
 import { BuyableSlot } from "./BuyableSlot";
+import { Message } from "./Message";
 
 /**
  * Represents a player in the database.
@@ -68,6 +69,21 @@ export class Player {
     @Column()
     isGameMaster: boolean;
 
+    /**
+     * The properties owned by the player.
+     */
     @OneToMany(() => BuyableSlot, property => property.owner, {eager: true})
     ownedProperties: BuyableSlot[];
+
+    /**
+     * The private messages the player has received.
+     */
+    @OneToMany(() => Message, message => message.recipient, {eager: false})
+    privateMessagesReceived: Promise<Message[]>;
+
+    /**
+     * The messages the player has sent.
+     */
+    @OneToMany(() => Message, message => message.sender, {eager: false})
+    messagesSent: Promise<Message[]>;
 }

@@ -1,7 +1,8 @@
-import { ChildEntity, Column, ManyToOne } from "typeorm";
+import { ChildEntity, Column, ManyToOne, OneToMany } from "typeorm";
 import { BoardSlot } from "./BoardSlot";
 import { Player } from "./Player";
 import { BuyableSlotState } from "../enums/BuyableSlotState";
+import { BuyableSlotTrade } from "./BuyableSlotTrade";
 
 /**
  * Represents a slot that can be bought by a player.
@@ -25,6 +26,12 @@ export abstract class BuyableSlot extends BoardSlot {
      */
     @Column()
     state: BuyableSlotState;
+
+    /**
+     * The trades that are made for this slot.
+     */
+    @OneToMany(type => BuyableSlotTrade, buyableSlotTrade => buyableSlotTrade.buyableSlot)
+    trades: Promise<BuyableSlotTrade[]>;
 
     constructor(price: number) {
         super();

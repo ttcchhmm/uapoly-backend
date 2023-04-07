@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { Player } from "./Player";
 import { BoardSlot } from "./BoardSlot";
+import { Message } from "./Message";
 
 @Entity()
 export class Board {
@@ -33,4 +34,10 @@ export class Board {
      */
     @OneToMany(() => BoardSlot, slot => slot.board, {eager: true})
     slots: BoardSlot[];
+
+    /**
+     * The chat messages regarding the current game.
+     */
+    @OneToMany(() => Message, message => message.board, {eager: true})
+    messages: Message[];
 }
