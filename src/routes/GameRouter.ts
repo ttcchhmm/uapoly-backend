@@ -22,18 +22,23 @@ const slotRepo = AppDataSource.getRepository(BoardSlot);
 // ### GAME MANAGEMENT ### //
 
 GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
     if(!checkBody(req.body, 'salary')) {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 
+    // Get the user
     const user = await accountRepo.findOneBy({login: req.user.login});
 
+    // Check if the user exists
     if(!user) {
         return res.status(404).json({ message: 'User not found' });
     }
 
     const board = new Board();
     const player = new Player();
+
+    // TODO: Review default values ?
 
     player.account = user;
     player.game = board;
@@ -56,6 +61,8 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
         return slot;
     });
+
+    // Save the new game in the database
 
     await boardRepo.save(board);
 
