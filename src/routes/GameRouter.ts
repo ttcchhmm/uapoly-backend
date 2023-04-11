@@ -63,10 +63,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     });
 
     // Save the new game in the database
-
-    await boardRepo.save(board);
-
-    await playerRepo.save(player);
+    await Promise.all([boardRepo.save(board), playerRepo.save(player)]);
 
     return res.status(200).json({ gameId: board.id });
 });
