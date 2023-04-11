@@ -21,9 +21,15 @@ export abstract class BoardSlot {
     board: Board;
 
     /**
-     * The name of the slot.
+     * The position of the slot in the board.
      */
     @PrimaryColumn()
+    position: number;
+
+    /**
+     * The name of the slot.
+     */
+    @Column()
     name: string;
 
     /**
@@ -37,12 +43,6 @@ export abstract class BoardSlot {
      */
     @Column()
     iconStyle: string;
-    
-    /**
-     * The position of the slot in the board.
-     */
-    @Column()
-    position: number;
 
     constructor(name: string, description: string, iconStyle: string, position: number) {
         this.name = name;
