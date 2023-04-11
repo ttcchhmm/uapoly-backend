@@ -30,13 +30,22 @@ paths:
                 login:
                   description: The name of the account
                   type: string
+                  pattern: ^([a-zA-Z]|[0-9]|-|_){4,15}$
                 password:
                   description: The password of the account
                   type: string
+                  minLength: 6
+              enum: null
+              example: ''
+              externalDocs:
+                url: ''
+                description: ''
             example:
               login: tchm
               password: password
+            encoding: ''
         required: true
+        description: ''
       tags: []
       responses:
         '200':
@@ -94,19 +103,28 @@ paths:
               type: object
               properties:
                 login:
-                  description: The name of the new account
+                  description: The name of the account
                   type: string
+                  pattern: ^([a-zA-Z]|[0-9]|-|_){4,15}$
                 password:
-                  description: The password of the new account
+                  description: The password of the account
                   type: string
+                  minLength: 6
                 email:
                   description: The email of the new account
                   type: string
+              enum: null
+              example: ''
+              externalDocs:
+                url: ''
+                description: ''
             example:
               login: tchm
               password: password
               email: tchm@example.org
+            encoding: ''
         required: true
+        description: ''
       tags: []
       responses:
         '201':
@@ -359,18 +377,14 @@ paths:
     summary: Search for usernames.
     description: Search for usernames.
     post:
-      tags: []
-      operationId: /user/search
-      summary: Search for usernames
-      description: Search for usernames
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
+              description: ''
               required:
                 - login
+              type: object
               properties:
                 login:
                   description: The search query
@@ -379,21 +393,19 @@ paths:
                   description: >-
                     If there are more than 10 results, select the page to get.
                     Defaults to 1 if unspecified
-                  type: integer
                   minimum: 1
-              enum: null
-              description: ''
-              example: ''
+                  type: integer
               externalDocs:
-                url: ''
                 description: ''
+                url: ''
+              example: ''
             example:
               login: h
               page: 1
-            encoding: ''
+        required: true
+      tags: []
       responses:
         '200':
-          description: A JSON array containing the results.
           content:
             application/json:
               schema:
@@ -401,18 +413,20 @@ paths:
               example:
                 - login: tchm
                 - login: Gyrehio
+          description: A JSON array containing the results.
           x-last-modified: 1680771346183
-          headers: {}
-          links: {}
         '400':
-          description: Missing login or invalid page.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Invalid page
+          description: Missing login or invalid page.
           x-last-modified: 1680771629794
+      operationId: /user/search
+      summary: Search for usernames
+      description: Search for usernames
     x-last-modified: 1680771177197
 components:
   schemas:
@@ -474,8 +488,8 @@ components:
           type: string
       x-last-modified: 1680692391186
     AccountList:
-      type: array
       description: A list of accounts with their logins.
+      type: array
       items:
         $ref: '#/components/schemas/AccountName'
       x-last-modified: 1680771126932
