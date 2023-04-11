@@ -14,12 +14,8 @@ export class CardSlot extends BoardSlot {
     @Column()
     cardStyle: CardStyle;
 
-    constructor(cardStyle: CardStyle) {
-        super();
-        this.name = cardStyle;
-        this.description = "Draw a card.";
-        this.iconStyle = "card";
-
+    constructor(cardStyle: CardStyle, position: number) {
+        super(cardStyle, "Draw a card.", "card", position);
         this.cardStyle = cardStyle;
     }
 

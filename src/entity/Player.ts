@@ -19,7 +19,7 @@ export class Player {
      * The ID of the board the player is in.
      */
     @PrimaryColumn()
-    boardId: number;
+    gameId: number;
 
     /**
      * The account representing the player.

@@ -7,12 +7,5 @@ import { Player } from "./Player";
  */
 @ChildEntity()
 export class RestSlot extends BoardSlot {
-    constructor() {
-        super();
-        this.name = "Rest";
-        this.description = "Take a break.";
-        this.iconStyle = "rest";
-    }
-
     onPlayerStop(player: Player) {} // Do nothing.
 }

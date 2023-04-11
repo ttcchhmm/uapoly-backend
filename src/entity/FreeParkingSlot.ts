@@ -7,11 +7,8 @@ import { Player } from "./Player";
  */
 @ChildEntity()
 export class FreeParkingSlot extends BoardSlot {
-    constructor() {
-        super();
-        this.name = "Free Parking";
-        this.description = "The next player to land on this slot will win the jackpot.";
-        this.iconStyle = "free-parking";
+    constructor(position: number) {
+        super("Free Parking", "The next player to land on this slot will win the jackpot.", "free-parking", position);
     }
 
     // TODO: Implement this method.

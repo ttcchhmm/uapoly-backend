@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { BoardSlot } from "./BoardSlot";
 import { Message } from "./Message";
@@ -8,7 +8,7 @@ export class Board {
     /**
      * The ID of the board.
      */
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
     id: number;
 
     /**
@@ -32,7 +32,7 @@ export class Board {
     /**
      * The slots in the board.
      */
-    @OneToMany(() => BoardSlot, slot => slot.board, {eager: true})
+    @OneToMany(() => BoardSlot, slot => slot.board, {eager: true, cascade: true})
     slots: BoardSlot[];
 
     /**

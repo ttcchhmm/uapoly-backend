@@ -13,12 +13,8 @@ export class TaxSlot extends BoardSlot {
     @Column()
     amount: number;
 
-    constructor(amount: number) {
-        super();
-        this.name = "Tax";
-        this.description = `Pay $${amount} in taxes.`;
-        this.iconStyle = "tax";
-
+    constructor(amount: number, position: number) {
+        super("Tax", `Pay $${amount} in taxes.`, "tax", position);
         this.amount = amount;
     }
 

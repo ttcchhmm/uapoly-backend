@@ -37,6 +37,19 @@ export abstract class BoardSlot {
      */
     @Column()
     iconStyle: string;
+    
+    /**
+     * The position of the slot in the board.
+     */
+    @Column()
+    position: number;
+
+    constructor(name: string, description: string, iconStyle: string, position: number) {
+        this.name = name;
+        this.description = description;
+        this.iconStyle = iconStyle;
+        this.position = position;
+    }
 
     /**
      * The action to perform when a player lands on the slot.

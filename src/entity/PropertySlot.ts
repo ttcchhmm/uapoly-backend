@@ -26,6 +26,11 @@ export class PropertySlot extends BuyableSlot {
     @Column()
     numberOfBuildings: number;
 
+    constructor(name: string, description: string, iconStyle: string, position: number, price: number, color: string) {
+        super(name, description, iconStyle, position, price);
+        this.color = color;
+    }
+
     onPlayerStop(player: Player): void {
         throw new Error("Method not implemented."); // TODO: Implement this method.
     }

@@ -33,8 +33,8 @@ export abstract class BuyableSlot extends BoardSlot {
     @OneToMany(type => BuyableSlotTrade, buyableSlotTrade => buyableSlotTrade.buyableSlot)
     trades: Promise<BuyableSlotTrade[]>;
 
-    constructor(price: number) {
-        super();
+    constructor(name: string, description: string, iconStyle: string, position, price: number) {
+        super(name, description, iconStyle, position);
         this.price = price;
         this.owner = null;
     }
