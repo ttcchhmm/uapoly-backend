@@ -23,6 +23,7 @@ import * as bodyParser from "body-parser";
 import { UserRouter } from "./routes/UserRouter";
 import { FriendRouter } from './routes/FriendRouter';
 import { HTTPError } from './utils/HTTPError';
+import { GameRouter } from './routes/GameRouter';
 
 AppDataSource.initialize().then(async () => {
     console.log('Database connection established');
@@ -43,6 +44,7 @@ AppDataSource.initialize().then(async () => {
     app.use('/docs', express.static('docs'));
     app.use('/user', UserRouter);
     app.use('/friend', FriendRouter);
+    app.use('/game', GameRouter);
 
     // Handle 404
     app.use((req, res, next) => {
