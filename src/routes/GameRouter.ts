@@ -49,8 +49,6 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.jackpot = 0;
     board.salary = req.body.salary;
 
-    await boardRepo.save(board);
-
     // TODO: Allow for custom slots and/or other default sets.
     board.slots = AmericanSlots.map((slot) => {
         slot.board = board;
