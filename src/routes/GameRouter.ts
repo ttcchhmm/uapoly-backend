@@ -68,12 +68,75 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     return res.status(200).json({ gameId: board.id });
 });
 
-GameRouter.get('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    // TODO
+GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
+    if(!checkBody(req.body, 'page')) {
+        return res.status(400).json({ message: 'Missing arguments' });
+    }
+
+    // Check if the page number is valid
+    if(isNaN(req.body.page) || req.body.page <= 0) {
+        return res.status(400).json({ message: 'Invalid page number' });
+    }
+
+    // Get the boards
+    const pageSize = 10;
+    const skipOffset = (req.body.page - 1) * pageSize;
+
+    const boards = await boardRepo.createQueryBuilder('board')
+        .skip(skipOffset)
+        .take(pageSize)
+        .getMany();
+
+    return res.status(200).json(boards);
 });
 
 GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    // TODO
+    if(!checkBody(req.body, 'gameId')) {
+        return res.status(400).json({ message: 'Missing arguments' });
+    }
+
+    // Get the user
+    const user = await accountRepo.findOneBy({login: req.user.login});
+
+    // Check if the user exists
+    if(!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get the board
+    const board = await boardRepo.findOneBy({id: req.body.gameId});
+
+    // Check if the board exists
+    if(!board) {
+        return res.status(404).json({ message: 'Game not found' });
+    }
+
+    // Check if the user is already in the game
+    const player = await playerRepo.findOneBy({accountLogin: user.login, gameId: board.id});
+
+    if(player) {
+        return res.status(400).json({ message: 'You are already in this game' });
+    }
+
+    // Create the player
+    const newPlayer = new Player();
+    newPlayer.game = board;
+    newPlayer.gameId = board.id;
+    newPlayer.account = user;
+    newPlayer.accountLogin = user.login;
+    newPlayer.money = 2500;
+    newPlayer.iconStyle = 0;
+    newPlayer.outOfJailCards = 0;
+    newPlayer.currentSlotIndex = 0;
+    newPlayer.inJail = false;
+    newPlayer.isGameMaster = false;
+
+    // Save the player
+    await playerRepo.save(newPlayer);
+
+    return res.status(200).json({ message: 'Joined game' });
+
 });
 
 GameRouter.post('/delete', authenticateRequest, async (req: AuthenticatedRequest, res) => {
