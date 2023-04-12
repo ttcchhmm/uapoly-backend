@@ -39,4 +39,13 @@ export class PropertyRent {
      */
     @Column()
     hotel: number;
+
+    constructor(noBuildings: number, oneBuilding: number, twoBuildings: number, threeBuildings: number, fourBuildings: number, hotel: number) {
+        this.noBuildings = noBuildings;
+        this.oneBuilding = oneBuilding;
+        this.twoBuildings = twoBuildings;
+        this.threeBuildings = threeBuildings;
+        this.fourBuildings = fourBuildings;
+        this.hotel = hotel;
+    }
 }   

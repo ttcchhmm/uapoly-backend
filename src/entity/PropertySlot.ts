@@ -1,4 +1,4 @@
-import { ChildEntity, Column, OneToOne } from "typeorm";
+import { ChildEntity, Column } from "typeorm";
 import { BuyableSlot } from "./BuyableSlot";
 import { Player } from "./Player";
 import { PropertyRent } from "./PropertyRent";
@@ -26,9 +26,10 @@ export class PropertySlot extends BuyableSlot {
     @Column()
     numberOfBuildings: number;
 
-    constructor(name: string, description: string, iconStyle: string, position: number, price: number, color: string) {
+    constructor(name: string, description: string, iconStyle: string, position: number, price: number, color: string, propertyRent: PropertyRent) {
         super(name, description, iconStyle, position, price);
         this.color = color;
+        this.propertyRent = propertyRent;
     }
 
     onPlayerStop(player: Player): void {

@@ -15,4 +15,9 @@ export class UtilityRent {
      */
     @Column()
     twoUtilitiesMultiplier: number;
+
+    constructor(oneUtilityMultiplier: number, twoUtilitiesMultiplier: number) {
+        this.oneUtilityMultiplier = oneUtilityMultiplier;
+        this.twoUtilitiesMultiplier = twoUtilitiesMultiplier;
+    }
 }

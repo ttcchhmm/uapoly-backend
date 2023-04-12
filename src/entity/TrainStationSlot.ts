@@ -1,4 +1,4 @@
-import { ChildEntity, Column, OneToOne } from "typeorm";
+import { ChildEntity, Column } from "typeorm";
 import { BuyableSlot } from "./BuyableSlot";
 import { Player } from "./Player";
 import { TrainStationRent } from "./TrainStationRent";
@@ -13,6 +13,11 @@ export class TrainStationSlot extends BuyableSlot {
      */
     @Column(() => TrainStationRent)
     trainRent: TrainStationRent;
+
+    constructor(name: string, description: string, iconStyle: string, position: number, price: number, trainRent: TrainStationRent) {
+        super(name, description, iconStyle, position, price);
+        this.trainRent = trainRent;
+    }
 
     onPlayerStop(player: Player): void {
         throw new Error("Method not implemented."); // TODO: Implement this method.

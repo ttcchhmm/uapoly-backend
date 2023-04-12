@@ -27,4 +27,11 @@ export class TrainStationRent {
      */
     @Column()
     fourStations: number;
+
+    constructor(oneStation: number, twoStations: number, threeStations: number, fourStations: number) {
+        this.oneStation = oneStation;
+        this.twoStations = twoStations;
+        this.threeStations = threeStations;
+        this.fourStations = fourStations;
+    }
 }
