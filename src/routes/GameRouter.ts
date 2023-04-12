@@ -17,13 +17,12 @@ export const GameRouter = Router();
 const boardRepo = AppDataSource.getRepository(Board);
 const accountRepo = AppDataSource.getRepository(Account);
 const playerRepo = AppDataSource.getRepository(Player);
-const slotRepo = AppDataSource.getRepository(BoardSlot);
 
 // ### GAME MANAGEMENT ### //
 
 GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     // Check if the body contains the required fields
-    if(!checkBody(req.body, 'salary')) {
+    if(!checkBody(req.body, 'salary', 'initialMoney')) {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 
@@ -43,7 +42,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     player.account = user;
     player.game = board;
     player.gameId = board.id;
-    player.money = 2500;
+    player.money = req.body.initialMoney;
     player.iconStyle = 0;
     player.outOfJailCards = 0;
     player.currentSlotIndex = 0;
@@ -53,6 +52,9 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.players = [player];
     board.jackpot = 0;
     board.salary = req.body.salary;
+    board.initialMoney = req.body.initialMoney;
+    board.startingSlotIndex = 0;
+    board.started = false;
 
     // If a password is provided, set it
     if(req.body.password) {
@@ -104,7 +106,9 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
             id: board.id,
             players: board.players.length,
             salary: board.salary,
-            private: board.password !== null
+            initialMoney: board.initialMoney,
+            private: board.password !== null,
+            started: board.started,
         };
     }));
 });
@@ -127,10 +131,12 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
         select: {
             id: true,
             password: true,
+            initialMoney: true,
         },
         where: {
             id: req.body.gameId
-        }
+        },
+        relations: ['players']
     });
 
     // Check if the board exists
@@ -159,8 +165,8 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
     newPlayer.gameId = board.id;
     newPlayer.account = user;
     newPlayer.accountLogin = user.login;
-    newPlayer.money = 2500;
-    newPlayer.iconStyle = 0;
+    newPlayer.money = board.initialMoney;
+    newPlayer.iconStyle = board.players.length;
     newPlayer.outOfJailCards = 0;
     newPlayer.currentSlotIndex = 0;
     newPlayer.inJail = false;

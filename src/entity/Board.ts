@@ -30,6 +30,24 @@ export class Board {
     salary: number;
 
     /**
+     * The amount of money players get when they join the game.
+     */
+    @Column()
+    initialMoney: number;
+
+    /**
+     * Whether the game has started or not.
+     */
+    @Column()
+    started: boolean;
+
+    /**
+     * The index of the slot where the game starts.
+     */
+    @Column()
+    startingSlotIndex: number;
+
+    /**
      * The password of the game, null if it's a public game.
      */
     @Column({nullable: true, select: false})
