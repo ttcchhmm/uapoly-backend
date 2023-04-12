@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { BoardSlot } from "./BoardSlot";
 import { Message } from "./Message";
@@ -28,6 +28,12 @@ export class Board {
      */
     @Column()
     salary: number;
+
+    /**
+     * The password of the game, null if it's a public game.
+     */
+    @Column({nullable: true, select: false})
+    password: string | null;
 
     /**
      * The slots in the board.

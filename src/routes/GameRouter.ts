@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateRequest } from "../auth/Auth";
+import { authenticateRequest, checkPassword, hashPassword } from "../auth/Auth";
 import { AuthenticatedRequest } from "../auth/AuthenticatedRequest";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
@@ -54,6 +54,13 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.jackpot = 0;
     board.salary = req.body.salary;
 
+    // If a password is provided, set it
+    if(req.body.password) {
+        board.password = await hashPassword(req.body.password);
+    } else { // Public game
+        board.password = null;
+    }
+
     await boardRepo.save(board);
 
     // TODO: Allow for custom slots and/or other default sets.
@@ -67,7 +74,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     // Save the new game in the database
     await Promise.all([boardRepo.save(board), playerRepo.save(player)]);
 
-    return res.status(200).json({ gameId: board.id });
+    return res.status(200).json({ gameId: board.id, private: board.password !== null });
 });
 
 GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
@@ -86,11 +93,20 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
     const skipOffset = (req.body.page - 1) * pageSize;
 
     const boards = await boardRepo.createQueryBuilder('board')
+        .addSelect('board.password')
+        .leftJoinAndSelect('board.players', 'players')
         .skip(skipOffset)
         .take(pageSize)
         .getMany();
 
-    return res.status(200).json(boards);
+    return res.status(200).json(boards.map((board) => {
+        return {
+            id: board.id,
+            players: board.players.length,
+            salary: board.salary,
+            private: board.password !== null
+        };
+    }));
 });
 
 GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, res) => {
@@ -107,7 +123,15 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
     }
 
     // Get the board
-    const board = await boardRepo.findOneBy({id: req.body.gameId});
+    const board = await boardRepo.findOne({
+        select: {
+            id: true,
+            password: true,
+        },
+        where: {
+            id: req.body.gameId
+        }
+    });
 
     // Check if the board exists
     if(!board) {
@@ -119,6 +143,14 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
 
     if(player) {
         return res.status(400).json({ message: 'You are already in this game' });
+    }
+
+    if(board.password) {
+        if(!checkBody(req.body, 'password')) { // Check if the password is provided
+            return res.status(401).json({ message: 'Missing password' });
+        } else if(!await checkPassword(req.body.password, board.password)) { // Check if the password is correct
+            return res.status(403).json({ message: 'Invalid password' });
+        }
     }
 
     // Create the player
