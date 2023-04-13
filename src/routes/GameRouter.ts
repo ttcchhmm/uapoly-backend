@@ -10,6 +10,7 @@ import { AmericanSlots } from "../defaults/AmericanSlots";
 import { Friend } from "../entity/Friend";
 import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
 import { BoardSlot } from "../entity/BoardSlot";
+import { Slots } from "../defaults/Slots";
 
 /**
  * The router for the /game endpoint.
@@ -293,4 +294,30 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
     }
 
     return res.status(200).json({ message: 'Left game' });
+});
+
+// ### DEFAULT BOARDS ### //
+
+GameRouter.get('/boards', (req, res) => {
+    const response = {};
+
+    Object.keys(Slots).forEach((key) => {
+        response[key] = Slots[key].name;
+    });
+
+    return res.status(200).json(response);
+});
+
+GameRouter.post('/boards', (req, res) => {
+    if(!checkBody(req.body, 'locale')) {
+        return res.status(400).json({ message: 'Missing arguments' });
+    }
+
+    const localizedBoard = Slots[req.body.locale];
+
+    if(!localizedBoard) {
+        return res.status(404).json({ message: 'Invalid locale' });
+    }
+
+    return res.status(200).json(localizedBoard.slots.map((slot: BoardSlot) => slot.getSimplified()));
 });
