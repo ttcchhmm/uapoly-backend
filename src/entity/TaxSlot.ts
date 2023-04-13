@@ -18,6 +18,13 @@ export class TaxSlot extends BoardSlot {
         this.amount = amount;
     }
 
+    getSimplified() {
+        return {
+            amount: this.amount,
+            ...super.getSimplified(),
+        };
+    }
+
     // TODO: Implement this method.
     onPlayerStop(player: Player): void {
         throw new Error("Method not implemented.");

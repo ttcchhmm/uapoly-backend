@@ -39,6 +39,13 @@ export abstract class BuyableSlot extends BoardSlot {
         this.owner = null;
     }
 
+    getSimplified() {
+        return {
+            price: this.price,
+            ...super.getSimplified(),
+        };
+    }
+
     /**
      * Make a player buy the slot.
      */

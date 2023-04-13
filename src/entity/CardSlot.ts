@@ -24,4 +24,10 @@ export class CardSlot extends BoardSlot {
         throw new Error("Method not implemented.");
     }
 
+    getSimplified() {
+        return {
+            cardStyle: this.cardStyle,
+            ...super.getSimplified(),
+        };
+    }
 }

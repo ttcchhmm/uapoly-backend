@@ -32,6 +32,14 @@ export class PropertySlot extends BuyableSlot {
         this.propertyRent = propertyRent;
     }
 
+    getSimplified() {
+        return {
+            color: this.color,
+            propertyRent: this.propertyRent,
+            ...super.getSimplified(),
+        };
+    }
+
     onPlayerStop(player: Player): void {
         throw new Error("Method not implemented."); // TODO: Implement this method.
     }

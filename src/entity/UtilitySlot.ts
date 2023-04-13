@@ -15,6 +15,13 @@ export class UtilitySlot extends BuyableSlot {
         throw new Error("Method not implemented."); // TODO: Implement this method.
     }
 
+    getSimplified() {
+        return {
+            utilityRent: this.utilityRent,
+            ...super.getSimplified(),
+        };
+    }
+
     constructor(name: string, description: string, iconStyle: string, position: number, price: number, utilityRent: UtilityRent) {
         super(name, description, iconStyle, position, price);
         this.utilityRent = utilityRent;

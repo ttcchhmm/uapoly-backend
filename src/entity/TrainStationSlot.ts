@@ -19,6 +19,13 @@ export class TrainStationSlot extends BuyableSlot {
         this.trainRent = trainRent;
     }
 
+    getSimplified() {
+        return {
+            trainRent: this.trainRent,
+            ...super.getSimplified(),
+        };
+    }
+
     onPlayerStop(player: Player): void {
         throw new Error("Method not implemented."); // TODO: Implement this method.
     }

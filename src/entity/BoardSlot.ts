@@ -52,6 +52,18 @@ export abstract class BoardSlot {
     }
 
     /**
+     * Returns a simplified version of the slot, meant to be used in the lobby.
+     */
+    getSimplified() {
+        return {
+            name: this.name,
+            description: this.description,
+            iconStyle: this.iconStyle,
+            position: this.position,
+        };
+    }
+
+    /**
      * The action to perform when a player lands on the slot.
      * @param player The player that landed on the slot.
      */
