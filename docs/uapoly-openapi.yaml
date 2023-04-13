@@ -6,7 +6,7 @@ info:
   x-logo:
     url: /docs/Logo.webp
 servers:
-  - url: http://localhost:{port}
+  - url: 'http://localhost:{port}'
     description: Local instance
     variables:
       port:
@@ -30,20 +30,17 @@ paths:
                 login:
                   description: The name of the account
                   type: string
-                  pattern: ^([a-zA-Z]|[0-9]|-|_){4,15}$
+                  pattern: '^([a-zA-Z]|[0-9]|-|_){4,15}$'
                 password:
                   description: The password of the account
                   type: string
                   minLength: 6
-              enum: null
-              example: ''
               externalDocs:
                 url: ''
                 description: ''
             example:
               login: tchm
               password: password
-            encoding: ''
         required: true
         description: ''
       tags: []
@@ -86,7 +83,7 @@ paths:
           x-last-modified: 1680685662119
       operationId: /user/login
       summary: Logs in an user
-      description: Get a security token for a user, effectively logging them in.
+      description: 'Get a security token for a user, effectively logging them in.'
     x-last-modified: 1680684450769
   /user/register:
     summary: Create a new account
@@ -105,7 +102,7 @@ paths:
                 login:
                   description: The name of the account
                   type: string
-                  pattern: ^([a-zA-Z]|[0-9]|-|_){4,15}$
+                  pattern: '^([a-zA-Z]|[0-9]|-|_){4,15}$'
                 password:
                   description: The password of the account
                   type: string
@@ -113,8 +110,6 @@ paths:
                 email:
                   description: The email of the new account
                   type: string
-              enum: null
-              example: ''
               externalDocs:
                 url: ''
                 description: ''
@@ -122,7 +117,6 @@ paths:
               login: tchm
               password: password
               email: tchm@example.org
-            encoding: ''
         required: true
         description: ''
       tags: []
@@ -142,8 +136,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Message'
               example:
-                message: Missing login, password or email
-          description: Missing or invalid login, password or email
+                message: 'Missing login, password or email'
+          description: 'Missing or invalid login, password or email'
           x-last-modified: 1680686490021
         '409':
           content:
@@ -156,9 +150,7 @@ paths:
           x-last-modified: 1680686627305
       operationId: /user/register
       summary: Create a new account
-      description: >-
-        Create a new account. Also returns a security token for the newly
-        created account, logging them in.
+      description: 'Create a new account. Also returns a security token for the newly created account, logging them in.'
     x-last-modified: 1680686045560
   /user/me:
     summary: Get details about the current account
@@ -184,7 +176,6 @@ paths:
                 externalDocs:
                   description: ''
                   url: ''
-                example: ''
               example:
                 login: tchm
                 email: tchm@example.org
@@ -214,7 +205,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FriendList'
-              example: ''
           description: A JSON array containing the friend list.
           x-last-modified: 1680688989769
         '404':
@@ -232,7 +222,7 @@ paths:
     x-last-modified: 1680688852703
   /friend/pending:
     summary: Get pending friend requests
-    description: Get pending friend requests, both sent and received.
+    description: 'Get pending friend requests, both sent and received.'
     get:
       tags: []
       responses:
@@ -253,14 +243,13 @@ paths:
                 externalDocs:
                   description: ''
                   url: ''
-                example: ''
               example:
                 sent: []
                 received:
                   - firstAccountLogin: Gyrehio
                     secondAccountLogin: tchm
                     accepted: false
-          description: Get pending requests, both sent and received
+          description: 'Get pending requests, both sent and received'
           x-last-modified: 1680691329433
         '404':
           content:
@@ -273,7 +262,7 @@ paths:
           x-last-modified: 1680691354099
       operationId: /friend/pending
       summary: Get pending friend requests
-      description: Get pending friend requests, both sent and received.
+      description: 'Get pending friend requests, both sent and received.'
     x-last-modified: 1680690055919
   /friend/add:
     summary: Send or accept a friend request
@@ -304,7 +293,7 @@ paths:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Missing friend login
-          description: Missing account name, already friends or request already sent
+          description: 'Missing account name, already friends or request already sent'
           x-last-modified: 1680691992048
         '404':
           content:
@@ -358,7 +347,7 @@ paths:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Missing friend login
-          description: Missing friend login, or not friends
+          description: 'Missing friend login, or not friends'
           x-last-modified: 1680692590583
         '404':
           content:
@@ -390,15 +379,12 @@ paths:
                   description: The search query
                   type: string
                 page:
-                  description: >-
-                    If there are more than 10 results, select the page to get.
-                    Defaults to 1 if unspecified
+                  description: 'If there are more than 10 results, select the page to get. Defaults to 1 if unspecified'
                   minimum: 1
                   type: integer
               externalDocs:
                 description: ''
                 url: ''
-              example: ''
             example:
               login: h
               page: 1
@@ -428,6 +414,192 @@ paths:
       summary: Search for usernames
       description: Search for usernames
     x-last-modified: 1680771177197
+  /game/list:
+    post:
+      summary: Get the current games
+      operationId: /game/list
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameListPage'
+              examples:
+                Example:
+                  value:
+                    pageCount: 1
+                    games:
+                      - id: 2
+                        players: 1
+                        maxPlayers: 2147483647
+                        salary: 200
+                        initialMoney: 2500
+                        private: true
+                        started: false
+                        friendsOnly: false
+                      - id: 3
+                        players: 1
+                        maxPlayers: 2147483647
+                        salary: 200
+                        initialMoney: 2500
+                        private: false
+                        started: false
+                        friendsOnly: false
+        '400':
+          description: Missing argument or invalid page number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Invalid page number
+      description: Get the current games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  minimum: 1
+                  description: The requested page
+              required:
+                - page
+        description: 'A JSON object with :'
+  /game/create:
+    post:
+      summary: Create a new game
+      operationId: /game/create
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameMetadata'
+              examples:
+                Example:
+                  value:
+                    id: 1
+                    players: 1
+                    maxPlayers: 2
+                    salary: 0
+                    initialMoney: 1
+                    private: true
+                    started: true
+                    friendsOnly: true
+        '400':
+          description: Missing or invalid arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example 1:
+                  value:
+                    message: Invalid initial money
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: User not found
+      description: Create a new game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCreationMetadata'
+            examples:
+              Example:
+                value:
+                  maxPlayers: 2
+                  salary: 0
+                  initialMoney: 1
+                  friendsOnly: true
+                  password: pa$$word
+        description: 'A JSON object with :'
+  /game/join:
+    post:
+      summary: Join a game
+      operationId: /game/join
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Joined game
+        '400':
+          description: Missing or invalid arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: This game has already started
+        '401':
+          description: Missing password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Missing password
+        '403':
+          description: 'Invalid password, or not friends with the game master'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: You are not friends with the game master
+        '404':
+          description: Game or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Game not found
+      description: Join a game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameId:
+                  type: integer
+                  description: The ID of the game to join
+                  minimum: 1
+                password:
+                  type: string
+                  format: password
+                  description: 'The password of the game, if the game is private'
+              required:
+                - gameId
+        description: 'A JSON object with :'
 components:
   schemas:
     Friend:
@@ -445,7 +617,7 @@ components:
           description: The name of the receiver account
           type: string
         accepted:
-          description: True if the request is accepted, false if it's pending.
+          description: 'True if the request is accepted, false if it''s pending.'
           type: boolean
       x-last-modified: 1680688756160
     FriendList:
@@ -456,9 +628,7 @@ components:
         description: A friend
       x-last-modified: 1680689436014
     Token:
-      description: >-
-        An object containing a security token, allowing to do actions as the
-        user associated with it.
+      description: 'An object containing a security token, allowing to do actions as the user associated with it.'
       required:
         - token
       type: object
@@ -478,7 +648,7 @@ components:
           type: string
       x-last-modified: 1680691637662
     Message:
-      description: Represents an message, either a success or an error
+      description: 'Represents an message, either a success or an error'
       required:
         - message
       type: object
@@ -493,6 +663,130 @@ components:
       items:
         $ref: '#/components/schemas/AccountName'
       x-last-modified: 1680771126932
+    GameMetadata:
+      type: object
+      x-examples:
+        Example 1:
+          id: 2
+          players: 1
+          maxPlayers: 2147483647
+          salary: 200
+          initialMoney: 2500
+          private: true
+          started: false
+          friendsOnly: false
+      description: Describe a game's metadata
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: The game ID
+        players:
+          type: integer
+          minimum: 1
+          description: The amount of players currently in the game
+        maxPlayers:
+          type: integer
+          minimum: 2
+          description: The maximum amount of players
+          maximum: 2147483647
+        salary:
+          type: integer
+          description: The amout of money a player will get by passing the start slot
+        initialMoney:
+          type: integer
+          minimum: 1
+          description: The amount of money the players will start with
+        private:
+          type: boolean
+          description: 'True if the game is password-protected, false otherwise'
+        started:
+          type: boolean
+          description: 'True if the game has already started, false otherwise'
+        friendsOnly:
+          type: boolean
+          description: 'True if you need to be friends with the game master to join, false otherwise'
+      required:
+        - id
+        - players
+        - maxPlayers
+        - salary
+        - initialMoney
+        - private
+        - started
+        - friendsOnly
+    GameCreationMetadata:
+      type: object
+      x-examples:
+        Example 1:
+          maxPlayers: 4
+          salary: 200
+          initialMoney: 2500
+          password: password
+          friendsOnly: false
+      description: Describe a game's metadata
+      x-stoplight:
+        id: 049f57577e1e5
+      properties:
+        maxPlayers:
+          type: integer
+          minimum: 2
+          description: The maximum amount of players
+          maximum: 2147483647
+        salary:
+          type: integer
+          description: The amout of money a player will get by passing the start slot
+        initialMoney:
+          type: integer
+          minimum: 1
+          description: The amount of money the players will start with
+        friendsOnly:
+          type: boolean
+          description: 'True if you need to be friends with the game master to join, false otherwise'
+        password:
+          type: string
+          format: password
+          description: The password of the game. If not set the game will be public.
+      required:
+        - salary
+        - initialMoney
+        - friendsOnly
+    GameListPage:
+      type: object
+      x-examples:
+        Example 1:
+          pageCount: 1
+          games:
+            - id: 2
+              players: 1
+              maxPlayers: 2147483647
+              salary: 200
+              initialMoney: 2500
+              private: true
+              started: false
+              friendsOnly: false
+            - id: 3
+              players: 1
+              maxPlayers: 2147483647
+              salary: 200
+              initialMoney: 2500
+              private: false
+              started: false
+              friendsOnly: false
+      description: A page of games
+      properties:
+        pageCount:
+          type: integer
+          minimum: 1
+          description: The total page count
+        games:
+          type: array
+          description: The games currently on the server
+          items:
+            $ref: '#/components/schemas/GameMetadata'
+      required:
+        - pageCount
+        - games
   securitySchemes:
     JWTAuth:
       scheme: bearer
