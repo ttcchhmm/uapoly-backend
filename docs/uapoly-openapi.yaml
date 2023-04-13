@@ -84,6 +84,7 @@ paths:
       operationId: /user/login
       summary: Logs in an user
       description: 'Get a security token for a user, effectively logging them in.'
+      security: []
     x-last-modified: 1680684450769
   /user/register:
     summary: Create a new account
@@ -151,6 +152,7 @@ paths:
       operationId: /user/register
       summary: Create a new account
       description: 'Create a new account. Also returns a security token for the newly created account, logging them in.'
+      security: []
     x-last-modified: 1680686045560
   /user/me:
     summary: Get details about the current account
