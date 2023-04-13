@@ -9,6 +9,7 @@ import { checkBody } from "../utils/CheckBody";
 import { AmericanSlots } from "../defaults/AmericanSlots";
 import { Friend } from "../entity/Friend";
 import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
+import { BoardSlot } from "../entity/BoardSlot";
 
 /**
  * The router for the /game endpoint.
@@ -19,6 +20,7 @@ const boardRepo = AppDataSource.getRepository(Board);
 const accountRepo = AppDataSource.getRepository(Account);
 const playerRepo = AppDataSource.getRepository(Player);
 const friendRepo = AppDataSource.getRepository(Friend);
+const slotsRepo = AppDataSource.getRepository(BoardSlot);
 
 // ### GAME MANAGEMENT ### //
 
@@ -218,9 +220,73 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
     await playerRepo.save(newPlayer);
 
     return res.status(200).json({ message: 'Joined game' });
-
 });
 
-GameRouter.post('/delete', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    // TODO
+GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    if(!checkBody(req.body, 'gameId')) {
+        return res.status(400).json({ message: 'Missing arguments' });
+    }
+
+    // Get the user
+    const user = await accountRepo.findOneBy({login: req.user.login});
+
+    // Check if the user exists
+    if(!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get the board
+    const board = await boardRepo.findOne({
+        select: {
+            id: true,
+        },
+        where: {
+            id: req.body.gameId
+        },
+        relations: ['players'],
+        loadEagerRelations: false
+    });
+
+    // Check if the board exists
+    if(!board) {
+        return res.status(404).json({ message: 'Game not found' });
+    }
+
+    // Get the player
+    const player = await playerRepo.findOneBy({accountLogin: user.login, gameId: board.id});
+
+    // Check if the user is in the game
+    if(!player) {
+        return res.status(400).json({ message: 'You are not in this game' });
+    }
+
+    // Check if the game started
+    if(board.started) {
+        throw new Error('NOT IMPLEMENTED: Bankrupt player when leaving a started game'); // TODO: Bankrupt player
+    }
+
+    // Check if the player was the game master
+    if(player.isGameMaster) {
+        if(board.players.length === 1) { // Now the game is empty
+            // Remove the player
+            await playerRepo.remove(player);
+
+            // Remove the board
+            await slotsRepo.delete({ boardId: board.id });
+            await boardRepo.remove(board);
+        } else { // There are still players in the game
+            // Get the next player
+            const nextPlayer = board.players.find((p) => p.accountLogin !== player.accountLogin);
+
+            // Make the next player the game master
+            nextPlayer.isGameMaster = true;
+
+            await Promise.all([
+                playerRepo.save(nextPlayer),
+                playerRepo.remove(player), // Remove the player
+            ]);
+        }
+    }
+
+    return res.status(200).json({ message: 'Left game' });
 });
