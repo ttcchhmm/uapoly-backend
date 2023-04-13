@@ -18,7 +18,7 @@ let position = 0;
  * The default slots for the American version of the game.
  */
 export const AmericanSlots = [
-    new RestSlot("Start", "Collect $200 salary as you pass.", "start", position++),
+    new RestSlot("Start", "Collect salary as you pass.", "start", position++),
     new PropertySlot("Mediterranean Avenue", "Buy this property for $60.", "brown", position++, 60, "brown", Rents.next().value),
     new CardSlot(CardStyle.COMMUNITY, position++),
     new PropertySlot("Baltic Avenue", "Buy this property for $60.", "brown", position++, 60, "brown", Rents.next().value),
