@@ -84,10 +84,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     // Save the new game in the database
     await Promise.all([boardRepo.save(board), playerRepo.save(player)]);
 
-    return res.status(200).json({
-        gameId: board.id, 
-        private: board.password !== null
-    });
+    return res.status(200).json(board.getSimplified());
 });
 
 GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
@@ -105,25 +102,21 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
     const pageSize = 10;
     const skipOffset = (req.body.page - 1) * pageSize;
 
-    const boards = await boardRepo.createQueryBuilder('board')
+    const [boards, boardCount] = await Promise.all([
+        boardRepo.createQueryBuilder('board')
         .addSelect('board.password')
         .leftJoinAndSelect('board.players', 'players')
         .skip(skipOffset)
         .take(pageSize)
-        .getMany();
+        .getMany(),
 
-    return res.status(200).json(boards.map((board) => {
-        return {
-            id: board.id,
-            players: board.players.length,
-            maxPlayers: board.maxPlayers,
-            salary: board.salary,
-            initialMoney: board.initialMoney,
-            private: board.password !== null,
-            started: board.started,
-            friendsOnly: board.friendsOnly,
-        };
-    }));
+        boardRepo.count()
+    ]);
+
+    return res.status(200).json({
+        pageCount: Math.ceil(boardCount / pageSize),
+        games : boards.map((board) => board.getSimplified()),
+    });
 });
 
 GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, res) => {

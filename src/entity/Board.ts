@@ -90,4 +90,21 @@ export class Board {
 
         return gameMaster;
     }
+
+    /**
+     * Get a simplified version of the board, meant to be used in the lobby.
+     * @returns The simplified version of the board.
+     */
+    getSimplified() {
+        return {
+            id: this.id,
+            players: this.players.length,
+            maxPlayers: this.maxPlayers,
+            salary: this.salary,
+            initialMoney: this.initialMoney,
+            private: this.password !== null,
+            started: this.started,
+            friendsOnly: this.friendsOnly,
+        }
+    }
 }
