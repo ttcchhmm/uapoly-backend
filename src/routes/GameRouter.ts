@@ -42,6 +42,10 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
         return res.status(400).json({ message: 'Invalid max players' });
     }
 
+    if(req.body.initialMoney <= 0) {
+        return res.status(400).json({ message: 'Invalid initial money' });
+    }
+
     const board = new Board();
     const player = new Player();
 
