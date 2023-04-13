@@ -7,7 +7,8 @@ import { Account } from "../entity/Account";
 import { Player } from "../entity/Player";
 import { checkBody } from "../utils/CheckBody";
 import { AmericanSlots } from "../defaults/AmericanSlots";
-import { BoardSlot } from "../entity/BoardSlot";
+import { Friend } from "../entity/Friend";
+import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
 
 /**
  * The router for the /game endpoint.
@@ -17,12 +18,13 @@ export const GameRouter = Router();
 const boardRepo = AppDataSource.getRepository(Board);
 const accountRepo = AppDataSource.getRepository(Account);
 const playerRepo = AppDataSource.getRepository(Player);
+const friendRepo = AppDataSource.getRepository(Friend);
 
 // ### GAME MANAGEMENT ### //
 
 GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     // Check if the body contains the required fields
-    if(!checkBody(req.body, 'salary', 'initialMoney')) {
+    if(!checkBody(req.body, 'salary', 'initialMoney', 'friendsOnly')) {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 
@@ -32,6 +34,10 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     // Check if the user exists
     if(!user) {
         return res.status(404).json({ message: 'User not found' });
+    }
+
+    if(req.body.maxPlayers && req.body.maxPlayers < 2) {
+        return res.status(400).json({ message: 'Invalid max players' });
     }
 
     const board = new Board();
@@ -54,6 +60,8 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.salary = req.body.salary;
     board.initialMoney = req.body.initialMoney;
     board.startingSlotIndex = 0;
+    board.maxPlayers = req.body.maxPlayers ? req.body.maxPlayers : PGSQL_MAX_INT;
+    board.friendsOnly = req.body.friendsOnly;
     board.started = false;
 
     // If a password is provided, set it
@@ -76,7 +84,10 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     // Save the new game in the database
     await Promise.all([boardRepo.save(board), playerRepo.save(player)]);
 
-    return res.status(200).json({ gameId: board.id, private: board.password !== null });
+    return res.status(200).json({
+        gameId: board.id, 
+        private: board.password !== null
+    });
 });
 
 GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
@@ -105,10 +116,12 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
         return {
             id: board.id,
             players: board.players.length,
+            maxPlayers: board.maxPlayers,
             salary: board.salary,
             initialMoney: board.initialMoney,
             private: board.password !== null,
             started: board.started,
+            friendsOnly: board.friendsOnly,
         };
     }));
 });
@@ -132,11 +145,15 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
             id: true,
             password: true,
             initialMoney: true,
+            started: true,
+            maxPlayers: true,
+            friendsOnly: true,
         },
         where: {
             id: req.body.gameId
         },
-        relations: ['players']
+        relations: ['players'],
+        loadEagerRelations: false
     });
 
     // Check if the board exists
@@ -149,6 +166,38 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
 
     if(player) {
         return res.status(400).json({ message: 'You are already in this game' });
+    }
+
+    // Check if the game started
+    if(board.started) {
+        return res.status(400).json({ message: 'This game has already started' });
+    }
+
+    // Check if the game is full
+    if(board.maxPlayers <= board.players.length) {
+        return res.status(400).json({ message: 'This game is full' });
+    }
+
+    // Check if the game is friends only
+    if(board.friendsOnly) {
+        const friendCount = await friendRepo.count({
+            where: [
+                {
+                    firstAccountLogin: user.login,
+                    secondAccountLogin: board.getGameMaster().accountLogin,
+                    accepted: true,
+                },
+                {
+                    firstAccountLogin: board.getGameMaster().accountLogin,
+                    secondAccountLogin: user.login,
+                    accepted: true,
+                }
+            ]
+        });
+
+        if(friendCount === 0) {
+            return res.status(403).json({ message: 'You are not friends with the game master' });
+        }
     }
 
     if(board.password) {
@@ -168,7 +217,7 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
     newPlayer.money = board.initialMoney;
     newPlayer.iconStyle = board.players.length;
     newPlayer.outOfJailCards = 0;
-    newPlayer.currentSlotIndex = 0;
+    newPlayer.currentSlotIndex = board.startingSlotIndex;
     newPlayer.inJail = false;
     newPlayer.isGameMaster = false;
 

@@ -48,10 +48,22 @@ export class Board {
     startingSlotIndex: number;
 
     /**
+     * The maximum number of players in the game.
+     */
+    @Column()
+    maxPlayers: number;
+
+    /**
      * The password of the game, null if it's a public game.
      */
     @Column({nullable: true, select: false})
     password: string | null;
+
+    /**
+     * Whether the game is only accessible to friends or not.
+     */
+    @Column()
+    friendsOnly: boolean;
 
     /**
      * The slots in the board.
@@ -64,4 +76,18 @@ export class Board {
      */
     @OneToMany(() => Message, message => message.board, {eager: true})
     messages: Message[];
+
+    /**
+     * Searches for the game master of the game.
+     * @returns The game master of the game.
+     */
+    getGameMaster(): Player {
+        const gameMaster = this.players.find((player) => player.isGameMaster);
+
+        if(!gameMaster) {
+            throw new Error('Game master not found');
+        }
+
+        return gameMaster;
+    }
 }

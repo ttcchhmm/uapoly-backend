@@ -6,7 +6,7 @@
  */
 export function checkBody(body: any, ...keys: string[]): boolean {
     for (const key of keys) {
-        if (!body[key]) {
+        if (body[key] === undefined) {
             return false;
         }
     }
