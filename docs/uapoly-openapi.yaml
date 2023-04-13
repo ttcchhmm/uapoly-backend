@@ -1,4 +1,6 @@
-openapi: 3.0.3
+openapi: 3.1.0
+x-stoplight:
+  id: kdiu7x00gptfv
 info:
   title: UApoly
   version: '1.0'
@@ -602,6 +604,477 @@ paths:
               required:
                 - gameId
         description: 'A JSON object with :'
+  /game/boards:
+    get:
+      summary: Get localized boards
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                patternProperties:
+                  '[a-z]+-[A-Z]+':
+                    type: string
+                    description: 'The key is the corresponding locale, and the value is the localized name of the board'
+                x-examples:
+                  Example 1:
+                    en-US: United States Board
+                    fr-FR: Plateau Français
+              examples:
+                Example 1:
+                  value:
+                    en-US: United States Board
+                    fr-FR: Plateau Français
+      operationId: /game/boards-GET
+      description: Get the locales where the game is localized
+      security: []
+    post:
+      summary: Get a localized board
+      operationId: /game/boards-POST
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoardSlot'
+              examples:
+                Example:
+                  value:
+                    - name: Start
+                      description: Collect salary as you pass.
+                      iconStyle: start
+                      position: 0
+                    - color: brown
+                      propertyRent:
+                        noBuildings: 2
+                        oneBuilding: 10
+                        twoBuildings: 30
+                        threeBuildings: 90
+                        fourBuildings: 160
+                        hotel: 250
+                      price: 60
+                      name: Mediterranean Avenue
+                      description: Buy this property for $60.
+                      iconStyle: brown
+                      position: 1
+                    - cardStyle: Community Chest
+                      name: Community Chest
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 2
+                    - color: brown
+                      propertyRent:
+                        noBuildings: 4
+                        oneBuilding: 20
+                        twoBuildings: 60
+                        threeBuildings: 180
+                        fourBuildings: 320
+                        hotel: 450
+                      price: 60
+                      name: Baltic Avenue
+                      description: Buy this property for $60.
+                      iconStyle: brown
+                      position: 3
+                    - amount: 200
+                      name: Tax
+                      description: Pay $200 in taxes.
+                      iconStyle: tax
+                      position: 4
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: Reading Railroad
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 5
+                    - color: lightblue
+                      propertyRent:
+                        noBuildings: 6
+                        oneBuilding: 30
+                        twoBuildings: 90
+                        threeBuildings: 270
+                        fourBuildings: 400
+                        hotel: 550
+                      price: 100
+                      name: Oriental Avenue
+                      description: Buy this property for $100.
+                      iconStyle: lightblue
+                      position: 6
+                    - cardStyle: Chance
+                      name: Chance
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 7
+                    - color: lightblue
+                      propertyRent:
+                        noBuildings: 6
+                        oneBuilding: 30
+                        twoBuildings: 90
+                        threeBuildings: 270
+                        fourBuildings: 400
+                        hotel: 550
+                      price: 100
+                      name: Vermont Avenue
+                      description: Buy this property for $100.
+                      iconStyle: lightblue
+                      position: 8
+                    - color: lightblue
+                      propertyRent:
+                        noBuildings: 8
+                        oneBuilding: 40
+                        twoBuildings: 100
+                        threeBuildings: 300
+                        fourBuildings: 450
+                        hotel: 600
+                      price: 120
+                      name: Connecticut Avenue
+                      description: Buy this property for $120.
+                      iconStyle: lightblue
+                      position: 9
+                    - name: Jail
+                      description: Just visiting.
+                      iconStyle: jail
+                      position: 10
+                    - color: pink
+                      propertyRent:
+                        noBuildings: 10
+                        oneBuilding: 50
+                        twoBuildings: 150
+                        threeBuildings: 450
+                        fourBuildings: 625
+                        hotel: 750
+                      price: 140
+                      name: St. Charles Place
+                      description: Buy this property for $140.
+                      iconStyle: pink
+                      position: 11
+                    - utilityRent:
+                        oneUtilityMultiplier: 4
+                        twoUtilitiesMultiplier: 10
+                      price: 150
+                      name: Electric Company
+                      description: Buy this property for $150.
+                      iconStyle: utility
+                      position: 12
+                    - color: pink
+                      propertyRent:
+                        noBuildings: 10
+                        oneBuilding: 50
+                        twoBuildings: 150
+                        threeBuildings: 450
+                        fourBuildings: 625
+                        hotel: 750
+                      price: 140
+                      name: States Avenue
+                      description: Buy this property for $140.
+                      iconStyle: pink
+                      position: 13
+                    - color: pink
+                      propertyRent:
+                        noBuildings: 12
+                        oneBuilding: 60
+                        twoBuildings: 180
+                        threeBuildings: 500
+                        fourBuildings: 700
+                        hotel: 900
+                      price: 160
+                      name: Virginia Avenue
+                      description: Buy this property for $160.
+                      iconStyle: pink
+                      position: 14
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: Pennsylvania Railroad
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 15
+                    - color: orange
+                      propertyRent:
+                        noBuildings: 14
+                        oneBuilding: 70
+                        twoBuildings: 200
+                        threeBuildings: 550
+                        fourBuildings: 750
+                        hotel: 950
+                      price: 180
+                      name: St. James Place
+                      description: Buy this property for $180.
+                      iconStyle: orange
+                      position: 16
+                    - cardStyle: Community Chest
+                      name: Community Chest
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 17
+                    - color: orange
+                      propertyRent:
+                        noBuildings: 14
+                        oneBuilding: 70
+                        twoBuildings: 200
+                        threeBuildings: 550
+                        fourBuildings: 750
+                        hotel: 950
+                      price: 180
+                      name: Tennessee Avenue
+                      description: Buy this property for $180.
+                      iconStyle: orange
+                      position: 18
+                    - color: orange
+                      propertyRent:
+                        noBuildings: 16
+                        oneBuilding: 80
+                        twoBuildings: 220
+                        threeBuildings: 600
+                        fourBuildings: 800
+                        hotel: 1000
+                      price: 200
+                      name: New York Avenue
+                      description: Buy this property for $200.
+                      iconStyle: orange
+                      position: 19
+                    - name: Free Parking
+                      description: The next player to land on this slot will win the jackpot.
+                      iconStyle: free-parking
+                      position: 20
+                    - color: red
+                      propertyRent:
+                        noBuildings: 18
+                        oneBuilding: 90
+                        twoBuildings: 250
+                        threeBuildings: 700
+                        fourBuildings: 875
+                        hotel: 1050
+                      price: 220
+                      name: Kentucky Avenue
+                      description: Buy this property for $220.
+                      iconStyle: red
+                      position: 21
+                    - cardStyle: Chance
+                      name: Chance
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 22
+                    - color: red
+                      propertyRent:
+                        noBuildings: 18
+                        oneBuilding: 90
+                        twoBuildings: 250
+                        threeBuildings: 700
+                        fourBuildings: 875
+                        hotel: 1050
+                      price: 220
+                      name: Indiana Avenue
+                      description: Buy this property for $220.
+                      iconStyle: red
+                      position: 23
+                    - color: red
+                      propertyRent:
+                        noBuildings: 20
+                        oneBuilding: 100
+                        twoBuildings: 300
+                        threeBuildings: 750
+                        fourBuildings: 925
+                        hotel: 1100
+                      price: 240
+                      name: Illinois Avenue
+                      description: Buy this property for $240.
+                      iconStyle: red
+                      position: 24
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: B. & O. Railroad
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 25
+                    - color: yellow
+                      propertyRent:
+                        noBuildings: 22
+                        oneBuilding: 110
+                        twoBuildings: 330
+                        threeBuildings: 800
+                        fourBuildings: 975
+                        hotel: 1150
+                      price: 260
+                      name: Atlantic Avenue
+                      description: Buy this property for $260.
+                      iconStyle: yellow
+                      position: 26
+                    - color: yellow
+                      propertyRent:
+                        noBuildings: 22
+                        oneBuilding: 110
+                        twoBuildings: 330
+                        threeBuildings: 800
+                        fourBuildings: 975
+                        hotel: 1150
+                      price: 260
+                      name: Ventnor Avenue
+                      description: Buy this property for $260.
+                      iconStyle: yellow
+                      position: 27
+                    - utilityRent:
+                        oneUtilityMultiplier: 4
+                        twoUtilitiesMultiplier: 10
+                      price: 150
+                      name: Water Works
+                      description: Buy this property for $150.
+                      iconStyle: utility
+                      position: 28
+                    - color: yellow
+                      propertyRent:
+                        noBuildings: 24
+                        oneBuilding: 120
+                        twoBuildings: 360
+                        threeBuildings: 850
+                        fourBuildings: 1025
+                        hotel: 1200
+                      price: 280
+                      name: Marvin Gardens
+                      description: Buy this property for $280.
+                      iconStyle: yellow
+                      position: 29
+                    - name: Go to Jail
+                      description: 'Go directly to jail. Do not pass Go, do not collect $200.'
+                      iconStyle: go-to-jail
+                      position: 30
+                    - color: green
+                      propertyRent:
+                        noBuildings: 26
+                        oneBuilding: 130
+                        twoBuildings: 390
+                        threeBuildings: 900
+                        fourBuildings: 1100
+                        hotel: 1275
+                      price: 300
+                      name: Pacific Avenue
+                      description: Buy this property for $300.
+                      iconStyle: green
+                      position: 31
+                    - color: green
+                      propertyRent:
+                        noBuildings: 26
+                        oneBuilding: 130
+                        twoBuildings: 390
+                        threeBuildings: 900
+                        fourBuildings: 1100
+                        hotel: 1275
+                      price: 300
+                      name: North Carolina Avenue
+                      description: Buy this property for $300.
+                      iconStyle: green
+                      position: 32
+                    - cardStyle: Community Chest
+                      name: Community Chest
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 33
+                    - color: green
+                      propertyRent:
+                        noBuildings: 28
+                        oneBuilding: 150
+                        twoBuildings: 450
+                        threeBuildings: 1000
+                        fourBuildings: 1200
+                        hotel: 1400
+                      price: 320
+                      name: Pennsylvania Avenue
+                      description: Buy this property for $320.
+                      iconStyle: green
+                      position: 34
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: Short Line
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 35
+                    - cardStyle: Chance
+                      name: Chance
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 36
+                    - color: darkblue
+                      propertyRent:
+                        noBuildings: 35
+                        oneBuilding: 175
+                        twoBuildings: 500
+                        threeBuildings: 1100
+                        fourBuildings: 1300
+                        hotel: 1500
+                      price: 350
+                      name: Park Place
+                      description: Buy this property for $350.
+                      iconStyle: darkblue
+                      position: 37
+                    - amount: 100
+                      name: Tax
+                      description: Pay $100 in taxes.
+                      iconStyle: tax
+                      position: 38
+                    - color: darkblue
+                      propertyRent:
+                        noBuildings: 50
+                        oneBuilding: 200
+                        twoBuildings: 600
+                        threeBuildings: 1400
+                        fourBuildings: 1700
+                        hotel: 2000
+                      price: 400
+                      name: Boardwalk
+                      description: Buy this property for $400.
+                      iconStyle: darkblue
+                      position: 39
+        '404':
+          description: Invalid locale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Invalid locale
+      description: Get a localized board
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  locale: en-US
+              properties:
+                locale:
+                  type: string
+                  pattern: '[a-z]+-[A-Z]+'
+              required:
+                - locale
+            examples:
+              Example 1:
+                value:
+                  locale: en-US
+        description: 'A JSON object with :'
+      security: []
 components:
   schemas:
     Friend:
@@ -789,6 +1262,151 @@ components:
       required:
         - pageCount
         - games
+    BaseSlot:
+      type: object
+      description: A representation of a slot on the board
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        iconStyle:
+          type: string
+        position:
+          type: integer
+      required:
+        - name
+        - description
+        - iconStyle
+        - position
+      title: BaseSlot
+      x-stoplight:
+        id: 094313829ce80
+    BuyableSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            price:
+              type: integer
+              minimum: 1
+          required:
+            - price
+    CardSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            cardStyle:
+              type: string
+              enum:
+                - Chance
+                - Community Chest
+          required:
+            - cardStyle
+    PropertySlot:
+      allOf:
+        - $ref: '#/components/schemas/BuyableSlot'
+        - type: object
+          properties:
+            propertyRent:
+              type: object
+              required:
+                - noBuildings
+                - oneBuilding
+                - twoBuildings
+                - threeBuildings
+                - fourBuildings
+                - hotel
+              properties:
+                noBuildings:
+                  type: integer
+                  minimum: 1
+                oneBuilding:
+                  type: integer
+                  minimum: 1
+                twoBuildings:
+                  type: integer
+                  minimum: 1
+                threeBuildings:
+                  type: integer
+                  minimum: 1
+                fourBuildings:
+                  type: integer
+                  minimum: 1
+                hotel:
+                  type: integer
+                  minimum: 1
+          required:
+            - propertyRent
+      description: Represents a property slot
+    TaxSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            amount:
+              type: integer
+              minimum: 1
+          required:
+            - amount
+      description: Represent a tax slot
+    TrainStationSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            trainRent:
+              type: object
+              required:
+                - oneStation
+                - twoStations
+                - threeStations
+                - fourStations
+              properties:
+                oneStation:
+                  type: integer
+                  minimum: 1
+                twoStations:
+                  type: integer
+                  minimum: 1
+                threeStations:
+                  type: integer
+                  minimum: 1
+                fourStations:
+                  type: integer
+                  minimum: 1
+          required:
+            - trainRent
+      description: Represents a train station slot
+    UtilitySlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            utilityRent:
+              type: object
+              required:
+                - oneUtilityMultiplier
+                - twoUtilitiesMultiplier
+              properties:
+                oneUtilityMultiplier:
+                  type: integer
+                  minimum: 1
+                twoUtilitiesMultiplier:
+                  type: integer
+                  minimum: 1
+          required:
+            - utilityRent
+      description: Represents a utilty slot
+    BoardSlot:
+      anyOf:
+        - $ref: '#/components/schemas/UtilitySlot'
+        - $ref: '#/components/schemas/TrainStationSlot'
+        - $ref: '#/components/schemas/TaxSlot'
+        - $ref: '#/components/schemas/PropertySlot'
+        - $ref: '#/components/schemas/BaseSlot'
+        - $ref: '#/components/schemas/CardSlot'
   securitySchemes:
     JWTAuth:
       scheme: bearer
