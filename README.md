@@ -18,5 +18,8 @@ docker-compose up -d
 npm start
 ```
 
+### Reset the development database
+To reset the development database, run the script [`ResetDatabase.sh`](./ResetDatabase.sh) located at the root of the project.
+
 ## Documentation
 The OpenAPI specification for UApoly can be found in the `docs` folder. A web viewer is available at the `/docs` endpoint.
