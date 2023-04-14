@@ -1282,6 +1282,11 @@ components:
       title: BaseSlot
       x-stoplight:
         id: 094313829ce80
+      examples:
+        - name: Start
+          description: Collect salary as you pass
+          iconStyle: start
+          position: 0
     BuyableSlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'
@@ -1292,6 +1297,13 @@ components:
               minimum: 1
           required:
             - price
+      examples:
+        - price: 60
+          name: Mediterranean Avenue
+          description: Buy this property for $60.
+          iconStyle: brown
+          position: 1
+      description: A representation of a buyable slot
     CardSlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'
@@ -1304,6 +1316,13 @@ components:
                 - Community Chest
           required:
             - cardStyle
+      examples:
+        - cardStyle: Community Chest
+          name: Community Chest
+          description: Draw a card.
+          iconStyle: card
+          position: 2
+      description: A representation of a slot where the player draws a card
     PropertySlot:
       allOf:
         - $ref: '#/components/schemas/BuyableSlot'
@@ -1340,6 +1359,20 @@ components:
           required:
             - propertyRent
       description: Represents a property slot
+      examples:
+        - color: brown
+          propertyRent:
+            noBuildings: 2
+            oneBuilding: 10
+            twoBuildings: 30
+            threeBuildings: 90
+            fourBuildings: 160
+            hotel: 250
+          price: 60
+          name: Mediterranean Avenue
+          description: Buy this property for $60.
+          iconStyle: brown
+          position: 1
     TaxSlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'
@@ -1351,6 +1384,12 @@ components:
           required:
             - amount
       description: Represent a tax slot
+      examples:
+        - amount: 200
+          name: Tax
+          description: Pay $200 in taxes.
+          iconStyle: tax
+          position: 4
     TrainStationSlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'
@@ -1379,6 +1418,17 @@ components:
           required:
             - trainRent
       description: Represents a train station slot
+      examples:
+        - trainRent:
+            oneStation: 25
+            twoStations: 50
+            threeStations: 100
+            fourStations: 200
+          price: 200
+          name: Reading Railroad
+          description: Buy this property for $200.
+          iconStyle: railroad
+          position: 5
     UtilitySlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'
@@ -1399,6 +1449,15 @@ components:
           required:
             - utilityRent
       description: Represents a utilty slot
+      examples:
+        - utilityRent:
+            oneUtilityMultiplier: 4
+            twoUtilitiesMultiplier: 10
+          price: 150
+          name: Electric Company
+          description: Buy this property for $150.
+          iconStyle: utility
+          position: 12
     BoardSlot:
       anyOf:
         - $ref: '#/components/schemas/UtilitySlot'
@@ -1407,6 +1466,7 @@ components:
         - $ref: '#/components/schemas/PropertySlot'
         - $ref: '#/components/schemas/BaseSlot'
         - $ref: '#/components/schemas/CardSlot'
+      description: Represent any type of slot on the board
   securitySchemes:
     JWTAuth:
       scheme: bearer
