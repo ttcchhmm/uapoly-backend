@@ -530,6 +530,7 @@ paths:
                   initialMoney: 1
                   friendsOnly: true
                   password: pa$$word
+                  locale: en-US
         description: 'A JSON object with :'
   /game/join:
     post:
@@ -1222,10 +1223,21 @@ components:
           type: string
           format: password
           description: The password of the game. If not set the game will be public.
+        locale:
+          type: string
+          pattern: '[a-z]+-[A-Z]+'
       required:
         - salary
         - initialMoney
         - friendsOnly
+        - locale
+      examples:
+        - maxPlayers: 8
+          salary: 200
+          initialMoney: 2500
+          friendsOnly: true
+          password: pa$$word
+          locale: en-US
     GameListPage:
       type: object
       x-examples:

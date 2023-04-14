@@ -27,7 +27,7 @@ const slotsRepo = AppDataSource.getRepository(BoardSlot);
 
 GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     // Check if the body contains the required fields
-    if(!checkBody(req.body, 'salary', 'initialMoney', 'friendsOnly')) {
+    if(!checkBody(req.body, 'salary', 'initialMoney', 'friendsOnly', 'locale')) {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 
@@ -45,6 +45,10 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     if(req.body.initialMoney <= 0) {
         return res.status(400).json({ message: 'Invalid initial money' });
+    }
+
+    if(!Slots[req.body.locale]) {
+        return res.status(404).json({ message: 'Locale not found' });
     }
 
     const board = new Board();
@@ -81,7 +85,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     await boardRepo.save(board);
 
     // TODO: Allow for custom slots and/or other default sets.
-    board.slots = AmericanSlots.map((slot) => {
+    board.slots = Slots[req.body.locale].slots.map((slot) => {
         slot.board = board;
         slot.boardId = board.id;
 
