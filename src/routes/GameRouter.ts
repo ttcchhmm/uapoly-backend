@@ -52,21 +52,9 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     }
 
     const board = new Board();
-    const player = new Player();
 
     // TODO: Review default values ?
 
-    player.account = user;
-    player.game = board;
-    player.gameId = board.id;
-    player.money = req.body.initialMoney;
-    player.iconStyle = 0;
-    player.outOfJailCards = 0;
-    player.currentSlotIndex = 0;
-    player.inJail = false;
-    player.isGameMaster = true;
-
-    board.players = [player];
     board.jackpot = 0;
     board.salary = req.body.salary;
     board.initialMoney = req.body.initialMoney;
@@ -84,6 +72,22 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     await boardRepo.save(board);
 
+    const player = new Player();
+
+    console.log(board.id);
+
+    player.game = board;
+    player.gameId = board.id;
+    player.account = user;
+    player.money = req.body.initialMoney;
+    player.iconStyle = 0;
+    player.outOfJailCards = 0;
+    player.currentSlotIndex = 0;
+    player.inJail = false;
+    player.isGameMaster = true;
+
+    board.players = [player];
+
     // TODO: Allow for custom slots and/or other default sets.
     board.slots = Slots[req.body.locale].slots.map((slot) => {
         slot.board = board;
@@ -93,7 +97,8 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     });
 
     // Save the new game in the database
-    await Promise.all([boardRepo.save(board), playerRepo.save(player)]);
+    await boardRepo.save(board);
+    await playerRepo.save(player);
 
     return res.status(200).json(board.getSimplified());
 });
