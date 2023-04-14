@@ -152,6 +152,7 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
             started: true,
             maxPlayers: true,
             friendsOnly: true,
+            startingSlotIndex: true,
         },
         where: {
             id: req.body.gameId
