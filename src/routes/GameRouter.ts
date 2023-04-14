@@ -6,7 +6,6 @@ import { Board } from "../entity/Board";
 import { Account } from "../entity/Account";
 import { Player } from "../entity/Player";
 import { checkBody } from "../utils/CheckBody";
-import { AmericanSlots } from "../defaults/AmericanSlots";
 import { Friend } from "../entity/Friend";
 import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
 import { BoardSlot } from "../entity/BoardSlot";
@@ -32,7 +31,12 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     }
 
     // Get the user
-    const user = await accountRepo.findOneBy({login: req.user.login});
+    const user = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        cache: true,
+    });
 
     // Check if the user exists
     if(!user) {
@@ -124,9 +128,10 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
         .leftJoinAndSelect('board.players', 'players')
         .skip(skipOffset)
         .take(pageSize)
+        .cache(true)
         .getMany(),
 
-        boardRepo.count()
+        boardRepo.count({cache: true}),
     ]);
 
     return res.status(200).json({
@@ -163,7 +168,8 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
             id: req.body.gameId
         },
         relations: ['players'],
-        loadEagerRelations: false
+        loadEagerRelations: false,
+        cache: true,
     });
 
     // Check if the board exists
@@ -172,7 +178,13 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
     }
 
     // Check if the user is already in the game
-    const player = await playerRepo.findOneBy({accountLogin: user.login, gameId: board.id});
+    const player = await playerRepo.findOne({
+        where: {
+            accountLogin: user.login,
+            gameId: board.id,
+        },
+        cache: true,
+    });
 
     if(player) {
         return res.status(400).json({ message: 'You are already in this game' });
@@ -202,7 +214,8 @@ GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, 
                     secondAccountLogin: user.login,
                     accepted: true,
                 }
-            ]
+            ],
+            cache: true,
         });
 
         if(friendCount === 0) {
@@ -243,7 +256,12 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
     }
 
     // Get the user
-    const user = await accountRepo.findOneBy({login: req.user.login});
+    const user = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        cache: true,
+    });
 
     // Check if the user exists
     if(!user) {
@@ -259,7 +277,8 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
             id: req.body.gameId
         },
         relations: ['players'],
-        loadEagerRelations: false
+        loadEagerRelations: false,
+        cache: true
     });
 
     // Check if the board exists
@@ -268,7 +287,13 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
     }
 
     // Get the player
-    const player = await playerRepo.findOneBy({accountLogin: user.login, gameId: board.id});
+    const player = await playerRepo.findOne({
+        where: {
+            accountLogin: user.login,
+            gameId: board.id,
+        },
+        cache: true,
+    });
 
     // Check if the user is in the game
     if(!player) {

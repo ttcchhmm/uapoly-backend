@@ -15,7 +15,12 @@ const accountRepo = AppDataSource.getRepository(Account);
 const friendRepo = AppDataSource.getRepository(Friend);
 
 FriendRouter.get('/', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    const account = await accountRepo.findOneBy({ login: req.user.login });
+    const account = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        cache: true,
+    });
 
     if(!account) {
         return res.status(404).json({ message: 'Account not found' });
@@ -25,7 +30,12 @@ FriendRouter.get('/', authenticateRequest, async (req: AuthenticatedRequest, res
 });
 
 FriendRouter.get('/pending', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    const account = await accountRepo.findOneBy({ login: req.user.login });
+    const account = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        cache: true,
+    });
 
     if(!account) {
         return res.status(404).json({ message: 'Account not found' });
@@ -49,14 +59,24 @@ FriendRouter.post('/add', authenticateRequest, async (req: AuthenticatedRequest,
     }
 
     // Find the current account
-    const account = await accountRepo.findOneBy({ login: req.user.login });
+    const account = await accountRepo.findOne({
+        where: {
+            login: req.user.login
+        },
+        cache: true,
+    });
 
     if(!account) {
         return res.status(404).json({ message: 'Account not found' });
     }
 
     // Find the friend
-    const friend = await accountRepo.findOneBy({ login: req.body.login });
+    const friend = await accountRepo.findOne({
+        where: {
+            login: req.body.login
+        },
+        cache: true,
+    });
 
     // Check if the friend exists
     if(!friend) {
@@ -98,14 +118,24 @@ FriendRouter.post('/remove', authenticateRequest, async (req: AuthenticatedReque
     }
 
     // Find the current account
-    const account = await accountRepo.findOneBy({ login: req.user.login });
+    const account = await accountRepo.findOne({
+        where: {
+            login: req.user.login
+        },
+        cache: true,
+    });
 
     if(!account) {
         return res.status(404).json({ message: 'Account not found' });
     }
 
     // Find the friend
-    const friend = await accountRepo.findOneBy({ login: req.body.login });
+    const friend = await accountRepo.findOne({
+        where: {
+            login: req.body.login
+        },
+        cache: true,
+    });
 
     // Check if the friend exists
     if(!friend) {
@@ -113,15 +143,21 @@ FriendRouter.post('/remove', authenticateRequest, async (req: AuthenticatedReque
     }
 
     // The sent friend request if it exists, null otherwise
-    const sentFriendRequest = friendRepo.findOneBy({
-        firstAccountLogin: account.login,
-        secondAccountLogin: friend.login,
+    const sentFriendRequest = friendRepo.findOne({
+        where: {
+            firstAccountLogin: account.login,
+            secondAccountLogin: friend.login,
+        },
+        cache: true,
     });
 
     // The received friend request if it exists, null otherwise
-    const receivedFriendRequest = friendRepo.findOneBy({
-        firstAccountLogin: friend.login,
-        secondAccountLogin: account.login,
+    const receivedFriendRequest = friendRepo.findOne({
+        where: {
+            firstAccountLogin: friend.login,
+            secondAccountLogin: account.login,
+        },
+        cache: true,
     });
 
     // Remove the friend request if it exists

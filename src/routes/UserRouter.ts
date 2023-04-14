@@ -24,6 +24,7 @@ UserRouter.post('/login', async (req, res) => {
     const user = await accountRepo.createQueryBuilder('account')
         .addSelect('account.password')
         .where('account.login = :login', { login: req.body.login })
+        .cache(true)
         .getOne();
 
     // Check if the user exists
@@ -57,10 +58,12 @@ UserRouter.post('/register', async (req, res) => {
     }
 
     // Check if the login is already taken
-    const { loginCount } = await accountRepo.createQueryBuilder('account')
-        .select('COUNT(account.login)', 'loginCount')
-        .where('account.login = :login', { login: req.body.login })
-        .getRawOne();
+    const loginCount = await accountRepo.count({
+        where: {
+            login: req.body.login,
+        },
+        cache: true,
+    });
 
     if(loginCount != 0) {
         return res.status(409).json({ message: 'Login already taken' });
@@ -83,6 +86,7 @@ UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res
     const user = await accountRepo.createQueryBuilder('account')
         .where('account.login = :login', { login: req.user.login })
         .addSelect('account.email')
+        .cache(true)
         .getOne();
 
     if(!user) {
@@ -108,6 +112,7 @@ UserRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest
         .where('account.login LIKE :login', { login: `%${req.body.login}%` })
         .skip(skipOffset)
         .take(pageSize)
+        .cache(true)
         .getMany();
 
     return res.json(users);

@@ -8,6 +8,9 @@ if [[ $answer == 'y' ]]; then
     echo 'Resetting database...'
     $PSQL_CMD -f ./sql/ResetDatabase.sql
 
+    echo 'Clearing cache...'
+    npm run typeorm cache:clear &
+
     echo 'Running migrations...'
     npm run typeorm migration:run
 
