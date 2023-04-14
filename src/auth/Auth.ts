@@ -4,6 +4,7 @@ import { Account } from '../entity/Account';
 import { Token } from './Token';
 import { AuthenticatedRequest } from './AuthenticatedRequest';
 import { NextFunction, Response } from 'express';
+import { AuthenticatedSocket } from './AuthenticatedSocket';
 
 /**
  * Passwords will go through 2^(this constant) rounds of hashing.
@@ -85,4 +86,25 @@ export function authenticateRequest(req: AuthenticatedRequest, res: Response, ne
             error: 'No token provided',
         });
     }
+}
+
+/**
+ * A Socket.io middleware that checks if the socket is authenticated.
+ * @param socket The socket to authenticate
+ * @param next The next middleware
+ */
+export function authenticateSocket(socket: AuthenticatedSocket, next: (err?: Error) => void) {
+    const token = socket.handshake.auth.token;
+    if(!token) {
+        return next(new Error('No token provided'));
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err: VerifyErrors | null, payload: object | undefined) => {
+        if(err) {
+            return next(new Error('Invalid token'));
+        }
+
+        socket.user = payload as Token;
+        next();
+    });
 }

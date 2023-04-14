@@ -19,17 +19,22 @@ if(process.env.ENV !== 'prod') {
 import { AppDataSource } from "./data-source";
 import express, { Express } from "express";
 import * as bodyParser from "body-parser";
+import { createServer } from 'http';
+import { Server } from "socket.io";
 
 import { UserRouter } from "./routes/UserRouter";
 import { FriendRouter } from './routes/FriendRouter';
 import { HTTPError } from './utils/HTTPError';
 import { GameRouter } from './routes/GameRouter';
+import { authenticateSocket } from './auth/Auth';
+import { onConnect } from './socket/GameSocket';
 
 AppDataSource.initialize().then(async () => {
     console.log('Database connection established');
 
-    // Initialize the express app
+    // Initialize express
     const app: Express = express();
+
     app.use(bodyParser.json());
 
     // Disable CORS in development mode
@@ -63,8 +68,18 @@ AppDataSource.initialize().then(async () => {
         return res.status(500).json({ message: 'Internal Server Error' });
     });
 
+    // Initialize the socket.io server
+    const httpServer = createServer(app);
+    const io = new Server(httpServer);
+    
+    // Force authentication
+    io.use(authenticateSocket);
+
+    // Handle socket connections
+    io.on('connection', onConnect);
+
     // Start the server
-    app.listen(process.env.PORT, () => {
+    httpServer.listen(process.env.PORT, () => {
         console.log(`Server started on port ${process.env.PORT}`);
     });
 }).catch(error => console.log(error));

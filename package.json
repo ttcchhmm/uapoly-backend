@@ -21,11 +21,16 @@
       "pg": "^8.4.0",
       "redis": "^4.6.5",
       "reflect-metadata": "^0.1.13",
+      "socket.io": "^4.6.1",
       "typeorm": "0.3.7"
    },
    "scripts": {
       "start": "ts-node src/index.ts",
       "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
       "dev": "nodemon --watch src --exec ts-node src/index.ts --skip-warnings-wait"
+   },
+   "optionalDependencies": {
+      "bufferutil": "^4.0.7",
+      "utf-8-validate": "^5.0.10"
    }
 }
