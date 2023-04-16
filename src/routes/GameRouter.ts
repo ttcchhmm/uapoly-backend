@@ -93,7 +93,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.players = [player];
 
     // TODO: Allow for custom slots and/or other default sets.
-    board.slots = Slots[req.body.locale].slots.map((slot) => {
+    board.slots = Slots[req.body.locale].slots().map((slot) => {
         slot.board = board;
         slot.boardId = board.id;
 
@@ -354,5 +354,5 @@ GameRouter.post('/boards', (req, res) => {
         return res.status(404).json({ message: 'Invalid locale' });
     }
 
-    return res.status(200).json(localizedBoard.slots.map((slot: BoardSlot) => slot.getSimplified()));
+    return res.status(200).json(localizedBoard.slots().map((slot: BoardSlot) => slot.getSimplified()));
 });
