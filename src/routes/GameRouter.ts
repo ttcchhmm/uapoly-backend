@@ -78,8 +78,6 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     const player = new Player();
 
-    console.log(board.id);
-
     player.game = board;
     player.gameId = board.id;
     player.account = user;
