@@ -21,6 +21,8 @@ import express, { Express } from "express";
 import * as bodyParser from "body-parser";
 import { createServer } from 'http';
 import { Server } from "socket.io";
+import { createClient } from 'redis';
+import { createAdapter } from '@socket.io/redis-streams-adapter';
 
 import { UserRouter } from "./routes/UserRouter";
 import { FriendRouter } from './routes/FriendRouter';
@@ -68,10 +70,18 @@ AppDataSource.initialize().then(async () => {
         return res.status(500).json({ message: 'Internal Server Error' });
     });
 
+    // Set up Redis
+    const redisClient = createClient({url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`});
+    await redisClient.connect();
+    console.log('Redis connection established');
+
     // Initialize the socket.io server
     const httpServer = createServer(app);
-    const io = new Server(httpServer);
-    
+    const io = new Server(httpServer, {
+        adapter: createAdapter(redisClient),
+    });
+
+
     // Force authentication
     io.use(authenticateSocket);
 
