@@ -332,6 +332,32 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
     });
 });
 
+GameRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
+    if(!checkBody(req.body, 'name')) {
+        return res.status(400).json({ message: 'Missing arguments' });
+    }
+
+    // Check if the page number is valid
+    if(req.body.page && isNaN(req.body.page) || req.body.page < 1) {
+        return res.status(400).json({ message: 'Invalid page' });
+    }
+
+    const pageSize = 10;
+    const skipOffset = req.body.page ? (req.body.page - 1) * pageSize : 0;
+
+    // Get the boards
+    const boards = await boardRepo.createQueryBuilder('board')
+        .where('board.name LIKE :name', { name: `%${req.body.name}%` })
+        .leftJoinAndSelect('board.players', 'players')
+        .skip(skipOffset)
+        .take(pageSize)
+        .cache(true)
+        .getMany();
+
+    return res.json(boards.map((board) => board.getSimplified()));
+});
+
 // ### DEFAULT BOARDS ### //
 
 GameRouter.get('/boards', (req, res) => {
