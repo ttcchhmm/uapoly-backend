@@ -1665,6 +1665,11 @@
                   "name": {
                     "type": "string",
                     "description": "The name of the lobby to search for"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The requested page of results"
                   }
                 },
                 "required": [
