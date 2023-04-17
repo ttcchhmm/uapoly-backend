@@ -106,39 +106,6 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     return res.status(200).json(board.getSimplified());
 });
 
-GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    // Check if the body contains the required fields
-    if(!checkBody(req.body, 'page')) {
-        return res.status(400).json({ message: 'Missing arguments' });
-    }
-
-    // Check if the page number is valid
-    if(isNaN(req.body.page) || req.body.page <= 0) {
-        return res.status(400).json({ message: 'Invalid page number' });
-    }
-
-    // Get the boards
-    const pageSize = 10;
-    const skipOffset = (req.body.page - 1) * pageSize;
-
-    const [boards, boardCount] = await Promise.all([
-        boardRepo.createQueryBuilder('board')
-        .addSelect('board.password')
-        .leftJoinAndSelect('board.players', 'players')
-        .skip(skipOffset)
-        .take(pageSize)
-        .cache(true)
-        .getMany(),
-
-        boardRepo.count({cache: true}),
-    ]);
-
-    return res.status(200).json({
-        pageCount: Math.ceil(boardCount / pageSize),
-        games : boards.map((board) => board.getSimplified()),
-    });
-});
-
 GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     if(!checkBody(req.body, 'gameId')) {
         return res.status(400).json({ message: 'Missing arguments' });
@@ -328,6 +295,41 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
     }
 
     return res.status(200).json({ message: 'Left game' });
+});
+
+// ### GAME SEARCH ### //
+
+GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
+    if(!checkBody(req.body, 'page')) {
+        return res.status(400).json({ message: 'Missing arguments' });
+    }
+
+    // Check if the page number is valid
+    if(isNaN(req.body.page) || req.body.page <= 0) {
+        return res.status(400).json({ message: 'Invalid page number' });
+    }
+
+    // Get the boards
+    const pageSize = 10;
+    const skipOffset = (req.body.page - 1) * pageSize;
+
+    const [boards, boardCount] = await Promise.all([
+        boardRepo.createQueryBuilder('board')
+        .addSelect('board.password')
+        .leftJoinAndSelect('board.players', 'players')
+        .skip(skipOffset)
+        .take(pageSize)
+        .cache(true)
+        .getMany(),
+
+        boardRepo.count({cache: true}),
+    ]);
+
+    return res.status(200).json({
+        pageCount: Math.ceil(boardCount / pageSize),
+        games : boards.map((board) => board.getSimplified()),
+    });
 });
 
 // ### DEFAULT BOARDS ### //
