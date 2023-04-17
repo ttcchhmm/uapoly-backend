@@ -442,6 +442,7 @@ paths:
                         private: true
                         started: false
                         friendsOnly: false
+                        name: My Game
                       - id: 3
                         players: 1
                         maxPlayers: 2147483647
@@ -450,6 +451,7 @@ paths:
                         private: false
                         started: false
                         friendsOnly: false
+                        name: Our Game
         '400':
           description: Missing argument or invalid page number
           content:
@@ -496,6 +498,7 @@ paths:
                     private: true
                     started: true
                     friendsOnly: true
+                    name: Their Game
         '400':
           description: Missing or invalid arguments
           content:
@@ -531,6 +534,7 @@ paths:
                   friendsOnly: true
                   password: pa$$word
                   locale: en-US
+                  name: A Game
         description: 'A JSON object with :'
   /game/join:
     post:
@@ -1182,6 +1186,9 @@ components:
         friendsOnly:
           type: boolean
           description: 'True if you need to be friends with the game master to join, false otherwise'
+        name:
+          type: string
+          description: The name of the lobby
       required:
         - id
         - players
@@ -1191,6 +1198,7 @@ components:
         - private
         - started
         - friendsOnly
+        - name
     GameCreationMetadata:
       type: object
       x-examples:
@@ -1203,6 +1211,13 @@ components:
       description: Describe a game's metadata
       x-stoplight:
         id: 049f57577e1e5
+      examples:
+        - maxPlayers: 8
+          salary: 200
+          initialMoney: 2500
+          friendsOnly: true
+          password: pa$$word
+          locale: en-US
       properties:
         maxPlayers:
           type: integer
@@ -1226,18 +1241,16 @@ components:
         locale:
           type: string
           pattern: '[a-z]+-[A-Z]+'
+          description: The locale of the board
+        name:
+          type: string
+          description: The name of the lobby
       required:
         - salary
         - initialMoney
         - friendsOnly
         - locale
-      examples:
-        - maxPlayers: 8
-          salary: 200
-          initialMoney: 2500
-          friendsOnly: true
-          password: pa$$word
-          locale: en-US
+        - name
     GameListPage:
       type: object
       x-examples:

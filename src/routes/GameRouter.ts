@@ -26,7 +26,7 @@ const slotsRepo = AppDataSource.getRepository(BoardSlot);
 
 GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     // Check if the body contains the required fields
-    if(!checkBody(req.body, 'salary', 'initialMoney', 'friendsOnly', 'locale')) {
+    if(!checkBody(req.body, 'salary', 'initialMoney', 'friendsOnly', 'locale', 'name')) {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 
@@ -59,6 +59,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     // TODO: Review default values ?
 
+    board.name = req.body.name;
     board.jackpot = 0;
     board.salary = req.body.salary;
     board.initialMoney = req.body.initialMoney;

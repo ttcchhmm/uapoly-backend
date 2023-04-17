@@ -66,6 +66,12 @@ export class Board {
     friendsOnly: boolean;
 
     /**
+     * The name of the lobby.
+     */
+    @Column()
+    name: string;
+
+    /**
      * The slots in the board.
      */
     @OneToMany(() => BoardSlot, slot => slot.board, {eager: true, cascade: true})
@@ -98,6 +104,7 @@ export class Board {
     getSimplified() {
         return {
             id: this.id,
+            name: this.name,
             players: this.players.length,
             maxPlayers: this.maxPlayers,
             salary: this.salary,
