@@ -79,8 +79,11 @@ AppDataSource.initialize().then(async () => {
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
         adapter: createAdapter(redisClient),
+        connectionStateRecovery: {
+            maxDisconnectionDuration: 60 * 1000, // 1 minute
+            skipMiddlewares: true,
+        }
     });
-
 
     // Force authentication
     io.use(authenticateSocket);
