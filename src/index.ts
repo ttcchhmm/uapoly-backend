@@ -71,7 +71,7 @@ AppDataSource.initialize().then(async () => {
     });
 
     // Set up Redis
-    const redisClient = createClient({url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`});
+    const redisClient = createClient({url: `redis://${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || '6379'}`});
     await redisClient.connect();
     console.log('Redis connection established');
 
