@@ -18,6 +18,12 @@ export class Board {
     players: Player[];
 
     /**
+     * The index of the current player.
+     */
+    @Column()
+    currentPlayerIndex: number;
+
+    /**
      * The current amount of money in the jackpot.
      */
     @Column()
