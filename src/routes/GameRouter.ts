@@ -67,6 +67,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.maxPlayers = req.body.maxPlayers ? req.body.maxPlayers : PGSQL_MAX_INT;
     board.friendsOnly = req.body.friendsOnly;
     board.started = false;
+    board.currentPlayerIndex = 0;
 
     // If a password is provided, set it
     if(req.body.password) {
