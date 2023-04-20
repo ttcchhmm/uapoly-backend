@@ -2,7 +2,7 @@ import { AuthenticatedSocket } from "../auth/AuthenticatedSocket";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
 import { Player } from "../entity/Player";
-import { Game } from "./Game";
+import { Manager } from "./GameManager";
 
 const playerRepo = AppDataSource.getRepository(Player);
 const boardRepo = AppDataSource.getRepository(Board);
@@ -128,9 +128,7 @@ function onStart(socket: AuthenticatedSocket) {
 
         await updateRoom(socket, room);
 
-        // Start the game
-        const game = new Game(board);
-        game.play();
+        Manager.startGame(board);
     };
 }
 
