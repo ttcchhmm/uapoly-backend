@@ -6,7 +6,7 @@ import { State } from "./State";
  * @template T An enum of all the possible transitions that can occur.
  * @template N An enum of all the possible states that can occur.
  */
-export class StateMachine<T, N> {
+export class StateMachine<T extends string, N> {
     /**
      * The current state of the state machine.
      */
@@ -53,11 +53,11 @@ export class StateMachine<T, N> {
      */
     public transition(event: T) {
         // Check out transitions of current state
-        if (!this.currentState.getOutTransitions().includes(event) && this.throwOnInvalidTransition) {
+        if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
             throw new Error(`Invalid transition from ${this.currentState.getName()} with event ${event}`);
         } else {
             // Get the new state
-            const newState = this.states.find((state) => state.getName() === this.currentState.exit(event));
+            const newState = this.states.find((state) => state.getName() === this.currentState.getOutTransitions()[event]);
 
             // Check if new state is defined
             if(this.currentState === undefined) {

@@ -1,12 +1,25 @@
 import { StateMachine } from "./StateMachine";
 
 /**
+ * A map of all the possible transitions to a state.
+ * 
+ * @template T An enum of all the possible transitions that can occur.
+ * @template N An enum of all the possible states that can occur.
+ */
+type OutTransitions<T extends string, N> = {
+    /**
+     * The transition to the state.
+     */
+    [Key in T]?: N;
+}
+
+/**
  * A state in a state machine.
  * 
  * @template T An enum of all the possible transitions that can occur.
  * @template N An enum of all the possible states that can occur.
  */
-export class State<T, N> {
+export class State<T extends string, N> {
     /**
      * The name of the state.
      */
@@ -20,7 +33,7 @@ export class State<T, N> {
     /**
      * The transitions that can be made from this state.
      */
-    private outTransitions: T[];
+    private outTransitions: OutTransitions<T, N>;
 
     /**
      * The functions to be called when entering this state.
@@ -30,7 +43,7 @@ export class State<T, N> {
     /**
      * The functions to be called when exiting this state.
      */
-    private onExit: Array<(machine: StateMachine<T, N>, event: T) => N>;
+    private onExit: Array<(machine: StateMachine<T, N>, event: T) => void>;
 
     /**
      * The state machine that this state is a part of.
@@ -45,7 +58,7 @@ export class State<T, N> {
      * @param enterFunctions The functions to be called when entering this state.
      * @param exitFunctions The functions to be called when exiting this state.
      */
-    constructor(name: N, inTransitions: T[], outTransitions: T[], enterFunctions: Array<(machine: StateMachine<T, N>, event: T) => void>, exitFunctions: Array<(machine: StateMachine<T, N>, event: T) => N>) {
+    constructor(name: N, inTransitions: T[], outTransitions: OutTransitions<T, N>, enterFunctions: Array<(machine: StateMachine<T, N>, event: T) => void>, exitFunctions: Array<(machine: StateMachine<T, N>, event: T) => void>) {
         this.name = name;
         this.inTransitions = inTransitions;
         this.outTransitions = outTransitions;
@@ -72,12 +85,9 @@ export class State<T, N> {
     /**
      * Exit this state.
      * @param event The event to transition on.
-     * @returns The name of the next state.
      */
-    public exit(event: T): N {
-        let nextState: N;
-        this.onExit.forEach((func) => nextState = func(this.machine, event));
-        return nextState;
+    public exit(event: T) {
+        this.onExit.forEach((func) => func(this.machine, event));
     }
 
     /**
@@ -92,7 +102,7 @@ export class State<T, N> {
      * Get the transitions that can be made from this state.
      * @returns The transitions that can be made from this state.
      */
-    public getOutTransitions(): T[] {
+    public getOutTransitions(): OutTransitions<T, N> {
         return this.outTransitions;
     }
 
