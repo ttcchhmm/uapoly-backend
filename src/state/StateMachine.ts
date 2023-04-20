@@ -83,4 +83,26 @@ export class StateMachine<T extends string, N> {
     public getCurrentState(): N {
         return this.currentState.getName();
     }
+
+    /**
+     * Generates a string representation of the state machine in the DOT language.
+     * @returns A string representation of the state machine in the DOT language.
+     */
+    public generateDot(): string {
+        let dot = "digraph {\n";
+
+        this.states.forEach((state) => {
+            dot += `    ${state.getName()} [label="${state.getName()}"];\n`;
+        });
+
+        this.states.forEach((state) => {
+            Object.keys(state.getOutTransitions()).forEach((transition) => {
+                dot += `    ${state.getName()} -> ${state.getOutTransitions()[transition]} [label="${transition}"];\n`;
+            });
+        });
+
+        dot += "}";
+
+        return dot;
+    }
 }
