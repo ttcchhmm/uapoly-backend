@@ -18,8 +18,25 @@ class GameManager {
      * @param board The board to start the game on.
      */
     startGame(board: Board) {
+        this.games.set(board.id, GameManager.createMachine());
+    }
+
+    /**
+     * Get a state machine for a game.
+     * @param game The game to get the state machine for.
+     * @returns The state machine for the game.
+     */
+    getMachine(game: number | Board) {
+        return this.games.get(typeof game === "number" ? game : game.id);
+    }
+
+    /**
+     * Create a new state machine for a game.
+     * @returns A new state machine for a game.
+     */
+    static createMachine(): StateMachine<Transitions, States> {
         // TODO: Finish this
-        const machine = new StateMachine<Transitions, States>(States.START_TURN, [
+        return new StateMachine<Transitions, States>(States.START_TURN, [
             new State<Transitions, States>(
                 States.START_TURN,
                 [Transitions.END_TURN],
@@ -46,7 +63,7 @@ class GameManager {
                 States.ROLL_DICE,
                 [Transitions.ROLL_DICE],
                 {
-                    [Transitions.MOVED_PLAYER]: States.MOVE_PLAYER, // TODO: Handle passing GO
+                    [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT, // TODO: Handle passing GO
                 },
                 [],
                 []
@@ -136,18 +153,6 @@ class GameManager {
                 [],
             ),
         ], false);
-
-        // Add the game to the map.
-        this.games.set(board.id, machine);
-    }
-
-    /**
-     * Get a state machine for a game.
-     * @param game The game to get the state machine for.
-     * @returns The state machine for the game.
-     */
-    getMachine(game: number | Board) {
-        return this.games.get(typeof game === "number" ? game : game.id);
     }
 }
 
