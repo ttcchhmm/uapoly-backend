@@ -50,8 +50,9 @@ export class StateMachine<T extends string, N> {
     /**
      * Transitions the state machine to the next state.
      * @param event The event to transition on.
+     * @param additionalData Additional data to pass to the transition functions.
      */
-    public transition(event: T) {
+    public transition(event: T, additionalData?: any) {
         // Check out transitions of current state
         if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
             throw new Error(`Invalid transition from ${this.currentState.getName()} with event ${event}`);
@@ -68,8 +69,9 @@ export class StateMachine<T extends string, N> {
             if(!newState.getInTransitions().includes(event) && this.throwOnInvalidTransition) {
                 throw new Error(`Invalid transition from ${this.currentState.getName()} to ${newState.getName()} with event ${event}`);
             } else {
+                this.currentState.exit(event, additionalData);
                 this.currentState = newState;
-                this.currentState.enter(event);
+                this.currentState.enter(event, additionalData);
             }
         }
     }
