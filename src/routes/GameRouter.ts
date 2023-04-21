@@ -335,7 +335,7 @@ GameRouter.post('/list', authenticateRequest, async (req: AuthenticatedRequest, 
 
 GameRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     // Check if the body contains the required fields
-    if(!checkBody(req.body, 'name')) {
+    if(!checkBody(req.body, 'name') || req.body.name.length <= 0) {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 

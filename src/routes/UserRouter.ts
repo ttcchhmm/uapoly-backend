@@ -97,7 +97,7 @@ UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res
 });
 
 UserRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest, res) => {
-    if(!checkBody(req.body, 'login')) {
+    if(!checkBody(req.body, 'login') || req.body.login.length <= 0) {
         return res.status(400).json({ message: 'Missing login' });
     }
 

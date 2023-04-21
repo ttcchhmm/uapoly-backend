@@ -1,2302 +1,1631 @@
-{
-  "openapi": "3.1.0",
-  "x-stoplight": {
-    "id": "kdiu7x00gptfv"
-  },
-  "info": {
-    "title": "UApoly",
-    "version": "1.0",
-    "description": "The API specification for interacting with the UApoly backend.",
-    "x-logo": {
-      "url": "/docs/Logo.webp"
-    }
-  },
-  "servers": [
-    {
-      "url": "http://localhost:{port}",
-      "description": "Local instance",
-      "variables": {
-        "port": {
-          "default": "3000",
-          "description": "The port where the local instance of the UApoly backend is running."
-        }
-      },
-      "x-last-modified": 1680690602604
-    }
-  ],
-  "paths": {
-    "/user/login": {
-      "summary": "Log-in an user.",
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "A JSON object with the following attributes :",
-                "required": [
-                  "login",
-                  "password"
-                ],
-                "type": "object",
-                "properties": {
-                  "login": {
-                    "description": "The name of the account",
-                    "type": "string",
-                    "pattern": "^([a-zA-Z]|[0-9]|-|_){4,15}$"
-                  },
-                  "password": {
-                    "description": "The password of the account",
-                    "type": "string",
-                    "minLength": 6
-                  }
-                },
-                "externalDocs": {
-                  "url": "",
-                  "description": ""
-                }
-              },
-              "example": {
-                "login": "tchm",
-                "password": "password"
-              }
-            }
-          },
-          "required": true,
-          "description": ""
-        },
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Token"
-                },
-                "example": {
-                  "token": "USER_TOKEN"
-                }
-              }
-            },
-            "description": "Successful authentification.",
-            "x-last-modified": 1680685519518
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Missing login or password"
-                }
-              }
-            },
-            "description": "Missing login or password",
-            "x-last-modified": 1680685718584
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Invalid password"
-                }
-              }
-            },
-            "description": "Authentification failure.",
-            "x-last-modified": 1680685787933
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "User not found"
-                }
-              }
-            },
-            "description": "Invalid login.",
-            "x-last-modified": 1680685662119
-          }
-        },
-        "operationId": "/user/login",
-        "summary": "Logs in an user",
-        "description": "Get a security token for a user, effectively logging them in.",
-        "security": []
-      },
-      "x-last-modified": 1680684450769
-    },
-    "/user/register": {
-      "summary": "Create a new account",
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "A JSON object with the following attributes :",
-                "required": [
-                  "login",
-                  "password",
-                  "email"
-                ],
-                "type": "object",
-                "properties": {
-                  "login": {
-                    "description": "The name of the account",
-                    "type": "string",
-                    "pattern": "^([a-zA-Z]|[0-9]|-|_){4,15}$"
-                  },
-                  "password": {
-                    "description": "The password of the account",
-                    "type": "string",
-                    "minLength": 6
-                  },
-                  "email": {
-                    "description": "The email of the new account",
-                    "type": "string"
-                  }
-                },
-                "externalDocs": {
-                  "url": "",
-                  "description": ""
-                }
-              },
-              "example": {
-                "login": "tchm",
-                "password": "password",
-                "email": "tchm@example.org"
-              }
-            }
-          },
-          "required": true,
-          "description": ""
-        },
-        "tags": [],
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Token"
-                },
-                "example": {
-                  "token": "USER_TOKEN"
-                }
-              }
-            },
-            "description": "Account created",
-            "x-last-modified": 1680686689900
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Missing login, password or email"
-                }
-              }
-            },
-            "description": "Missing or invalid login, password or email",
-            "x-last-modified": 1680686490021
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Login already taken"
-                }
-              }
-            },
-            "description": "Login already taken",
-            "x-last-modified": 1680686627305
-          }
-        },
-        "operationId": "/user/register",
-        "summary": "Create a new account",
-        "description": "Create a new account. Also returns a security token for the newly created account, logging them in.",
-        "security": []
-      },
-      "x-last-modified": 1680686045560
-    },
-    "/user/me": {
-      "summary": "Get details about the current account",
-      "get": {
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "A JSON object with the following attributes :",
-                  "required": [
-                    "login",
-                    "email"
-                  ],
-                  "type": "object",
-                  "properties": {
-                    "login": {
-                      "description": "The name of the current account",
-                      "type": "string"
-                    },
-                    "email": {
-                      "description": "The email associated with the current account",
-                      "type": "string"
-                    }
-                  },
-                  "externalDocs": {
-                    "description": "",
-                    "url": ""
-                  }
-                },
-                "example": {
-                  "login": "tchm",
-                  "email": "tchm@example.org"
-                }
-              }
-            },
-            "description": "",
-            "x-last-modified": 1680687881073
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "User not found"
-                }
-              }
-            },
-            "description": "User not found",
-            "x-last-modified": 1680687810041
-          }
-        },
-        "operationId": "/user/me",
-        "summary": "Get details about the current account.",
-        "description": "Returns account details for the currently logged in user."
-      },
-      "x-last-modified": 1680687612749
-    },
-    "/friend": {
-      "summary": "Get the user's friend list",
-      "description": "Get the friend list associated with the currently logged-in user.",
-      "get": {
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FriendList"
-                }
-              }
-            },
-            "description": "A JSON array containing the friend list.",
-            "x-last-modified": 1680688989769
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Account not found"
-                }
-              }
-            },
-            "description": "Account not found",
-            "x-last-modified": 1680691111163
-          }
-        },
-        "operationId": "/friend",
-        "summary": "Get the user's friend list",
-        "description": "Get the friend list associated with the currently logged-in user."
-      },
-      "x-last-modified": 1680688852703
-    },
-    "/friend/pending": {
-      "summary": "Get pending friend requests",
-      "description": "Get pending friend requests, both sent and received.",
-      "get": {
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "An JSON object containing sent and received friend requests",
-                  "required": [
-                    "sent",
-                    "received"
-                  ],
-                  "type": "object",
-                  "properties": {
-                    "sent": {
-                      "$ref": "#/components/schemas/FriendList"
-                    },
-                    "received": {
-                      "$ref": "#/components/schemas/FriendList"
-                    }
-                  },
-                  "externalDocs": {
-                    "description": "",
-                    "url": ""
-                  }
-                },
-                "example": {
-                  "sent": [],
-                  "received": [
-                    {
-                      "firstAccountLogin": "Gyrehio",
-                      "secondAccountLogin": "tchm",
-                      "accepted": false
-                    }
-                  ]
-                }
-              }
-            },
-            "description": "Get pending requests, both sent and received",
-            "x-last-modified": 1680691329433
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Account not found"
-                }
-              }
-            },
-            "description": "Account not found",
-            "x-last-modified": 1680691354099
-          }
-        },
-        "operationId": "/friend/pending",
-        "summary": "Get pending friend requests",
-        "description": "Get pending friend requests, both sent and received."
-      },
-      "x-last-modified": 1680690055919
-    },
-    "/friend/add": {
-      "summary": "Send or accept a friend request",
-      "description": "Send or accept a friend request",
-      "post": {
-        "requestBody": {
-          "description": "The name of account to send/accept the friend request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AccountName"
-              }
-            }
-          },
-          "required": true
-        },
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Friend request accepted"
-                }
-              }
-            },
-            "description": "Friend request sent or accepted",
-            "x-last-modified": 1680692305903
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Missing friend login"
-                }
-              }
-            },
-            "description": "Missing account name, already friends or request already sent",
-            "x-last-modified": 1680691992048
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Account not found"
-                }
-              }
-            },
-            "description": "Account not found",
-            "x-last-modified": 1680692091144
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Cannot add yourself"
-                }
-              }
-            },
-            "description": "Cannot add yourself",
-            "x-last-modified": 1680692051833
-          }
-        },
-        "operationId": "/friend/add",
-        "summary": "Send or accept a friend request",
-        "description": "Send or accept a friend request"
-      },
-      "x-last-modified": 1680691558576
-    },
-    "/friend/remove": {
-      "summary": "Remove a friend or deny a friend request",
-      "description": "Remove a friend or deny a friend request",
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AccountName"
-              },
-              "example": {
-                "login": "tchm"
-              }
-            }
-          },
-          "required": true
-        },
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Friend removed"
-                }
-              }
-            },
-            "description": "Deleted the friend or friend request",
-            "x-last-modified": 1680692698733
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Missing friend login"
-                }
-              }
-            },
-            "description": "Missing friend login, or not friends",
-            "x-last-modified": 1680692590583
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Recipient not found"
-                }
-              }
-            },
-            "description": "Account not found",
-            "x-last-modified": 1680692626653
-          }
-        },
-        "operationId": "/friend/remove",
-        "summary": "Remove a friend or deny a friend request",
-        "description": "Remove a friend or deny a friend request"
-      },
-      "x-last-modified": 1680692490961
-    },
-    "/user/search": {
-      "summary": "Search for usernames.",
-      "description": "Search for usernames.",
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "",
-                "required": [
-                  "login"
-                ],
-                "type": "object",
-                "properties": {
-                  "login": {
-                    "description": "The search query",
-                    "type": "string"
-                  },
-                  "page": {
-                    "description": "If there are more than 10 results, select the page to get. Defaults to 1 if unspecified",
-                    "minimum": 1,
-                    "type": "integer"
-                  }
-                },
-                "externalDocs": {
-                  "description": "",
-                  "url": ""
-                }
-              },
-              "example": {
-                "login": "h",
-                "page": 1
-              }
-            }
-          },
-          "required": true
-        },
-        "tags": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AccountList"
-                },
-                "example": [
-                  {
-                    "login": "tchm"
-                  },
-                  {
-                    "login": "Gyrehio"
-                  }
-                ]
-              }
-            },
-            "description": "A JSON array containing the results.",
-            "x-last-modified": 1680771346183
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "Invalid page"
-                }
-              }
-            },
-            "description": "Missing login or invalid page.",
-            "x-last-modified": 1680771629794
-          }
-        },
-        "operationId": "/user/search",
-        "summary": "Search for usernames",
-        "description": "Search for usernames"
-      },
-      "x-last-modified": 1680771177197
-    },
-    "/game/list": {
-      "post": {
-        "summary": "Get the current games",
-        "operationId": "/game/list",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GameListPage"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "pageCount": 1,
-                      "games": [
-                        {
-                          "id": 2,
-                          "players": 1,
-                          "maxPlayers": 2147483647,
-                          "salary": 200,
-                          "initialMoney": 2500,
-                          "private": true,
-                          "started": false,
-                          "friendsOnly": false,
-                          "name": "My Game"
-                        },
-                        {
-                          "id": 3,
-                          "players": 1,
-                          "maxPlayers": 2147483647,
-                          "salary": 200,
-                          "initialMoney": 2500,
-                          "private": false,
-                          "started": false,
-                          "friendsOnly": false,
-                          "name": "Our Game"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Missing argument or invalid page number",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "Invalid page number"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "description": "Get the current games",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "The requested page"
-                  }
-                },
-                "required": [
-                  "page"
-                ]
-              }
-            }
-          },
-          "description": "A JSON object with :"
-        }
-      }
-    },
-    "/game/create": {
-      "post": {
-        "summary": "Create a new game",
-        "operationId": "/game/create",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GameMetadata"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "id": 1,
-                      "players": 1,
-                      "maxPlayers": 2,
-                      "salary": 0,
-                      "initialMoney": 1,
-                      "private": true,
-                      "started": true,
-                      "friendsOnly": true,
-                      "name": "Their Game"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Missing or invalid arguments",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "message": "Invalid initial money"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "User not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "description": "Create a new game",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GameCreationMetadata"
-              },
-              "examples": {
-                "Example": {
-                  "value": {
-                    "maxPlayers": 2,
-                    "salary": 0,
-                    "initialMoney": 1,
-                    "friendsOnly": true,
-                    "password": "pa$$word",
-                    "locale": "en-US",
-                    "name": "A Game"
-                  }
-                }
-              }
-            }
-          },
-          "description": "A JSON object with :"
-        }
-      }
-    },
-    "/game/join": {
-      "post": {
-        "summary": "Join a game",
-        "operationId": "/game/join",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "Joined game"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Missing or invalid arguments",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "This game has already started"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing password",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "Missing password"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Invalid password, or not friends with the game master",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "You are not friends with the game master"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Game or user not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "Game not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "description": "Join a game",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "gameId": {
-                    "type": "integer",
-                    "description": "The ID of the game to join",
-                    "minimum": 1
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "description": "The password of the game, if the game is private"
-                  }
-                },
-                "required": [
-                  "gameId"
-                ]
-              }
-            }
-          },
-          "description": "A JSON object with :"
-        }
-      }
-    },
-    "/game/boards": {
-      "get": {
-        "summary": "Get localized boards",
-        "tags": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "patternProperties": {
-                    "[a-z]+-[A-Z]+": {
-                      "type": "string",
-                      "description": "The key is the corresponding locale, and the value is the localized name of the board"
-                    }
-                  },
-                  "x-examples": {
-                    "Example 1": {
-                      "en-US": "United States Board",
-                      "fr-FR": "Plateau Français"
-                    }
-                  }
-                },
-                "examples": {
-                  "Example 1": {
-                    "value": {
-                      "en-US": "United States Board",
-                      "fr-FR": "Plateau Français"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "/game/boards-GET",
-        "description": "Get the locales where the game is localized",
-        "security": []
-      },
-      "post": {
-        "summary": "Get a localized board",
-        "operationId": "/game/boards-POST",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BoardSlot"
-                  }
-                },
-                "examples": {
-                  "Example": {
-                    "value": [
-                      {
-                        "name": "Start",
-                        "description": "Collect salary as you pass.",
-                        "iconStyle": "start",
-                        "position": 0
-                      },
-                      {
-                        "color": "brown",
-                        "propertyRent": {
-                          "noBuildings": 2,
-                          "oneBuilding": 10,
-                          "twoBuildings": 30,
-                          "threeBuildings": 90,
-                          "fourBuildings": 160,
-                          "hotel": 250
-                        },
-                        "price": 60,
-                        "name": "Mediterranean Avenue",
-                        "description": "Buy this property for $60.",
-                        "iconStyle": "brown",
-                        "position": 1
-                      },
-                      {
-                        "cardStyle": "Community Chest",
-                        "name": "Community Chest",
-                        "description": "Draw a card.",
-                        "iconStyle": "card",
-                        "position": 2
-                      },
-                      {
-                        "color": "brown",
-                        "propertyRent": {
-                          "noBuildings": 4,
-                          "oneBuilding": 20,
-                          "twoBuildings": 60,
-                          "threeBuildings": 180,
-                          "fourBuildings": 320,
-                          "hotel": 450
-                        },
-                        "price": 60,
-                        "name": "Baltic Avenue",
-                        "description": "Buy this property for $60.",
-                        "iconStyle": "brown",
-                        "position": 3
-                      },
-                      {
-                        "amount": 200,
-                        "name": "Tax",
-                        "description": "Pay $200 in taxes.",
-                        "iconStyle": "tax",
-                        "position": 4
-                      },
-                      {
-                        "trainRent": {
-                          "oneStation": 25,
-                          "twoStations": 50,
-                          "threeStations": 100,
-                          "fourStations": 200
-                        },
-                        "price": 200,
-                        "name": "Reading Railroad",
-                        "description": "Buy this property for $200.",
-                        "iconStyle": "railroad",
-                        "position": 5
-                      },
-                      {
-                        "color": "lightblue",
-                        "propertyRent": {
-                          "noBuildings": 6,
-                          "oneBuilding": 30,
-                          "twoBuildings": 90,
-                          "threeBuildings": 270,
-                          "fourBuildings": 400,
-                          "hotel": 550
-                        },
-                        "price": 100,
-                        "name": "Oriental Avenue",
-                        "description": "Buy this property for $100.",
-                        "iconStyle": "lightblue",
-                        "position": 6
-                      },
-                      {
-                        "cardStyle": "Chance",
-                        "name": "Chance",
-                        "description": "Draw a card.",
-                        "iconStyle": "card",
-                        "position": 7
-                      },
-                      {
-                        "color": "lightblue",
-                        "propertyRent": {
-                          "noBuildings": 6,
-                          "oneBuilding": 30,
-                          "twoBuildings": 90,
-                          "threeBuildings": 270,
-                          "fourBuildings": 400,
-                          "hotel": 550
-                        },
-                        "price": 100,
-                        "name": "Vermont Avenue",
-                        "description": "Buy this property for $100.",
-                        "iconStyle": "lightblue",
-                        "position": 8
-                      },
-                      {
-                        "color": "lightblue",
-                        "propertyRent": {
-                          "noBuildings": 8,
-                          "oneBuilding": 40,
-                          "twoBuildings": 100,
-                          "threeBuildings": 300,
-                          "fourBuildings": 450,
-                          "hotel": 600
-                        },
-                        "price": 120,
-                        "name": "Connecticut Avenue",
-                        "description": "Buy this property for $120.",
-                        "iconStyle": "lightblue",
-                        "position": 9
-                      },
-                      {
-                        "name": "Jail",
-                        "description": "Just visiting.",
-                        "iconStyle": "jail",
-                        "position": 10
-                      },
-                      {
-                        "color": "pink",
-                        "propertyRent": {
-                          "noBuildings": 10,
-                          "oneBuilding": 50,
-                          "twoBuildings": 150,
-                          "threeBuildings": 450,
-                          "fourBuildings": 625,
-                          "hotel": 750
-                        },
-                        "price": 140,
-                        "name": "St. Charles Place",
-                        "description": "Buy this property for $140.",
-                        "iconStyle": "pink",
-                        "position": 11
-                      },
-                      {
-                        "utilityRent": {
-                          "oneUtilityMultiplier": 4,
-                          "twoUtilitiesMultiplier": 10
-                        },
-                        "price": 150,
-                        "name": "Electric Company",
-                        "description": "Buy this property for $150.",
-                        "iconStyle": "utility",
-                        "position": 12
-                      },
-                      {
-                        "color": "pink",
-                        "propertyRent": {
-                          "noBuildings": 10,
-                          "oneBuilding": 50,
-                          "twoBuildings": 150,
-                          "threeBuildings": 450,
-                          "fourBuildings": 625,
-                          "hotel": 750
-                        },
-                        "price": 140,
-                        "name": "States Avenue",
-                        "description": "Buy this property for $140.",
-                        "iconStyle": "pink",
-                        "position": 13
-                      },
-                      {
-                        "color": "pink",
-                        "propertyRent": {
-                          "noBuildings": 12,
-                          "oneBuilding": 60,
-                          "twoBuildings": 180,
-                          "threeBuildings": 500,
-                          "fourBuildings": 700,
-                          "hotel": 900
-                        },
-                        "price": 160,
-                        "name": "Virginia Avenue",
-                        "description": "Buy this property for $160.",
-                        "iconStyle": "pink",
-                        "position": 14
-                      },
-                      {
-                        "trainRent": {
-                          "oneStation": 25,
-                          "twoStations": 50,
-                          "threeStations": 100,
-                          "fourStations": 200
-                        },
-                        "price": 200,
-                        "name": "Pennsylvania Railroad",
-                        "description": "Buy this property for $200.",
-                        "iconStyle": "railroad",
-                        "position": 15
-                      },
-                      {
-                        "color": "orange",
-                        "propertyRent": {
-                          "noBuildings": 14,
-                          "oneBuilding": 70,
-                          "twoBuildings": 200,
-                          "threeBuildings": 550,
-                          "fourBuildings": 750,
-                          "hotel": 950
-                        },
-                        "price": 180,
-                        "name": "St. James Place",
-                        "description": "Buy this property for $180.",
-                        "iconStyle": "orange",
-                        "position": 16
-                      },
-                      {
-                        "cardStyle": "Community Chest",
-                        "name": "Community Chest",
-                        "description": "Draw a card.",
-                        "iconStyle": "card",
-                        "position": 17
-                      },
-                      {
-                        "color": "orange",
-                        "propertyRent": {
-                          "noBuildings": 14,
-                          "oneBuilding": 70,
-                          "twoBuildings": 200,
-                          "threeBuildings": 550,
-                          "fourBuildings": 750,
-                          "hotel": 950
-                        },
-                        "price": 180,
-                        "name": "Tennessee Avenue",
-                        "description": "Buy this property for $180.",
-                        "iconStyle": "orange",
-                        "position": 18
-                      },
-                      {
-                        "color": "orange",
-                        "propertyRent": {
-                          "noBuildings": 16,
-                          "oneBuilding": 80,
-                          "twoBuildings": 220,
-                          "threeBuildings": 600,
-                          "fourBuildings": 800,
-                          "hotel": 1000
-                        },
-                        "price": 200,
-                        "name": "New York Avenue",
-                        "description": "Buy this property for $200.",
-                        "iconStyle": "orange",
-                        "position": 19
-                      },
-                      {
-                        "name": "Free Parking",
-                        "description": "The next player to land on this slot will win the jackpot.",
-                        "iconStyle": "free-parking",
-                        "position": 20
-                      },
-                      {
-                        "color": "red",
-                        "propertyRent": {
-                          "noBuildings": 18,
-                          "oneBuilding": 90,
-                          "twoBuildings": 250,
-                          "threeBuildings": 700,
-                          "fourBuildings": 875,
-                          "hotel": 1050
-                        },
-                        "price": 220,
-                        "name": "Kentucky Avenue",
-                        "description": "Buy this property for $220.",
-                        "iconStyle": "red",
-                        "position": 21
-                      },
-                      {
-                        "cardStyle": "Chance",
-                        "name": "Chance",
-                        "description": "Draw a card.",
-                        "iconStyle": "card",
-                        "position": 22
-                      },
-                      {
-                        "color": "red",
-                        "propertyRent": {
-                          "noBuildings": 18,
-                          "oneBuilding": 90,
-                          "twoBuildings": 250,
-                          "threeBuildings": 700,
-                          "fourBuildings": 875,
-                          "hotel": 1050
-                        },
-                        "price": 220,
-                        "name": "Indiana Avenue",
-                        "description": "Buy this property for $220.",
-                        "iconStyle": "red",
-                        "position": 23
-                      },
-                      {
-                        "color": "red",
-                        "propertyRent": {
-                          "noBuildings": 20,
-                          "oneBuilding": 100,
-                          "twoBuildings": 300,
-                          "threeBuildings": 750,
-                          "fourBuildings": 925,
-                          "hotel": 1100
-                        },
-                        "price": 240,
-                        "name": "Illinois Avenue",
-                        "description": "Buy this property for $240.",
-                        "iconStyle": "red",
-                        "position": 24
-                      },
-                      {
-                        "trainRent": {
-                          "oneStation": 25,
-                          "twoStations": 50,
-                          "threeStations": 100,
-                          "fourStations": 200
-                        },
-                        "price": 200,
-                        "name": "B. & O. Railroad",
-                        "description": "Buy this property for $200.",
-                        "iconStyle": "railroad",
-                        "position": 25
-                      },
-                      {
-                        "color": "yellow",
-                        "propertyRent": {
-                          "noBuildings": 22,
-                          "oneBuilding": 110,
-                          "twoBuildings": 330,
-                          "threeBuildings": 800,
-                          "fourBuildings": 975,
-                          "hotel": 1150
-                        },
-                        "price": 260,
-                        "name": "Atlantic Avenue",
-                        "description": "Buy this property for $260.",
-                        "iconStyle": "yellow",
-                        "position": 26
-                      },
-                      {
-                        "color": "yellow",
-                        "propertyRent": {
-                          "noBuildings": 22,
-                          "oneBuilding": 110,
-                          "twoBuildings": 330,
-                          "threeBuildings": 800,
-                          "fourBuildings": 975,
-                          "hotel": 1150
-                        },
-                        "price": 260,
-                        "name": "Ventnor Avenue",
-                        "description": "Buy this property for $260.",
-                        "iconStyle": "yellow",
-                        "position": 27
-                      },
-                      {
-                        "utilityRent": {
-                          "oneUtilityMultiplier": 4,
-                          "twoUtilitiesMultiplier": 10
-                        },
-                        "price": 150,
-                        "name": "Water Works",
-                        "description": "Buy this property for $150.",
-                        "iconStyle": "utility",
-                        "position": 28
-                      },
-                      {
-                        "color": "yellow",
-                        "propertyRent": {
-                          "noBuildings": 24,
-                          "oneBuilding": 120,
-                          "twoBuildings": 360,
-                          "threeBuildings": 850,
-                          "fourBuildings": 1025,
-                          "hotel": 1200
-                        },
-                        "price": 280,
-                        "name": "Marvin Gardens",
-                        "description": "Buy this property for $280.",
-                        "iconStyle": "yellow",
-                        "position": 29
-                      },
-                      {
-                        "name": "Go to Jail",
-                        "description": "Go directly to jail. Do not pass Go, do not collect $200.",
-                        "iconStyle": "go-to-jail",
-                        "position": 30
-                      },
-                      {
-                        "color": "green",
-                        "propertyRent": {
-                          "noBuildings": 26,
-                          "oneBuilding": 130,
-                          "twoBuildings": 390,
-                          "threeBuildings": 900,
-                          "fourBuildings": 1100,
-                          "hotel": 1275
-                        },
-                        "price": 300,
-                        "name": "Pacific Avenue",
-                        "description": "Buy this property for $300.",
-                        "iconStyle": "green",
-                        "position": 31
-                      },
-                      {
-                        "color": "green",
-                        "propertyRent": {
-                          "noBuildings": 26,
-                          "oneBuilding": 130,
-                          "twoBuildings": 390,
-                          "threeBuildings": 900,
-                          "fourBuildings": 1100,
-                          "hotel": 1275
-                        },
-                        "price": 300,
-                        "name": "North Carolina Avenue",
-                        "description": "Buy this property for $300.",
-                        "iconStyle": "green",
-                        "position": 32
-                      },
-                      {
-                        "cardStyle": "Community Chest",
-                        "name": "Community Chest",
-                        "description": "Draw a card.",
-                        "iconStyle": "card",
-                        "position": 33
-                      },
-                      {
-                        "color": "green",
-                        "propertyRent": {
-                          "noBuildings": 28,
-                          "oneBuilding": 150,
-                          "twoBuildings": 450,
-                          "threeBuildings": 1000,
-                          "fourBuildings": 1200,
-                          "hotel": 1400
-                        },
-                        "price": 320,
-                        "name": "Pennsylvania Avenue",
-                        "description": "Buy this property for $320.",
-                        "iconStyle": "green",
-                        "position": 34
-                      },
-                      {
-                        "trainRent": {
-                          "oneStation": 25,
-                          "twoStations": 50,
-                          "threeStations": 100,
-                          "fourStations": 200
-                        },
-                        "price": 200,
-                        "name": "Short Line",
-                        "description": "Buy this property for $200.",
-                        "iconStyle": "railroad",
-                        "position": 35
-                      },
-                      {
-                        "cardStyle": "Chance",
-                        "name": "Chance",
-                        "description": "Draw a card.",
-                        "iconStyle": "card",
-                        "position": 36
-                      },
-                      {
-                        "color": "darkblue",
-                        "propertyRent": {
-                          "noBuildings": 35,
-                          "oneBuilding": 175,
-                          "twoBuildings": 500,
-                          "threeBuildings": 1100,
-                          "fourBuildings": 1300,
-                          "hotel": 1500
-                        },
-                        "price": 350,
-                        "name": "Park Place",
-                        "description": "Buy this property for $350.",
-                        "iconStyle": "darkblue",
-                        "position": 37
-                      },
-                      {
-                        "amount": 100,
-                        "name": "Tax",
-                        "description": "Pay $100 in taxes.",
-                        "iconStyle": "tax",
-                        "position": 38
-                      },
-                      {
-                        "color": "darkblue",
-                        "propertyRent": {
-                          "noBuildings": 50,
-                          "oneBuilding": 200,
-                          "twoBuildings": 600,
-                          "threeBuildings": 1400,
-                          "fourBuildings": 1700,
-                          "hotel": 2000
-                        },
-                        "price": 400,
-                        "name": "Boardwalk",
-                        "description": "Buy this property for $400.",
-                        "iconStyle": "darkblue",
-                        "position": 39
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Invalid locale",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "Invalid locale"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "description": "Get a localized board",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "x-examples": {
-                  "Example 1": {
-                    "locale": "en-US"
-                  }
-                },
-                "properties": {
-                  "locale": {
-                    "type": "string",
-                    "pattern": "[a-z]+-[A-Z]+"
-                  }
-                },
-                "required": [
-                  "locale"
-                ]
-              },
-              "examples": {
-                "Example 1": {
-                  "value": {
-                    "locale": "en-US"
-                  }
-                }
-              }
-            }
-          },
-          "description": "A JSON object with :"
-        },
-        "security": []
-      }
-    },
-    "/game/search": {
-      "post": {
-        "summary": "Search for a game",
-        "operationId": "/game/search",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GameMetadata"
-                  }
-                },
-                "examples": {
-                  "Example": {
-                    "value": [
-                      {
-                        "id": 1,
-                        "name": "My UApoly Game",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      },
-                      {
-                        "id": 2,
-                        "name": "Our UApoly Game",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      },
-                      {
-                        "id": 3,
-                        "name": "Their UApoly Game",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      },
-                      {
-                        "id": 4,
-                        "name": "This Is Not A UApoly Game",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      },
-                      {
-                        "id": 5,
-                        "name": "Winners only",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      },
-                      {
-                        "id": 6,
-                        "name": "Pro Players",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      },
-                      {
-                        "id": 7,
-                        "name": "UApoly Game",
-                        "players": 1,
-                        "maxPlayers": 2147483647,
-                        "salary": 200,
-                        "initialMoney": 2500,
-                        "private": true,
-                        "started": false,
-                        "friendsOnly": false
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid arguments",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Message"
-                },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "message": "Invalid page"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "description": "Search for created lobbies",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "description": "The name of the lobby to search for"
-                  },
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "The requested page of results"
-                  }
-                },
-                "required": [
-                  "name"
-                ]
-              }
-            }
-          },
-          "description": "A JSON object with :"
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Friend": {
-        "description": "Represents a friend request.",
-        "required": [
-          "firstAccountLogin",
-          "secondAccountLogin",
-          "accepted"
-        ],
-        "type": "object",
-        "properties": {
-          "firstAccountLogin": {
-            "description": "The name of the sender account",
-            "type": "string"
-          },
-          "secondAccountLogin": {
-            "description": "The name of the receiver account",
-            "type": "string"
-          },
-          "accepted": {
-            "description": "True if the request is accepted, false if it's pending.",
-            "type": "boolean"
-          }
-        },
-        "x-last-modified": 1680688756160
-      },
-      "FriendList": {
-        "description": "A JSON array containing a friend list.",
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/Friend",
-          "description": "A friend"
-        },
-        "x-last-modified": 1680689436014
-      },
-      "Token": {
-        "description": "An object containing a security token, allowing to do actions as the user associated with it.",
-        "required": [
-          "token"
-        ],
-        "type": "object",
-        "properties": {
-          "token": {
-            "description": "A security token",
-            "type": "string"
-          }
-        },
-        "x-last-modified": 1680690400975
-      },
-      "AccountName": {
-        "description": "An object representing an account name",
-        "required": [
-          "login"
-        ],
-        "type": "object",
-        "properties": {
-          "login": {
-            "description": "The name of an account",
-            "type": "string"
-          }
-        },
-        "x-last-modified": 1680691637662
-      },
-      "Message": {
-        "description": "Represents an message, either a success or an error",
-        "required": [
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "message": {
-            "description": "The message",
-            "type": "string"
-          }
-        },
-        "x-last-modified": 1680692391186
-      },
-      "AccountList": {
-        "description": "A list of accounts with their logins.",
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/AccountName"
-        },
-        "x-last-modified": 1680771126932
-      },
-      "GameMetadata": {
-        "type": "object",
-        "x-examples": {
-          "Example 1": {
-            "id": 2,
-            "players": 1,
-            "maxPlayers": 2147483647,
-            "salary": 200,
-            "initialMoney": 2500,
-            "private": true,
-            "started": false,
-            "friendsOnly": false
-          }
-        },
-        "description": "Describe a game's metadata",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "The game ID"
-          },
-          "players": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "The amount of players currently in the game"
-          },
-          "maxPlayers": {
-            "type": "integer",
-            "minimum": 2,
-            "description": "The maximum amount of players",
-            "maximum": 2147483647
-          },
-          "salary": {
-            "type": "integer",
-            "description": "The amout of money a player will get by passing the start slot"
-          },
-          "initialMoney": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "The amount of money the players will start with"
-          },
-          "private": {
-            "type": "boolean",
-            "description": "True if the game is password-protected, false otherwise"
-          },
-          "started": {
-            "type": "boolean",
-            "description": "True if the game has already started, false otherwise"
-          },
-          "friendsOnly": {
-            "type": "boolean",
-            "description": "True if you need to be friends with the game master to join, false otherwise"
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the lobby"
-          }
-        },
-        "required": [
-          "id",
-          "players",
-          "maxPlayers",
-          "salary",
-          "initialMoney",
-          "private",
-          "started",
-          "friendsOnly",
-          "name"
-        ]
-      },
-      "GameCreationMetadata": {
-        "type": "object",
-        "x-examples": {
-          "Example 1": {
-            "maxPlayers": 4,
-            "salary": 200,
-            "initialMoney": 2500,
-            "password": "password",
-            "friendsOnly": false
-          }
-        },
-        "description": "Describe a game's metadata",
-        "x-stoplight": {
-          "id": "049f57577e1e5"
-        },
-        "examples": [
-          {
-            "maxPlayers": 8,
-            "salary": 200,
-            "initialMoney": 2500,
-            "friendsOnly": true,
-            "password": "pa$$word",
-            "locale": "en-US"
-          }
-        ],
-        "properties": {
-          "maxPlayers": {
-            "type": "integer",
-            "minimum": 2,
-            "description": "The maximum amount of players",
-            "maximum": 2147483647
-          },
-          "salary": {
-            "type": "integer",
-            "description": "The amout of money a player will get by passing the start slot"
-          },
-          "initialMoney": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "The amount of money the players will start with"
-          },
-          "friendsOnly": {
-            "type": "boolean",
-            "description": "True if you need to be friends with the game master to join, false otherwise"
-          },
-          "password": {
-            "type": "string",
-            "format": "password",
-            "description": "The password of the game. If not set the game will be public."
-          },
-          "locale": {
-            "type": "string",
-            "pattern": "[a-z]+-[A-Z]+",
-            "description": "The locale of the board"
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the lobby"
-          }
-        },
-        "required": [
-          "salary",
-          "initialMoney",
-          "friendsOnly",
-          "locale",
-          "name"
-        ]
-      },
-      "GameListPage": {
-        "type": "object",
-        "x-examples": {
-          "Example 1": {
-            "pageCount": 1,
-            "games": [
-              {
-                "id": 2,
-                "players": 1,
-                "maxPlayers": 2147483647,
-                "salary": 200,
-                "initialMoney": 2500,
-                "private": true,
-                "started": false,
-                "friendsOnly": false
-              },
-              {
-                "id": 3,
-                "players": 1,
-                "maxPlayers": 2147483647,
-                "salary": 200,
-                "initialMoney": 2500,
-                "private": false,
-                "started": false,
-                "friendsOnly": false
-              }
-            ]
-          }
-        },
-        "description": "A page of games",
-        "properties": {
-          "pageCount": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "The total page count"
-          },
-          "games": {
-            "type": "array",
-            "description": "The games currently on the server",
-            "items": {
-              "$ref": "#/components/schemas/GameMetadata"
-            }
-          }
-        },
-        "required": [
-          "pageCount",
-          "games"
-        ]
-      },
-      "BaseSlot": {
-        "type": "object",
-        "description": "A representation of a slot on the board",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "iconStyle": {
-            "type": "string"
-          },
-          "position": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "name",
-          "description",
-          "iconStyle",
-          "position"
-        ],
-        "title": "BaseSlot",
-        "x-stoplight": {
-          "id": "094313829ce80"
-        },
-        "examples": [
-          {
-            "name": "Start",
-            "description": "Collect salary as you pass",
-            "iconStyle": "start",
-            "position": 0
-          }
-        ]
-      },
-      "BuyableSlot": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseSlot"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "price": {
-                "type": "integer",
-                "minimum": 1
-              }
-            },
-            "required": [
-              "price"
-            ]
-          }
-        ],
-        "examples": [
-          {
-            "price": 60,
-            "name": "Mediterranean Avenue",
-            "description": "Buy this property for $60.",
-            "iconStyle": "brown",
-            "position": 1
-          }
-        ],
-        "description": "A representation of a buyable slot"
-      },
-      "CardSlot": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseSlot"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "cardStyle": {
-                "type": "string",
-                "enum": [
-                  "Chance",
-                  "Community Chest"
-                ]
-              }
-            },
-            "required": [
-              "cardStyle"
-            ]
-          }
-        ],
-        "examples": [
-          {
-            "cardStyle": "Community Chest",
-            "name": "Community Chest",
-            "description": "Draw a card.",
-            "iconStyle": "card",
-            "position": 2
-          }
-        ],
-        "description": "A representation of a slot where the player draws a card"
-      },
-      "PropertySlot": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BuyableSlot"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "propertyRent": {
-                "type": "object",
-                "required": [
-                  "noBuildings",
-                  "oneBuilding",
-                  "twoBuildings",
-                  "threeBuildings",
-                  "fourBuildings",
-                  "hotel"
-                ],
-                "properties": {
-                  "noBuildings": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "oneBuilding": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "twoBuildings": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "threeBuildings": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "fourBuildings": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "hotel": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                }
-              }
-            },
-            "required": [
-              "propertyRent"
-            ]
-          }
-        ],
-        "description": "Represents a property slot",
-        "examples": [
-          {
-            "color": "brown",
-            "propertyRent": {
-              "noBuildings": 2,
-              "oneBuilding": 10,
-              "twoBuildings": 30,
-              "threeBuildings": 90,
-              "fourBuildings": 160,
-              "hotel": 250
-            },
-            "price": 60,
-            "name": "Mediterranean Avenue",
-            "description": "Buy this property for $60.",
-            "iconStyle": "brown",
-            "position": 1
-          }
-        ]
-      },
-      "TaxSlot": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseSlot"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "integer",
-                "minimum": 1
-              }
-            },
-            "required": [
-              "amount"
-            ]
-          }
-        ],
-        "description": "Represent a tax slot",
-        "examples": [
-          {
-            "amount": 200,
-            "name": "Tax",
-            "description": "Pay $200 in taxes.",
-            "iconStyle": "tax",
-            "position": 4
-          }
-        ]
-      },
-      "TrainStationSlot": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseSlot"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "trainRent": {
-                "type": "object",
-                "required": [
-                  "oneStation",
-                  "twoStations",
-                  "threeStations",
-                  "fourStations"
-                ],
-                "properties": {
-                  "oneStation": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "twoStations": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "threeStations": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "fourStations": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                }
-              }
-            },
-            "required": [
-              "trainRent"
-            ]
-          }
-        ],
-        "description": "Represents a train station slot",
-        "examples": [
-          {
-            "trainRent": {
-              "oneStation": 25,
-              "twoStations": 50,
-              "threeStations": 100,
-              "fourStations": 200
-            },
-            "price": 200,
-            "name": "Reading Railroad",
-            "description": "Buy this property for $200.",
-            "iconStyle": "railroad",
-            "position": 5
-          }
-        ]
-      },
-      "UtilitySlot": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseSlot"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "utilityRent": {
-                "type": "object",
-                "required": [
-                  "oneUtilityMultiplier",
-                  "twoUtilitiesMultiplier"
-                ],
-                "properties": {
-                  "oneUtilityMultiplier": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "twoUtilitiesMultiplier": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                }
-              }
-            },
-            "required": [
-              "utilityRent"
-            ]
-          }
-        ],
-        "description": "Represents a utilty slot",
-        "examples": [
-          {
-            "utilityRent": {
-              "oneUtilityMultiplier": 4,
-              "twoUtilitiesMultiplier": 10
-            },
-            "price": 150,
-            "name": "Electric Company",
-            "description": "Buy this property for $150.",
-            "iconStyle": "utility",
-            "position": 12
-          }
-        ]
-      },
-      "BoardSlot": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/UtilitySlot"
-          },
-          {
-            "$ref": "#/components/schemas/TrainStationSlot"
-          },
-          {
-            "$ref": "#/components/schemas/TaxSlot"
-          },
-          {
-            "$ref": "#/components/schemas/PropertySlot"
-          },
-          {
-            "$ref": "#/components/schemas/BaseSlot"
-          },
-          {
-            "$ref": "#/components/schemas/CardSlot"
-          }
-        ],
-        "description": "Represent any type of slot on the board"
-      }
-    },
-    "securitySchemes": {
-      "JWTAuth": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Example: \n> Authorization: Bearer <token>",
-        "x-last-modified": 1680684271664
-      }
-    },
-    "headers": {},
-    "responses": {},
-    "parameters": {}
-  },
-  "security": [
-    {
-      "JWTAuth": []
-    }
-  ],
-  "tags": []
-}
+openapi: 3.1.0
+x-stoplight:
+  id: v48eujcxb5sa3
+info:
+  title: UApoly
+  version: '1.0'
+  description: The API specification for interacting with the UApoly backend.
+  x-logo:
+    url: /docs/Logo.webp
+servers:
+  - url: 'http://localhost:{port}'
+    description: Local instance
+    variables:
+      port:
+        default: '3000'
+        description: The port where the local instance of the UApoly backend is running.
+    x-last-modified: 1680690602604
+paths:
+  /user/login:
+    summary: Log-in an user.
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: 'A JSON object with the following attributes :'
+              required:
+                - login
+                - password
+              type: object
+              properties:
+                login:
+                  description: The name of the account
+                  type: string
+                  pattern: '^([a-zA-Z]|[0-9]|-|_){4,15}$'
+                password:
+                  description: The password of the account
+                  type: string
+                  minLength: 6
+              externalDocs:
+                url: ''
+                description: ''
+            example:
+              login: tchm
+              password: password
+        required: true
+        description: ''
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              example:
+                token: USER_TOKEN
+          description: Successful authentification.
+          x-last-modified: 1680685519518
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing login or password
+          description: Missing login or password
+          x-last-modified: 1680685718584
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Invalid password
+          description: Authentification failure.
+          x-last-modified: 1680685787933
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: User not found
+          description: Invalid login.
+          x-last-modified: 1680685662119
+      operationId: /user/login
+      summary: Logs in an user
+      description: 'Get a security token for a user, effectively logging them in.'
+      security: []
+    x-last-modified: 1680684450769
+  /user/register:
+    summary: Create a new account
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: 'A JSON object with the following attributes :'
+              required:
+                - login
+                - password
+                - email
+              type: object
+              properties:
+                login:
+                  description: The name of the account
+                  type: string
+                  pattern: '^([a-zA-Z]|[0-9]|-|_){4,15}$'
+                password:
+                  description: The password of the account
+                  type: string
+                  minLength: 6
+                email:
+                  description: The email of the new account
+                  type: string
+              externalDocs:
+                url: ''
+                description: ''
+            example:
+              login: tchm
+              password: password
+              email: tchm@example.org
+        required: true
+        description: ''
+      tags: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              example:
+                token: USER_TOKEN
+          description: Account created
+          x-last-modified: 1680686689900
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: 'Missing login, password or email'
+          description: 'Missing or invalid login, password or email'
+          x-last-modified: 1680686490021
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Login already taken
+          description: Login already taken
+          x-last-modified: 1680686627305
+      operationId: /user/register
+      summary: Create a new account
+      description: 'Create a new account. Also returns a security token for the newly created account, logging them in.'
+      security: []
+    x-last-modified: 1680686045560
+  /user/me:
+    summary: Get details about the current account
+    get:
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: 'A JSON object with the following attributes :'
+                required:
+                  - login
+                  - email
+                type: object
+                properties:
+                  login:
+                    description: The name of the current account
+                    type: string
+                  email:
+                    description: The email associated with the current account
+                    type: string
+                externalDocs:
+                  description: ''
+                  url: ''
+              example:
+                login: tchm
+                email: tchm@example.org
+          description: ''
+          x-last-modified: 1680687881073
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: User not found
+          description: User not found
+          x-last-modified: 1680687810041
+      operationId: /user/me
+      summary: Get details about the current account.
+      description: Returns account details for the currently logged in user.
+    x-last-modified: 1680687612749
+  /friend:
+    summary: Get the user's friend list
+    description: Get the friend list associated with the currently logged-in user.
+    get:
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+          description: A JSON array containing the friend list.
+          x-last-modified: 1680688989769
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Account not found
+          description: Account not found
+          x-last-modified: 1680691111163
+      operationId: /friend
+      summary: Get the user's friend list
+      description: Get the friend list associated with the currently logged-in user.
+    x-last-modified: 1680688852703
+  /friend/pending:
+    summary: Get pending friend requests
+    description: 'Get pending friend requests, both sent and received.'
+    get:
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: An JSON object containing sent and received friend requests
+                required:
+                  - sent
+                  - received
+                type: object
+                properties:
+                  sent:
+                    $ref: '#/components/schemas/FriendList'
+                  received:
+                    $ref: '#/components/schemas/FriendList'
+                externalDocs:
+                  description: ''
+                  url: ''
+              example:
+                sent: []
+                received:
+                  - firstAccountLogin: Gyrehio
+                    secondAccountLogin: tchm
+                    accepted: false
+          description: 'Get pending requests, both sent and received'
+          x-last-modified: 1680691329433
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Account not found
+          description: Account not found
+          x-last-modified: 1680691354099
+      operationId: /friend/pending
+      summary: Get pending friend requests
+      description: 'Get pending friend requests, both sent and received.'
+    x-last-modified: 1680690055919
+  /friend/add:
+    summary: Send or accept a friend request
+    description: Send or accept a friend request
+    post:
+      requestBody:
+        description: The name of account to send/accept the friend request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountName'
+        required: true
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Friend request accepted
+          description: Friend request sent or accepted
+          x-last-modified: 1680692305903
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing friend login
+          description: 'Missing account name, already friends or request already sent'
+          x-last-modified: 1680691992048
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Account not found
+          description: Account not found
+          x-last-modified: 1680692091144
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Cannot add yourself
+          description: Cannot add yourself
+          x-last-modified: 1680692051833
+      operationId: /friend/add
+      summary: Send or accept a friend request
+      description: Send or accept a friend request
+    x-last-modified: 1680691558576
+  /friend/remove:
+    summary: Remove a friend or deny a friend request
+    description: Remove a friend or deny a friend request
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountName'
+            example:
+              login: tchm
+        required: true
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Friend removed
+          description: Deleted the friend or friend request
+          x-last-modified: 1680692698733
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Missing friend login
+          description: 'Missing friend login, or not friends'
+          x-last-modified: 1680692590583
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Recipient not found
+          description: Account not found
+          x-last-modified: 1680692626653
+      operationId: /friend/remove
+      summary: Remove a friend or deny a friend request
+      description: Remove a friend or deny a friend request
+    x-last-modified: 1680692490961
+  /user/search:
+    summary: Search for usernames.
+    description: Search for usernames.
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              externalDocs:
+                description: ''
+                url: ''
+              properties:
+                login:
+                  description: The search query
+                  type: string
+                  minLength: 1
+                page:
+                  description: 'If there are more than 10 results, select the page to get. Defaults to 1 if unspecified'
+                  minimum: 1
+                  type: integer
+              required:
+                - login
+            example:
+              login: h
+              page: 1
+            examples:
+              Example:
+                value:
+                  login: tch
+                  page: 1
+        required: true
+        description: 'A JSON object with :'
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountList'
+              example:
+                - login: tchm
+                - login: Gyrehio
+              examples:
+                Example:
+                  value:
+                    - login: tchm
+          description: A JSON array containing the results.
+          x-last-modified: 1680771346183
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Invalid page
+          description: Missing login or invalid page.
+          x-last-modified: 1680771629794
+      operationId: /user/search
+      summary: Search for usernames
+      description: Search for usernames
+    x-last-modified: 1680771177197
+  /game/list:
+    post:
+      summary: Get the current games
+      operationId: /game/list
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameListPage'
+              examples:
+                Example:
+                  value:
+                    pageCount: 1
+                    games:
+                      - id: 2
+                        players: 1
+                        maxPlayers: 2147483647
+                        salary: 200
+                        initialMoney: 2500
+                        private: true
+                        started: false
+                        friendsOnly: false
+                        name: My Game
+                      - id: 3
+                        players: 1
+                        maxPlayers: 2147483647
+                        salary: 200
+                        initialMoney: 2500
+                        private: false
+                        started: false
+                        friendsOnly: false
+                        name: Our Game
+        '400':
+          description: Missing argument or invalid page number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Invalid page number
+      description: Get the current games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  minimum: 1
+                  description: The requested page
+              required:
+                - page
+        description: 'A JSON object with :'
+  /game/create:
+    post:
+      summary: Create a new game
+      operationId: /game/create
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameMetadata'
+              examples:
+                Example:
+                  value:
+                    id: 1
+                    players: 1
+                    maxPlayers: 2
+                    salary: 0
+                    initialMoney: 1
+                    private: true
+                    started: true
+                    friendsOnly: true
+                    name: Their Game
+        '400':
+          description: Missing or invalid arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example 1:
+                  value:
+                    message: Invalid initial money
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: User not found
+      description: Create a new game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCreationMetadata'
+            examples:
+              Example:
+                value:
+                  maxPlayers: 2
+                  salary: 0
+                  initialMoney: 1
+                  friendsOnly: true
+                  password: pa$$word
+                  locale: en-US
+                  name: A Game
+        description: 'A JSON object with :'
+  /game/join:
+    post:
+      summary: Join a game
+      operationId: /game/join
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Joined game
+        '400':
+          description: Missing or invalid arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: This game has already started
+        '401':
+          description: Missing password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Missing password
+        '403':
+          description: 'Invalid password, or not friends with the game master'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: You are not friends with the game master
+        '404':
+          description: Game or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Game not found
+      description: Join a game
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameId:
+                  type: integer
+                  description: The ID of the game to join
+                  minimum: 1
+                password:
+                  type: string
+                  format: password
+                  description: 'The password of the game, if the game is private'
+              required:
+                - gameId
+        description: 'A JSON object with :'
+  /game/boards:
+    get:
+      summary: Get localized boards
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                patternProperties:
+                  '[a-z]+-[A-Z]+':
+                    type: string
+                    description: 'The key is the corresponding locale, and the value is the localized name of the board'
+                x-examples:
+                  Example 1:
+                    en-US: United States Board
+                    fr-FR: Plateau Français
+              examples:
+                Example 1:
+                  value:
+                    en-US: United States Board
+                    fr-FR: Plateau Français
+      operationId: /game/boards-GET
+      description: Get the locales where the game is localized
+      security: []
+    post:
+      summary: Get a localized board
+      operationId: /game/boards-POST
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoardSlot'
+              examples:
+                Example:
+                  value:
+                    - name: Start
+                      description: Collect salary as you pass.
+                      iconStyle: start
+                      position: 0
+                    - color: brown
+                      propertyRent:
+                        noBuildings: 2
+                        oneBuilding: 10
+                        twoBuildings: 30
+                        threeBuildings: 90
+                        fourBuildings: 160
+                        hotel: 250
+                      price: 60
+                      name: Mediterranean Avenue
+                      description: Buy this property for $60.
+                      iconStyle: brown
+                      position: 1
+                    - cardStyle: Community Chest
+                      name: Community Chest
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 2
+                    - color: brown
+                      propertyRent:
+                        noBuildings: 4
+                        oneBuilding: 20
+                        twoBuildings: 60
+                        threeBuildings: 180
+                        fourBuildings: 320
+                        hotel: 450
+                      price: 60
+                      name: Baltic Avenue
+                      description: Buy this property for $60.
+                      iconStyle: brown
+                      position: 3
+                    - amount: 200
+                      name: Tax
+                      description: Pay $200 in taxes.
+                      iconStyle: tax
+                      position: 4
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: Reading Railroad
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 5
+                    - color: lightblue
+                      propertyRent:
+                        noBuildings: 6
+                        oneBuilding: 30
+                        twoBuildings: 90
+                        threeBuildings: 270
+                        fourBuildings: 400
+                        hotel: 550
+                      price: 100
+                      name: Oriental Avenue
+                      description: Buy this property for $100.
+                      iconStyle: lightblue
+                      position: 6
+                    - cardStyle: Chance
+                      name: Chance
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 7
+                    - color: lightblue
+                      propertyRent:
+                        noBuildings: 6
+                        oneBuilding: 30
+                        twoBuildings: 90
+                        threeBuildings: 270
+                        fourBuildings: 400
+                        hotel: 550
+                      price: 100
+                      name: Vermont Avenue
+                      description: Buy this property for $100.
+                      iconStyle: lightblue
+                      position: 8
+                    - color: lightblue
+                      propertyRent:
+                        noBuildings: 8
+                        oneBuilding: 40
+                        twoBuildings: 100
+                        threeBuildings: 300
+                        fourBuildings: 450
+                        hotel: 600
+                      price: 120
+                      name: Connecticut Avenue
+                      description: Buy this property for $120.
+                      iconStyle: lightblue
+                      position: 9
+                    - name: Jail
+                      description: Just visiting.
+                      iconStyle: jail
+                      position: 10
+                    - color: pink
+                      propertyRent:
+                        noBuildings: 10
+                        oneBuilding: 50
+                        twoBuildings: 150
+                        threeBuildings: 450
+                        fourBuildings: 625
+                        hotel: 750
+                      price: 140
+                      name: St. Charles Place
+                      description: Buy this property for $140.
+                      iconStyle: pink
+                      position: 11
+                    - utilityRent:
+                        oneUtilityMultiplier: 4
+                        twoUtilitiesMultiplier: 10
+                      price: 150
+                      name: Electric Company
+                      description: Buy this property for $150.
+                      iconStyle: utility
+                      position: 12
+                    - color: pink
+                      propertyRent:
+                        noBuildings: 10
+                        oneBuilding: 50
+                        twoBuildings: 150
+                        threeBuildings: 450
+                        fourBuildings: 625
+                        hotel: 750
+                      price: 140
+                      name: States Avenue
+                      description: Buy this property for $140.
+                      iconStyle: pink
+                      position: 13
+                    - color: pink
+                      propertyRent:
+                        noBuildings: 12
+                        oneBuilding: 60
+                        twoBuildings: 180
+                        threeBuildings: 500
+                        fourBuildings: 700
+                        hotel: 900
+                      price: 160
+                      name: Virginia Avenue
+                      description: Buy this property for $160.
+                      iconStyle: pink
+                      position: 14
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: Pennsylvania Railroad
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 15
+                    - color: orange
+                      propertyRent:
+                        noBuildings: 14
+                        oneBuilding: 70
+                        twoBuildings: 200
+                        threeBuildings: 550
+                        fourBuildings: 750
+                        hotel: 950
+                      price: 180
+                      name: St. James Place
+                      description: Buy this property for $180.
+                      iconStyle: orange
+                      position: 16
+                    - cardStyle: Community Chest
+                      name: Community Chest
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 17
+                    - color: orange
+                      propertyRent:
+                        noBuildings: 14
+                        oneBuilding: 70
+                        twoBuildings: 200
+                        threeBuildings: 550
+                        fourBuildings: 750
+                        hotel: 950
+                      price: 180
+                      name: Tennessee Avenue
+                      description: Buy this property for $180.
+                      iconStyle: orange
+                      position: 18
+                    - color: orange
+                      propertyRent:
+                        noBuildings: 16
+                        oneBuilding: 80
+                        twoBuildings: 220
+                        threeBuildings: 600
+                        fourBuildings: 800
+                        hotel: 1000
+                      price: 200
+                      name: New York Avenue
+                      description: Buy this property for $200.
+                      iconStyle: orange
+                      position: 19
+                    - name: Free Parking
+                      description: The next player to land on this slot will win the jackpot.
+                      iconStyle: free-parking
+                      position: 20
+                    - color: red
+                      propertyRent:
+                        noBuildings: 18
+                        oneBuilding: 90
+                        twoBuildings: 250
+                        threeBuildings: 700
+                        fourBuildings: 875
+                        hotel: 1050
+                      price: 220
+                      name: Kentucky Avenue
+                      description: Buy this property for $220.
+                      iconStyle: red
+                      position: 21
+                    - cardStyle: Chance
+                      name: Chance
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 22
+                    - color: red
+                      propertyRent:
+                        noBuildings: 18
+                        oneBuilding: 90
+                        twoBuildings: 250
+                        threeBuildings: 700
+                        fourBuildings: 875
+                        hotel: 1050
+                      price: 220
+                      name: Indiana Avenue
+                      description: Buy this property for $220.
+                      iconStyle: red
+                      position: 23
+                    - color: red
+                      propertyRent:
+                        noBuildings: 20
+                        oneBuilding: 100
+                        twoBuildings: 300
+                        threeBuildings: 750
+                        fourBuildings: 925
+                        hotel: 1100
+                      price: 240
+                      name: Illinois Avenue
+                      description: Buy this property for $240.
+                      iconStyle: red
+                      position: 24
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: B. & O. Railroad
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 25
+                    - color: yellow
+                      propertyRent:
+                        noBuildings: 22
+                        oneBuilding: 110
+                        twoBuildings: 330
+                        threeBuildings: 800
+                        fourBuildings: 975
+                        hotel: 1150
+                      price: 260
+                      name: Atlantic Avenue
+                      description: Buy this property for $260.
+                      iconStyle: yellow
+                      position: 26
+                    - color: yellow
+                      propertyRent:
+                        noBuildings: 22
+                        oneBuilding: 110
+                        twoBuildings: 330
+                        threeBuildings: 800
+                        fourBuildings: 975
+                        hotel: 1150
+                      price: 260
+                      name: Ventnor Avenue
+                      description: Buy this property for $260.
+                      iconStyle: yellow
+                      position: 27
+                    - utilityRent:
+                        oneUtilityMultiplier: 4
+                        twoUtilitiesMultiplier: 10
+                      price: 150
+                      name: Water Works
+                      description: Buy this property for $150.
+                      iconStyle: utility
+                      position: 28
+                    - color: yellow
+                      propertyRent:
+                        noBuildings: 24
+                        oneBuilding: 120
+                        twoBuildings: 360
+                        threeBuildings: 850
+                        fourBuildings: 1025
+                        hotel: 1200
+                      price: 280
+                      name: Marvin Gardens
+                      description: Buy this property for $280.
+                      iconStyle: yellow
+                      position: 29
+                    - name: Go to Jail
+                      description: 'Go directly to jail. Do not pass Go, do not collect $200.'
+                      iconStyle: go-to-jail
+                      position: 30
+                    - color: green
+                      propertyRent:
+                        noBuildings: 26
+                        oneBuilding: 130
+                        twoBuildings: 390
+                        threeBuildings: 900
+                        fourBuildings: 1100
+                        hotel: 1275
+                      price: 300
+                      name: Pacific Avenue
+                      description: Buy this property for $300.
+                      iconStyle: green
+                      position: 31
+                    - color: green
+                      propertyRent:
+                        noBuildings: 26
+                        oneBuilding: 130
+                        twoBuildings: 390
+                        threeBuildings: 900
+                        fourBuildings: 1100
+                        hotel: 1275
+                      price: 300
+                      name: North Carolina Avenue
+                      description: Buy this property for $300.
+                      iconStyle: green
+                      position: 32
+                    - cardStyle: Community Chest
+                      name: Community Chest
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 33
+                    - color: green
+                      propertyRent:
+                        noBuildings: 28
+                        oneBuilding: 150
+                        twoBuildings: 450
+                        threeBuildings: 1000
+                        fourBuildings: 1200
+                        hotel: 1400
+                      price: 320
+                      name: Pennsylvania Avenue
+                      description: Buy this property for $320.
+                      iconStyle: green
+                      position: 34
+                    - trainRent:
+                        oneStation: 25
+                        twoStations: 50
+                        threeStations: 100
+                        fourStations: 200
+                      price: 200
+                      name: Short Line
+                      description: Buy this property for $200.
+                      iconStyle: railroad
+                      position: 35
+                    - cardStyle: Chance
+                      name: Chance
+                      description: Draw a card.
+                      iconStyle: card
+                      position: 36
+                    - color: darkblue
+                      propertyRent:
+                        noBuildings: 35
+                        oneBuilding: 175
+                        twoBuildings: 500
+                        threeBuildings: 1100
+                        fourBuildings: 1300
+                        hotel: 1500
+                      price: 350
+                      name: Park Place
+                      description: Buy this property for $350.
+                      iconStyle: darkblue
+                      position: 37
+                    - amount: 100
+                      name: Tax
+                      description: Pay $100 in taxes.
+                      iconStyle: tax
+                      position: 38
+                    - color: darkblue
+                      propertyRent:
+                        noBuildings: 50
+                        oneBuilding: 200
+                        twoBuildings: 600
+                        threeBuildings: 1400
+                        fourBuildings: 1700
+                        hotel: 2000
+                      price: 400
+                      name: Boardwalk
+                      description: Buy this property for $400.
+                      iconStyle: darkblue
+                      position: 39
+        '404':
+          description: Invalid locale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Invalid locale
+      description: Get a localized board
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  locale: en-US
+              properties:
+                locale:
+                  type: string
+                  pattern: '[a-z]+-[A-Z]+'
+              required:
+                - locale
+            examples:
+              Example 1:
+                value:
+                  locale: en-US
+        description: 'A JSON object with :'
+      security: []
+  /game/search:
+    post:
+      summary: Search for a game
+      operationId: /game/search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameMetadata'
+              examples:
+                Example:
+                  value:
+                    - id: 1
+                      name: My UApoly Game
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+                    - id: 2
+                      name: Our UApoly Game
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+                    - id: 3
+                      name: Their UApoly Game
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+                    - id: 4
+                      name: This Is Not A UApoly Game
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+                    - id: 5
+                      name: Winners only
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+                    - id: 6
+                      name: Pro Players
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+                    - id: 7
+                      name: UApoly Game
+                      players: 1
+                      maxPlayers: 2147483647
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: false
+        '400':
+          description: Invalid arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Invalid page
+      description: Search for created lobbies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the lobby to search for
+                  minLength: 1
+                page:
+                  type: integer
+                  minimum: 1
+                  description: The requested page of results
+              required:
+                - name
+            examples:
+              Example:
+                value:
+                  name: UApoly Game
+                  page: 1
+        description: 'A JSON object with :'
+components:
+  schemas:
+    Friend:
+      description: Represents a friend request.
+      required:
+        - firstAccountLogin
+        - secondAccountLogin
+        - accepted
+      type: object
+      properties:
+        firstAccountLogin:
+          description: The name of the sender account
+          type: string
+        secondAccountLogin:
+          description: The name of the receiver account
+          type: string
+        accepted:
+          description: 'True if the request is accepted, false if it''s pending.'
+          type: boolean
+      x-last-modified: 1680688756160
+    FriendList:
+      description: A JSON array containing a friend list.
+      type: array
+      items:
+        $ref: '#/components/schemas/Friend'
+        description: A friend
+      x-last-modified: 1680689436014
+    Token:
+      description: 'An object containing a security token, allowing to do actions as the user associated with it.'
+      required:
+        - token
+      type: object
+      properties:
+        token:
+          description: A security token
+          type: string
+      x-last-modified: 1680690400975
+    AccountName:
+      description: An object representing an account name
+      required:
+        - login
+      type: object
+      properties:
+        login:
+          description: The name of an account
+          type: string
+      x-last-modified: 1680691637662
+    Message:
+      description: 'Represents an message, either a success or an error'
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          description: The message
+          type: string
+      x-last-modified: 1680692391186
+    AccountList:
+      description: A list of accounts with their logins.
+      type: array
+      items:
+        $ref: '#/components/schemas/AccountName'
+      x-last-modified: 1680771126932
+    GameMetadata:
+      type: object
+      x-examples:
+        Example 1:
+          id: 2
+          players: 1
+          maxPlayers: 2147483647
+          salary: 200
+          initialMoney: 2500
+          private: true
+          started: false
+          friendsOnly: false
+      description: Describe a game's metadata
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: The game ID
+        players:
+          type: integer
+          minimum: 1
+          description: The amount of players currently in the game
+        maxPlayers:
+          type: integer
+          minimum: 2
+          description: The maximum amount of players
+          maximum: 2147483647
+        salary:
+          type: integer
+          description: The amout of money a player will get by passing the start slot
+        initialMoney:
+          type: integer
+          minimum: 1
+          description: The amount of money the players will start with
+        private:
+          type: boolean
+          description: 'True if the game is password-protected, false otherwise'
+        started:
+          type: boolean
+          description: 'True if the game has already started, false otherwise'
+        friendsOnly:
+          type: boolean
+          description: 'True if you need to be friends with the game master to join, false otherwise'
+        name:
+          type: string
+          description: The name of the lobby
+      required:
+        - id
+        - players
+        - maxPlayers
+        - salary
+        - initialMoney
+        - private
+        - started
+        - friendsOnly
+        - name
+    GameCreationMetadata:
+      type: object
+      x-examples:
+        Example 1:
+          maxPlayers: 4
+          salary: 200
+          initialMoney: 2500
+          password: password
+          friendsOnly: false
+      description: Describe a game's metadata
+      x-stoplight:
+        id: 049f57577e1e5
+      examples:
+        - maxPlayers: 8
+          salary: 200
+          initialMoney: 2500
+          friendsOnly: true
+          password: pa$$word
+          locale: en-US
+      properties:
+        maxPlayers:
+          type: integer
+          minimum: 2
+          description: The maximum amount of players
+          maximum: 2147483647
+        salary:
+          type: integer
+          description: The amout of money a player will get by passing the start slot
+        initialMoney:
+          type: integer
+          minimum: 1
+          description: The amount of money the players will start with
+        friendsOnly:
+          type: boolean
+          description: 'True if you need to be friends with the game master to join, false otherwise'
+        password:
+          type: string
+          format: password
+          description: The password of the game. If not set the game will be public.
+        locale:
+          type: string
+          pattern: '[a-z]+-[A-Z]+'
+          description: The locale of the board
+        name:
+          type: string
+          description: The name of the lobby
+      required:
+        - salary
+        - initialMoney
+        - friendsOnly
+        - locale
+        - name
+    GameListPage:
+      type: object
+      x-examples:
+        Example 1:
+          pageCount: 1
+          games:
+            - id: 2
+              players: 1
+              maxPlayers: 2147483647
+              salary: 200
+              initialMoney: 2500
+              private: true
+              started: false
+              friendsOnly: false
+            - id: 3
+              players: 1
+              maxPlayers: 2147483647
+              salary: 200
+              initialMoney: 2500
+              private: false
+              started: false
+              friendsOnly: false
+      description: A page of games
+      properties:
+        pageCount:
+          type: integer
+          minimum: 1
+          description: The total page count
+        games:
+          type: array
+          description: The games currently on the server
+          items:
+            $ref: '#/components/schemas/GameMetadata'
+      required:
+        - pageCount
+        - games
+    BaseSlot:
+      type: object
+      description: A representation of a slot on the board
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        iconStyle:
+          type: string
+        position:
+          type: integer
+      required:
+        - name
+        - description
+        - iconStyle
+        - position
+      title: BaseSlot
+      x-stoplight:
+        id: 094313829ce80
+      examples:
+        - name: Start
+          description: Collect salary as you pass
+          iconStyle: start
+          position: 0
+    BuyableSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            price:
+              type: integer
+              minimum: 1
+          required:
+            - price
+      examples:
+        - price: 60
+          name: Mediterranean Avenue
+          description: Buy this property for $60.
+          iconStyle: brown
+          position: 1
+      description: A representation of a buyable slot
+    CardSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            cardStyle:
+              type: string
+              enum:
+                - Chance
+                - Community Chest
+          required:
+            - cardStyle
+      examples:
+        - cardStyle: Community Chest
+          name: Community Chest
+          description: Draw a card.
+          iconStyle: card
+          position: 2
+      description: A representation of a slot where the player draws a card
+    PropertySlot:
+      allOf:
+        - $ref: '#/components/schemas/BuyableSlot'
+        - type: object
+          properties:
+            propertyRent:
+              type: object
+              required:
+                - noBuildings
+                - oneBuilding
+                - twoBuildings
+                - threeBuildings
+                - fourBuildings
+                - hotel
+              properties:
+                noBuildings:
+                  type: integer
+                  minimum: 1
+                oneBuilding:
+                  type: integer
+                  minimum: 1
+                twoBuildings:
+                  type: integer
+                  minimum: 1
+                threeBuildings:
+                  type: integer
+                  minimum: 1
+                fourBuildings:
+                  type: integer
+                  minimum: 1
+                hotel:
+                  type: integer
+                  minimum: 1
+          required:
+            - propertyRent
+      description: Represents a property slot
+      examples:
+        - color: brown
+          propertyRent:
+            noBuildings: 2
+            oneBuilding: 10
+            twoBuildings: 30
+            threeBuildings: 90
+            fourBuildings: 160
+            hotel: 250
+          price: 60
+          name: Mediterranean Avenue
+          description: Buy this property for $60.
+          iconStyle: brown
+          position: 1
+    TaxSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            amount:
+              type: integer
+              minimum: 1
+          required:
+            - amount
+      description: Represent a tax slot
+      examples:
+        - amount: 200
+          name: Tax
+          description: Pay $200 in taxes.
+          iconStyle: tax
+          position: 4
+    TrainStationSlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            trainRent:
+              type: object
+              required:
+                - oneStation
+                - twoStations
+                - threeStations
+                - fourStations
+              properties:
+                oneStation:
+                  type: integer
+                  minimum: 1
+                twoStations:
+                  type: integer
+                  minimum: 1
+                threeStations:
+                  type: integer
+                  minimum: 1
+                fourStations:
+                  type: integer
+                  minimum: 1
+          required:
+            - trainRent
+      description: Represents a train station slot
+      examples:
+        - trainRent:
+            oneStation: 25
+            twoStations: 50
+            threeStations: 100
+            fourStations: 200
+          price: 200
+          name: Reading Railroad
+          description: Buy this property for $200.
+          iconStyle: railroad
+          position: 5
+    UtilitySlot:
+      allOf:
+        - $ref: '#/components/schemas/BaseSlot'
+        - type: object
+          properties:
+            utilityRent:
+              type: object
+              required:
+                - oneUtilityMultiplier
+                - twoUtilitiesMultiplier
+              properties:
+                oneUtilityMultiplier:
+                  type: integer
+                  minimum: 1
+                twoUtilitiesMultiplier:
+                  type: integer
+                  minimum: 1
+          required:
+            - utilityRent
+      description: Represents a utilty slot
+      examples:
+        - utilityRent:
+            oneUtilityMultiplier: 4
+            twoUtilitiesMultiplier: 10
+          price: 150
+          name: Electric Company
+          description: Buy this property for $150.
+          iconStyle: utility
+          position: 12
+    BoardSlot:
+      anyOf:
+        - $ref: '#/components/schemas/UtilitySlot'
+        - $ref: '#/components/schemas/TrainStationSlot'
+        - $ref: '#/components/schemas/TaxSlot'
+        - $ref: '#/components/schemas/PropertySlot'
+        - $ref: '#/components/schemas/BaseSlot'
+        - $ref: '#/components/schemas/CardSlot'
+      description: Represent any type of slot on the board
+  securitySchemes:
+    JWTAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: |-
+        Example: 
+        > Authorization: Bearer <token>
+      x-last-modified: 1680684271664
+  headers: {}
+  responses: {}
+  parameters: {}
+security:
+  - JWTAuth: []
+tags: []
