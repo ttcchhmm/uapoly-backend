@@ -1,6 +1,17 @@
+import { GameManager } from './socket/GameManager';
+
+// Generate a graph of the state machine if needed
+if(process.argv.includes('--dump-state-machine')) {
+    GameManager.dumpMachineGraph('./state-machine.dot');
+    console.log('Dumped state machine to ./state-machine.dot');
+    process.exit(0);
+}
+
+// Reading the config file
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Warn the user if they are running in development mode
 import child_process from 'child_process';
 
 if(process.env.ENV !== 'prod') {
@@ -31,6 +42,7 @@ import { GameRouter } from './routes/GameRouter';
 import { authenticateSocket } from './auth/Auth';
 import { onConnect } from './socket/GameSocket';
 
+// Initialize the database
 AppDataSource.initialize().then(async () => {
     console.log('Database connection established');
 

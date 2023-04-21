@@ -3,11 +3,12 @@ import { GameStates as States } from "../enums/GameStates";
 import { GameTransitions as Transitions } from "../enums/GameTransitions";
 import { StateMachine } from "../state/StateMachine";
 import { State } from "../state/State";
+import { writeFileSync } from "fs";
 
 /**
  * Manage the state machines for each game.
  */
-class GameManager {
+export class GameManager {
     /**
      * A map of all the games, with the game ID as the key.
      */
@@ -34,7 +35,7 @@ class GameManager {
      * Create a new state machine for a game.
      * @returns A new state machine for a game.
      */
-    static createMachine(): StateMachine<Transitions, States> {
+    private static createMachine(): StateMachine<Transitions, States> {
         // TODO: Finish this
         return new StateMachine<Transitions, States>(States.START_TURN, [
             new State<Transitions, States>(
@@ -153,6 +154,14 @@ class GameManager {
                 [],
             ),
         ], false);
+    }
+
+    /**
+     * Dump a graph of the state machine to a file.
+     * @param filename The filename to write the graph to.
+     */
+    static dumpMachineGraph(filename: string) {
+        writeFileSync(filename, this.createMachine().generateDot());
     }
 }
 
