@@ -13,6 +13,21 @@ export enum GameTransitions {
     IS_NOT_IN_JAIL = 'IS_NOT_IN_JAIL',
 
     /**
+     * The player used an out of jail card.
+     */
+    USE_OUT_OF_JAIL_CARD = 'USE_OUT_OF_JAIL_CARD',
+
+    /**
+     * The player paid the bail.
+     */
+    PAY_BAIL = 'PAIED_BAIL',
+
+    /**
+     * The player is trying to escape jail by rolling the dice.
+     */
+    ESCAPE_WITH_DICE = 'ESCAPE_WITH_DICE',
+
+    /**
      * The player rolled the dice.
      */
     ROLL_DICE = 'ROLL_DICE',
@@ -83,6 +98,11 @@ export enum GameTransitions {
     LAND_ON_REST = 'LAND_ON_REST',
 
     /**
+     * The player landed on a draw card slot.
+     */
+    LAND_ON_DRAW_CARD = 'LAND_ON_DRAW_CARD',
+
+    /**
      * The player chose to trade with another player.
      */
     TRADE = 'TRADE',
@@ -141,6 +161,21 @@ export enum GameTransitions {
      * End of turn.
      */
     END_TURN = 'END_TURN',
+
+    /**
+     * The game proceeds to the next player.
+     */
+    NEXT_PLAYER = 'NEXT_PLAYER',
+
+    /**
+     * The game proceeds to the next turn.
+     */
+    NEXT_TURN = 'NEXT_TURN',
+
+    /**
+     * The game ended.
+     */
+    GAME_OVER = 'GAME_OVER',
 
     /**
      * The player rolled a double.

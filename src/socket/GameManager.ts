@@ -37,6 +37,7 @@ export class GameManager {
      */
     private static createMachine(): StateMachine<Transitions, States> {
         // TODO: Finish this
+        // Not yet implemented : manage double rolls, payments
         return new StateMachine<Transitions, States>(States.START_TURN, [
             new State<Transitions, States>(
                 States.START_TURN,
@@ -54,9 +55,42 @@ export class GameManager {
                 [Transitions.IS_IN_JAIL],
                 {
                     [Transitions.END_TURN]: States.END_TURN,
-                    [Transitions.ROLL_DICE]: States.ROLL_DICE, // TODO: Maybe this should be a different state?
+                    [Transitions.ESCAPE_WITH_DICE]: States.ESCAPE_WITH_DICE,
+                    [Transitions.PAY_BAIL]: States.PAY_BAIL,
+                    [Transitions.USE_OUT_OF_JAIL_CARD]: States.USE_OUT_OF_JAIL_CARD,
                 },
                 [tryEscapeJail],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.PAY_BAIL,
+                [Transitions.PAY_BAIL],
+                {
+                    [Transitions.ROLL_DICE]: States.ROLL_DICE,
+                },
+                [handlePayBail],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.USE_OUT_OF_JAIL_CARD,
+                [Transitions.USE_OUT_OF_JAIL_CARD],
+                {
+                    [Transitions.ROLL_DICE]: States.ROLL_DICE,
+                },
+                [handleUseOutOfJailCard],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.ESCAPE_WITH_DICE,
+                [Transitions.ESCAPE_WITH_DICE],
+                {
+                    [Transitions.ROLL_DICE]: States.ROLL_DICE, // Success
+                    [Transitions.END_TURN]: States.END_TURN, // Failure
+                },
+                [handleEscapeWithDice],
                 []
             ),
 
@@ -64,7 +98,8 @@ export class GameManager {
                 States.ROLL_DICE,
                 [Transitions.ROLL_DICE],
                 {
-                    [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT, // TODO: Handle passing GO
+                    [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT,
+                    [Transitions.PASS_START]: States.LANDED_ON_SLOT,
                 },
                 [],
                 []
@@ -80,6 +115,7 @@ export class GameManager {
                     [Transitions.LAND_ON_TAX]: States.TAX,
                     [Transitions.LAND_ON_START]: States.GO,
                     [Transitions.LAND_ON_REST]: States.END_TURN,
+                    [Transitions.LAND_ON_DRAW_CARD]: States.DRAW_CARD,
                 },
                 [handleLanding],
                 []
@@ -91,7 +127,7 @@ export class GameManager {
                 {
                     [Transitions.END_TURN]: States.END_TURN,
                 },
-                [endTurn],
+                [handleGoToJail],
                 []
             ),
 
@@ -152,6 +188,89 @@ export class GameManager {
                 },
                 [handleFreeParking],
                 [],
+            ),
+
+            new State<Transitions, States>(
+                States.TAX,
+                [Transitions.LAND_ON_TAX],
+                {}, // TODO: Handle payment
+                [],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.GO,
+                [Transitions.LAND_ON_START],
+                {
+                    [Transitions.END_TURN]: States.END_TURN,
+                },
+                [handleGo],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.DRAW_CARD,
+                [Transitions.LAND_ON_DRAW_CARD],
+                {
+                    [Transitions.END_TURN]: States.END_TURN,
+                    [Transitions.DREW_GO_TO_JAIL_CARD]: States.GO_TO_JAIL,
+                },
+                [handleDrawCard],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.END_TURN,
+                [Transitions.END_TURN, Transitions.DECLARE_BANKRUPTCY],
+                {
+                    [Transitions.NEXT_PLAYER]: States.NEXT_PLAYER,
+                    [Transitions.MANAGE_PROPERTIES]: States.MANAGE_PROPERTIES,
+                    [Transitions.DECLARE_BANKRUPTCY]: States.DECLARE_BANKRUPTCY,
+                    [Transitions.TRADE]: States.TRADE,
+                },
+                [handleEndTurn],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.NEXT_PLAYER,
+                [Transitions.NEXT_PLAYER],
+                {
+                    [Transitions.NEXT_TURN]: States.START_TURN,
+                    [Transitions.GAME_OVER]: States.END_GAME,
+                },
+                [handleNextPlayer],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.DECLARE_BANKRUPTCY,
+                [Transitions.DECLARE_BANKRUPTCY],
+                {
+                    [Transitions.NEXT_PLAYER]: States.NEXT_PLAYER,
+                },
+                [handleDeclareBankruptcy],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.MANAGE_PROPERTIES,
+                [Transitions.MANAGE_PROPERTIES],
+                {
+                    [Transitions.END_TURN]: States.END_TURN,
+                },
+                [handleManageProperties],
+                []
+            ),
+
+            new State<Transitions, States>(
+                States.TRADE,
+                [Transitions.TRADE],
+                {
+                    [Transitions.END_TURN]: States.END_TURN,
+                },
+                [handleTrade],
+                []
             ),
         ], false);
     }
@@ -242,6 +361,115 @@ function handleJailRentCheck(machine: StateMachine<Transitions, States>, event: 
  * @param additionalData Additional data passed with the event.
  */
 function handleFreeParking(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "landed on Go" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleGo(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+/**
+ * Function executed each time the "landed on Draw Card" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleDrawCard(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "Go To Jail" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleGoToJail(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "end turn" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleEndTurn(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "next player" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleNextPlayer(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "declare bankruptcy" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleDeclareBankruptcy(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "manage properties" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleManageProperties(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "trade" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleTrade(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "pay bail" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handlePayBail(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "use out of jail card" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleUseOutOfJailCard(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "try escape with dice" state is entered.
+ * @param machine The state machine used to represent the game.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleEscapeWithDice(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
     // TODO
 }
 

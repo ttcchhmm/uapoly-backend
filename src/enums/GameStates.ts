@@ -23,6 +23,11 @@ export enum GameStates {
     USE_OUT_OF_JAIL_CARD = 'USE_OUT_OF_JAIL_CARD',
 
     /**
+     * The player is trying to escape jail with the dice.
+     */
+    ESCAPE_WITH_DICE = 'ESCAPE_WITH_DICE',
+
+    /**
      * The player paid the bail.
      */
     PAY_BAIL = 'PAY_BAIL',
