@@ -123,6 +123,45 @@ UserRouter.post('/change-password', Auth.authenticateRequest, async (req: Authen
     return res.status(200).json({ message: 'Password changed' });
 });
 
+UserRouter.post('/change-email', Auth.authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
+    if(!checkBody(req.body, 'email', 'password')) {
+        return res.status(400).json({ message: 'Missing email or password' });
+    }
+
+    // Check if the email is valid
+    if(!Auth.matchEmail(req.body.email)) {
+        return res.status(400).json({ message: 'Invalid email' });
+    }
+
+    // Query the user
+    const user = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        select: {
+            login: true,
+            password: true,
+        },
+        cache: true,
+    });
+
+    if(!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the password is correct
+    if(!await Auth.checkPassword(req.body.password, user.password)) {
+        return res.status(401).json({ message: 'Invalid password' });
+    }
+
+    // Update the email
+    user.email = req.body.email;
+    await accountRepo.save(user);
+
+    return res.status(200).json({ message: 'Email changed' });
+});
+
 // ### USER INFO ### //
 
 UserRouter.get('/me', Auth.authenticateRequest, async (req: AuthenticatedRequest, res) => {
