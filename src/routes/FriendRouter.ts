@@ -161,17 +161,17 @@ FriendRouter.post('/remove', authenticateRequest, async (req: AuthenticatedReque
     });
 
     // Remove the friend request if it exists
-    Promise.all([receivedFriendRequest, sentFriendRequest]).then(([received, sent]) => {
-        if(received) {
-            friendRepo.remove(received);
-        } if(sent) {
-            friendRepo.remove(sent);
-        }
+    const [received, sent] = await Promise.all([receivedFriendRequest, sentFriendRequest]);
+    
+    if(received) {
+        friendRepo.remove(received);
+    } if(sent) {
+        friendRepo.remove(sent);
+    }
 
-        if(received || sent) {
-            return res.json({ message: 'Friend removed' });
-        } else {
-            return res.status(400).json({ message: 'Not friends' });
-        }
-    });
+    if(received || sent) {
+        return res.json({ message: 'Friend removed' });
+    } else {
+        return res.status(400).json({ message: 'Not friends' });
+    }
 });
