@@ -37,7 +37,11 @@ UserRouter.post('/login', async (req, res) => {
         const token = await Auth.login(user, req.body.password);
         return res.json({ token });
     } catch(error) { // Invalid password
-        return res.status(401).json({ message: error.message });
+        if(error instanceof Error) {
+            return res.status(401).json({ message: error.message });
+        } else {
+            return res.status(500).json({ message: 'Internal server error' });
+        }
     }
 });
 
