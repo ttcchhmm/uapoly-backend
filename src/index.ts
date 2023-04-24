@@ -28,7 +28,7 @@ if(process.env.ENV !== 'prod') {
 }
 
 import { AppDataSource } from "./data-source";
-import express, { Express } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import * as bodyParser from "body-parser";
 import { createServer } from 'http';
 import { Server } from "socket.io";
@@ -53,7 +53,7 @@ AppDataSource.initialize().then(async () => {
 
     // Disable CORS in development mode
     if(process.env.ENV !== 'prod') {
-        app.use((req, res, next) => {
+        app.use((req: Request, res: Response, next: NextFunction) => {
             res.header('Access-Control-Allow-Origin', '*');
             next();
         });   
@@ -66,12 +66,12 @@ AppDataSource.initialize().then(async () => {
     app.use('/game', GameRouter);
 
     // Handle 404
-    app.use((req, res, next) => {
+    app.use((req: Request, res: Response, next: NextFunction) => {
         next(new HTTPError(404, 'Not Found'));
     });
 
     // Handle errors
-    app.use((err: HTTPError, req, res, next) => {
+    app.use((err: HTTPError, req: Request, res: Response, next: NextFunction) => {
         // Specific HTTP error
         if(err.status) {
             return res.status(err.status).json({ message: err.message });
