@@ -10,6 +10,7 @@
       "@types/jsonwebtoken": "^9.0.1",
       "@types/node": "^16.11.10",
       "nodemon": "^2.0.22",
+      "socket.io-client": "^4.6.1",
       "ts-node": "10.7.0",
       "typescript": "4.5.2"
    },
@@ -28,7 +29,8 @@
    "scripts": {
       "start": "ts-node src/index.ts",
       "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
-      "dev": "nodemon --watch src --exec ts-node src/index.ts --skip-warnings-wait"
+      "dev": "nodemon --watch src --exec ts-node src/index.ts --skip-warnings-wait",
+      "socket-tester": "ts-node ./SocketDebugClient.ts"
    },
    "optionalDependencies": {
       "bufferutil": "^4.0.7",
