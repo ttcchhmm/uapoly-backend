@@ -98,7 +98,7 @@ export class StateMachine<T extends string, N, D> {
 
         this.states.forEach((state) => {
             Object.keys(state.getOutTransitions()).forEach((transition) => {
-                dot += `    ${state.getName()} -> ${state.getOutTransitions()[transition]} [label="${transition}"];\n`;
+                dot += `    ${state.getName()} -> ${(state.getOutTransitions() as any)[transition]} [label="${transition}"];\n`;
             });
         });
 
