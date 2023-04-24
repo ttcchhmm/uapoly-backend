@@ -52,6 +52,11 @@ UserRouter.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Invalid login' });
     }
 
+    // Check if the email is valid
+    if(!Auth.matchEmail(req.body.email)) {
+        return res.status(400).json({ message: 'Invalid email' });
+    }
+
     // Security check
     if(!Auth.matchSecurityBaseline(req.body.password)) {
         return res.status(400).json({ message: 'Password too short' });
