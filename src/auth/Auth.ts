@@ -33,6 +33,15 @@ export function checkPassword(password: string, hash: string): Promise<boolean> 
 }
 
 /**
+ * Checks if a password matches the security baseline.
+ * @param password The password to check.
+ * @returns True if the password matches the security baseline.
+ */
+export function matchSecurityBaseline(password: string): boolean {
+    return password.length >= 6;
+}
+
+/**
  * Logs a user in.
  * @param account The account to log in.
  * @param password The password to check.

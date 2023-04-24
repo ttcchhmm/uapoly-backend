@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login, hashPassword, authenticateRequest } from '../auth/Auth';
+import { login, hashPassword, authenticateRequest, checkPassword, matchSecurityBaseline } from '../auth/Auth';
 import { AuthenticatedRequest } from '../auth/AuthenticatedRequest';
 import { AppDataSource } from '../data-source';
 import { Account } from '../entity/Account';
@@ -52,8 +52,8 @@ UserRouter.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Invalid login' });
     }
 
-    // At least 6 characters
-    if(req.body.password.length < 6) {
+    // Security check
+    if(!matchSecurityBaseline(req.body.password)) {
         return res.status(400).json({ message: 'Password too short' });
     }
 
@@ -78,6 +78,44 @@ UserRouter.post('/register', async (req, res) => {
     await accountRepo.save(user);
 
     return res.status(201).json({ token: await login(user, req.body.password) });
+});
+
+UserRouter.post('/change-password', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    // Check if the body contains the required fields
+    if(!checkBody(req.body, 'oldPassword', 'newPassword')) {
+        return res.status(400).json({ message: 'Missing oldPassword or newPassword' });
+    }
+
+    if(!matchSecurityBaseline(req.body.newPassword)) {
+        return res.status(400).json({ message: 'New password does not match security requirements' });
+    }
+
+    // Query the user
+    const user = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        select: {
+            login: true,
+            password: true,
+        },
+        cache: true,
+    });
+
+    if(!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the password is correct
+    if(!await checkPassword(req.body.oldPassword, user.password)) {
+        return res.status(401).json({ message: 'Invalid password' });
+    }
+
+    // Update the password
+    user.password = await hashPassword(req.body.newPassword);
+    await accountRepo.save(user);
+
+    return res.status(200).json({ message: 'Password changed' });
 });
 
 // ### USER INFO ### //

@@ -1202,6 +1202,67 @@ paths:
                   name: UApoly Game
                   page: 1
         description: 'A JSON object with :'
+  /user/change-password:
+    post:
+      summary: Change the password associated with the current account
+      operationId: /user/change-password
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Password changed
+        '400':
+          description: Malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: New password does not match security requirements
+        '401':
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              examples:
+                Example:
+                  value:
+                    message: Invalid password
+      description: Update the password associated with the current account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  description: The password currently associated with the current account
+                  minLength: 6
+                  format: password
+                newPassword:
+                  type: string
+                  description: The new password of the current account
+                  minLength: 6
+                  format: password
+              required:
+                - oldPassword
+                - newPassword
+            examples:
+              Example:
+                value:
+                  oldPassword: pa$$word
+                  newPassword: my-super-secure-password
+        description: 'A JSON object with :'
 components:
   schemas:
     Friend:
