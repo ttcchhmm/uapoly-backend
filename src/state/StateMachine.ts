@@ -5,17 +5,18 @@ import { State } from "./State";
  * 
  * @template T An enum of all the possible transitions that can occur.
  * @template N An enum of all the possible states that can occur.
+ * @template D The type of the additional data that can be passed to the transition functions.
  */
-export class StateMachine<T extends string, N> {
+export class StateMachine<T extends string, N, D> {
     /**
      * The current state of the state machine.
      */
-    private currentState: State<T, N>;
+    private currentState: State<T, N, D>;
 
     /**
      * An array of all the states in the state machine.
      */
-    private states: State<T, N>[];
+    private states: State<T, N, D>[];
 
     /**
      * Whether or not to throw an error when an invalid transition is attempted.
@@ -28,7 +29,7 @@ export class StateMachine<T extends string, N> {
      * @param states The states of the state machine.
      * @param throwOnInvalidTransition Whether or not to throw an error when an invalid transition is attempted.
      */
-    constructor(initialState: N, states: State<T, N>[], throwOnInvalidTransition = true) {
+    constructor(initialState: N, states: State<T, N, D>[], throwOnInvalidTransition = true) {
         this.states = states;
         this.throwOnInvalidTransition = throwOnInvalidTransition;
 
@@ -52,7 +53,7 @@ export class StateMachine<T extends string, N> {
      * @param event The event to transition on.
      * @param additionalData Additional data to pass to the transition functions.
      */
-    public transition(event: T, additionalData?: any) {
+    public transition(event: T, additionalData?: D) {
         // Check out transitions of current state
         if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
             throw new Error(`Invalid transition from ${this.currentState.getName()} with event ${event}`);
