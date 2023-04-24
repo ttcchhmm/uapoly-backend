@@ -51,7 +51,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
         return res.status(400).json({ message: 'Invalid initial money' });
     }
 
-    if(!Slots[req.body.locale]) {
+    if(!Slots.has(req.body.locale)) {
         return res.status(404).json({ message: 'Locale not found' });
     }
 
@@ -93,7 +93,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.players = [player];
 
     // TODO: Allow for custom slots and/or other default sets.
-    board.slots = Slots[req.body.locale].slots().map((slot) => {
+    board.slots = Slots.get(req.body.locale).slots().map((slot) => {
         slot.board = board;
         slot.boardId = board.id;
 
@@ -362,10 +362,10 @@ GameRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest
 // ### DEFAULT BOARDS ### //
 
 GameRouter.get('/boards', (req, res) => {
-    const response = {};
+    const response: any = {};
 
-    Object.keys(Slots).forEach((key) => {
-        response[key] = Slots[key].name;
+    Slots.forEach((value, key) => {
+        response[key] = value.name;
     });
 
     return res.status(200).json(response);
@@ -376,11 +376,9 @@ GameRouter.post('/boards', (req, res) => {
         return res.status(400).json({ message: 'Missing arguments' });
     }
 
-    const localizedBoard = Slots[req.body.locale];
-
-    if(!localizedBoard) {
+    if(!Slots.has(req.body.locale)) {
         return res.status(404).json({ message: 'Invalid locale' });
     }
 
-    return res.status(200).json(localizedBoard.slots().map((slot: BoardSlot) => slot.getSimplified()));
+    return res.status(200).json(Slots.get(req.body.locale).slots().map((slot: BoardSlot) => slot.getSimplified()));
 });
