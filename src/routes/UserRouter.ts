@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login, hashPassword, authenticateRequest, checkPassword, matchSecurityBaseline } from '../auth/Auth';
+import * as Auth from '../auth/Auth';
 import { AuthenticatedRequest } from '../auth/AuthenticatedRequest';
 import { AppDataSource } from '../data-source';
 import { Account } from '../entity/Account';
@@ -34,7 +34,7 @@ UserRouter.post('/login', async (req, res) => {
 
     // Check if the password is correct
     try {
-        const token = await login(user, req.body.password);
+        const token = await Auth.login(user, req.body.password);
         return res.json({ token });
     } catch(error) { // Invalid password
         return res.status(401).json({ message: error.message });
@@ -53,7 +53,7 @@ UserRouter.post('/register', async (req, res) => {
     }
 
     // Security check
-    if(!matchSecurityBaseline(req.body.password)) {
+    if(!Auth.matchSecurityBaseline(req.body.password)) {
         return res.status(400).json({ message: 'Password too short' });
     }
 
@@ -73,20 +73,20 @@ UserRouter.post('/register', async (req, res) => {
     const user = new Account();
     user.login = req.body.login;
     user.email = req.body.email;
-    user.password = await hashPassword(req.body.password);
+    user.password = await Auth.hashPassword(req.body.password);
 
     await accountRepo.save(user);
 
-    return res.status(201).json({ token: await login(user, req.body.password) });
+    return res.status(201).json({ token: await Auth.login(user, req.body.password) });
 });
 
-UserRouter.post('/change-password', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+UserRouter.post('/change-password', Auth.authenticateRequest, async (req: AuthenticatedRequest, res) => {
     // Check if the body contains the required fields
     if(!checkBody(req.body, 'oldPassword', 'newPassword')) {
         return res.status(400).json({ message: 'Missing oldPassword or newPassword' });
     }
 
-    if(!matchSecurityBaseline(req.body.newPassword)) {
+    if(!Auth.matchSecurityBaseline(req.body.newPassword)) {
         return res.status(400).json({ message: 'New password does not match security requirements' });
     }
 
@@ -107,12 +107,12 @@ UserRouter.post('/change-password', authenticateRequest, async (req: Authenticat
     }
 
     // Check if the password is correct
-    if(!await checkPassword(req.body.oldPassword, user.password)) {
+    if(!await Auth.checkPassword(req.body.oldPassword, user.password)) {
         return res.status(401).json({ message: 'Invalid password' });
     }
 
     // Update the password
-    user.password = await hashPassword(req.body.newPassword);
+    user.password = await Auth.hashPassword(req.body.newPassword);
     await accountRepo.save(user);
 
     return res.status(200).json({ message: 'Password changed' });
@@ -120,7 +120,7 @@ UserRouter.post('/change-password', authenticateRequest, async (req: Authenticat
 
 // ### USER INFO ### //
 
-UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+UserRouter.get('/me', Auth.authenticateRequest, async (req: AuthenticatedRequest, res) => {
     const user = await accountRepo.createQueryBuilder('account')
         .where('account.login = :login', { login: req.user.login })
         .addSelect('account.email')
@@ -134,7 +134,7 @@ UserRouter.get('/me', authenticateRequest, async (req: AuthenticatedRequest, res
     return res.json(user);
 });
 
-UserRouter.post('/search', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+UserRouter.post('/search', Auth.authenticateRequest, async (req: AuthenticatedRequest, res) => {
     if(!checkBody(req.body, 'login') || req.body.login.length <= 0) {
         return res.status(400).json({ message: 'Missing login' });
     }
