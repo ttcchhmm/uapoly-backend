@@ -5,6 +5,7 @@ import { Token } from './Token';
 import { AuthenticatedRequest } from './AuthenticatedRequest';
 import { NextFunction, Response } from 'express';
 import { AuthenticatedSocket } from './AuthenticatedSocket';
+import * as EmailValidator from 'email-validator';
 
 /**
  * Passwords will go through 2^(this constant) rounds of hashing.
@@ -39,6 +40,18 @@ export function checkPassword(password: string, hash: string): Promise<boolean> 
  */
 export function matchSecurityBaseline(password: string): boolean {
     return password.length >= 6;
+}
+
+/**
+ * Checks if an email address is valid.
+ * 
+ * See : https://www.npmjs.com/package/email-validator
+ * 
+ * @param email The email address to check.
+ * @returns True if the email address is valid.
+ */
+export function matchEmail(email: string): boolean {
+    return EmailValidator.validate(email);
 }
 
 /**
