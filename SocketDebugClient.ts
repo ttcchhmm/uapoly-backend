@@ -36,6 +36,12 @@ rl.question('Login: ', (login) => {
                 password
             }),
         }).then((res) => res.json()).then((res) => {
+            // If an error message is present
+            if(res.message) {
+                console.error(`Failed to authenticate: ${res.message}`);
+                process.exit(1);
+            }
+
             // Try to open a connection to the server.
             const socket = io(`http://${process.argv[2]}:${process.argv[3]}`, {
                 auth: {
