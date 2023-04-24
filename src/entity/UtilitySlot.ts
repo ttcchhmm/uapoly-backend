@@ -11,11 +11,11 @@ export class UtilitySlot extends BuyableSlot {
     @Column(() => UtilityRent)
     utilityRent: UtilityRent;
 
-    onPlayerStop(player: Player): void {
+    override onPlayerStop(player: Player): void {
         throw new Error("Method not implemented."); // TODO: Implement this method.
     }
 
-    getSimplified() {
+    override getSimplified() {
         return {
             utilityRent: this.utilityRent,
             ...super.getSimplified(),

@@ -20,11 +20,11 @@ export class CardSlot extends BoardSlot {
     }
 
     // TODO: Implement this method.
-    onPlayerStop(player: Player) {
+    override onPlayerStop(player: Player) {
         throw new Error("Method not implemented.");
     }
 
-    getSimplified() {
+    override getSimplified() {
         return {
             cardStyle: this.cardStyle,
             ...super.getSimplified(),

@@ -7,5 +7,5 @@ import { Player } from "./Player";
  */
 @ChildEntity()
 export class RestSlot extends BoardSlot {
-    onPlayerStop(player: Player) {} // Do nothing.
+    override onPlayerStop(player: Player) {} // Do nothing.
 }

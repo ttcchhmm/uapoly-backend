@@ -39,7 +39,7 @@ export abstract class BuyableSlot extends BoardSlot {
         this.owner = null;
     }
 
-    getSimplified() {
+    override getSimplified() {
         return {
             price: this.price,
             ...super.getSimplified(),

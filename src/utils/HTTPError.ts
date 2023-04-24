@@ -10,7 +10,7 @@ export class HTTPError extends Error {
     /**
      * The message to send to the client.
      */
-    public message: string;
+    public override message: string;
 
     /**
      * Creates a new HTTPError. 

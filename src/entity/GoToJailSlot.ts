@@ -12,7 +12,7 @@ export class GoToJailSlot extends BoardSlot {
     }
 
     // TODO: Implement this method.
-    onPlayerStop(player: Player): void {
+    override onPlayerStop(player: Player): void {
         throw new Error("Method not implemented.");
     }
 }
