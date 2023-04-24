@@ -6,13 +6,23 @@ import { State } from "../state/State";
 import { writeFileSync } from "fs";
 
 /**
+ * Additional data to pass to each transition function.
+ */
+interface GameEvent {
+    /**
+     * The board the game is being played on.
+     */
+    board: Board;
+}
+
+/**
  * Manage the state machines for each game.
  */
 export class GameManager {
     /**
      * A map of all the games, with the game ID as the key.
      */
-    games: Map<number, StateMachine<Transitions, States>>;
+    games: Map<number, StateMachine<Transitions, States, GameEvent>>;
 
     /**
      * Start a new state machine for a game.
@@ -35,11 +45,11 @@ export class GameManager {
      * Create a new state machine for a game.
      * @returns A new state machine for a game.
      */
-    private static createMachine(): StateMachine<Transitions, States> {
+    private static createMachine(): StateMachine<Transitions, States, GameEvent> {
         // TODO: Finish this
         // Not yet implemented : manage double rolls, payments
-        return new StateMachine<Transitions, States>(States.START_TURN, [
-            new State<Transitions, States>(
+        return new StateMachine<Transitions, States, GameEvent>(States.START_TURN, [
+            new State<Transitions, States, GameEvent>(
                 States.START_TURN,
                 [Transitions.END_TURN],
                 {
@@ -50,7 +60,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.TRY_ESCAPE_JAIL,
                 [Transitions.IS_IN_JAIL],
                 {
@@ -63,7 +73,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.PAY_BAIL,
                 [Transitions.PAY_BAIL],
                 {
@@ -73,7 +83,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.USE_OUT_OF_JAIL_CARD,
                 [Transitions.USE_OUT_OF_JAIL_CARD],
                 {
@@ -83,7 +93,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.ESCAPE_WITH_DICE,
                 [Transitions.ESCAPE_WITH_DICE],
                 {
@@ -94,7 +104,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.ROLL_DICE,
                 [Transitions.ROLL_DICE],
                 {
@@ -105,7 +115,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.LANDED_ON_SLOT,
                 [Transitions.MOVED_PLAYER],
                 {
@@ -121,7 +131,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.GO_TO_JAIL,
                 [Transitions.LAND_ON_GO_TO_JAIL, Transitions.DREW_GO_TO_JAIL_CARD],
                 {
@@ -131,7 +141,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.BUYABLE_SLOT,
                 [Transitions.LAND_ON_BUYABLE],
                 {
@@ -142,7 +152,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.UNOWNED_SLOT,
                 [Transitions.NOT_BOUGHT],
                 {
@@ -153,7 +163,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.BUY_PROPERTY,
                 [Transitions.BUY_PROPERTY],
                 {}, // TODO Handle payment
@@ -161,7 +171,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.OWNED_SLOT,
                 [Transitions.BOUGHT],
                 {
@@ -172,7 +182,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.PAY_RENT,
                 [Transitions.OWNER_NOT_IN_JAIL],
                 {}, // TODO: Handle payment
@@ -180,7 +190,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.FREE_PARKING,
                 [Transitions.LAND_ON_FREE_PARKING],
                 {
@@ -190,7 +200,7 @@ export class GameManager {
                 [],
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.TAX,
                 [Transitions.LAND_ON_TAX],
                 {}, // TODO: Handle payment
@@ -198,7 +208,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.GO,
                 [Transitions.LAND_ON_START],
                 {
@@ -208,7 +218,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.DRAW_CARD,
                 [Transitions.LAND_ON_DRAW_CARD],
                 {
@@ -219,7 +229,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.END_TURN,
                 [Transitions.END_TURN, Transitions.DECLARE_BANKRUPTCY],
                 {
@@ -232,7 +242,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.NEXT_PLAYER,
                 [Transitions.NEXT_PLAYER],
                 {
@@ -243,7 +253,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.DECLARE_BANKRUPTCY,
                 [Transitions.DECLARE_BANKRUPTCY],
                 {
@@ -253,7 +263,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.MANAGE_PROPERTIES,
                 [Transitions.MANAGE_PROPERTIES],
                 {
@@ -263,7 +273,7 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States>(
+            new State<Transitions, States, GameEvent>(
                 States.TRADE,
                 [Transitions.TRADE],
                 {
@@ -290,7 +300,7 @@ export class GameManager {
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function startOfTurn(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function startOfTurn(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -300,7 +310,7 @@ function startOfTurn(machine: StateMachine<Transitions, States>, event: Transiti
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function tryEscapeJail(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function tryEscapeJail(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -310,7 +320,7 @@ function tryEscapeJail(machine: StateMachine<Transitions, States>, event: Transi
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleLanding(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleLanding(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -320,7 +330,7 @@ function handleLanding(machine: StateMachine<Transitions, States>, event: Transi
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function endTurn(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function endTurn(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -330,7 +340,7 @@ function endTurn(machine: StateMachine<Transitions, States>, event: Transitions,
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleLandedOnBuyableSlot(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleLandedOnBuyableSlot(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -340,7 +350,7 @@ function handleLandedOnBuyableSlot(machine: StateMachine<Transitions, States>, e
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleBuyingProperty(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleBuyingProperty(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -350,7 +360,7 @@ function handleBuyingProperty(machine: StateMachine<Transitions, States>, event:
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleJailRentCheck(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleJailRentCheck(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -360,7 +370,7 @@ function handleJailRentCheck(machine: StateMachine<Transitions, States>, event: 
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleFreeParking(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleFreeParking(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -370,7 +380,7 @@ function handleFreeParking(machine: StateMachine<Transitions, States>, event: Tr
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleGo(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleGo(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 /**
@@ -379,7 +389,7 @@ function handleGo(machine: StateMachine<Transitions, States>, event: Transitions
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleDrawCard(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleDrawCard(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -389,7 +399,7 @@ function handleDrawCard(machine: StateMachine<Transitions, States>, event: Trans
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleGoToJail(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleGoToJail(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -399,7 +409,7 @@ function handleGoToJail(machine: StateMachine<Transitions, States>, event: Trans
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleEndTurn(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleEndTurn(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -409,7 +419,7 @@ function handleEndTurn(machine: StateMachine<Transitions, States>, event: Transi
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleNextPlayer(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleNextPlayer(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -419,7 +429,7 @@ function handleNextPlayer(machine: StateMachine<Transitions, States>, event: Tra
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleDeclareBankruptcy(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleDeclareBankruptcy(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -429,7 +439,7 @@ function handleDeclareBankruptcy(machine: StateMachine<Transitions, States>, eve
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleManageProperties(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleManageProperties(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -439,7 +449,7 @@ function handleManageProperties(machine: StateMachine<Transitions, States>, even
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleTrade(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleTrade(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -449,7 +459,7 @@ function handleTrade(machine: StateMachine<Transitions, States>, event: Transiti
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handlePayBail(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handlePayBail(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -459,7 +469,7 @@ function handlePayBail(machine: StateMachine<Transitions, States>, event: Transi
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleUseOutOfJailCard(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleUseOutOfJailCard(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
@@ -469,7 +479,7 @@ function handleUseOutOfJailCard(machine: StateMachine<Transitions, States>, even
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleEscapeWithDice(machine: StateMachine<Transitions, States>, event: Transitions, additionalData?: any) {
+function handleEscapeWithDice(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
