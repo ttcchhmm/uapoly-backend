@@ -6,7 +6,7 @@ import { StateMachine } from "./StateMachine";
  * @template T An enum of all the possible transitions that can occur.
  * @template N An enum of all the possible states that can occur.
  */
-type OutTransitions<T extends string, N> = {
+export type OutTransitions<T extends string, N> = {
     /**
      * The transition to the state.
      */
@@ -20,11 +20,12 @@ type OutTransitions<T extends string, N> = {
  * @template N An enum of all the possible states that can occur.
  * @template D The type of the additional data that can be passed to the transition functions.
  * 
- * @param machine The state machine.
+ * @param currentMachine The state machine.
+ * @param upperMachine The parent state machine, if embedded.
  * @param event The event that caused the transition.
  * @param additionalData Additional data to be passed to the function.
  */
-type TransitionFunction<T extends string, N, D> = (machine: StateMachine<T, N, D>, event: T, additionalData?: any) => void;
+type TransitionFunction<T extends string, N, D> = (currentMachine: StateMachine<T, N, D>, upperMachine: StateMachine<T, N, D> | undefined, event: T, additionalData?: D) => void;
 
 /**
  * A state in a state machine.
@@ -93,8 +94,8 @@ export class State<T extends string, N, D> {
      * @param event The event to transition on.
      * @param additionalData Additional data to be passed to the transition functions.
      */
-    public enter(event: T, additionalData?: D) {
-        this.onEnter.forEach((func) => func(this.machine, event, additionalData));
+    public enter(event: T, additionalData?: D, upperMachine?: StateMachine<T, N, D>) {
+        this.onEnter.forEach((func) => func(this.machine, upperMachine, event, additionalData));
     }
 
     /**
@@ -102,8 +103,8 @@ export class State<T extends string, N, D> {
      * @param event The event to transition on.
      * @param additionalData Additional data to be passed to the transition functions.
      */
-    public exit(event: T, additionalData?: D) {
-        this.onExit.forEach((func) => func(this.machine, event, additionalData));
+    public exit(event: T, additionalData?: D, upperMachine?: StateMachine<T, N, D>) {
+        this.onExit.forEach((func) => func(this.machine, upperMachine, event, additionalData));
     }
 
     /**
