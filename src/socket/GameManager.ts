@@ -296,190 +296,209 @@ export class GameManager {
 
 /**
  * Function executed each time the "start of turn" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function startOfTurn(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function startOfTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "try escape jail" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function tryEscapeJail(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function tryEscapeJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "landed on slot" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleLanding(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleLanding(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "end turn" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function endTurn(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function endTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "landed on buyable slot" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleLandedOnBuyableSlot(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleLandedOnBuyableSlot(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "buy property" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleBuyingProperty(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "landed on bought slot" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleJailRentCheck(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleJailRentCheck(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "Free Parking" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleFreeParking(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleFreeParking(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "landed on Go" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleGo(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleGo(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 /**
  * Function executed each time the "landed on Draw Card" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleDrawCard(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleDrawCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "Go To Jail" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleGoToJail(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleGoToJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "end turn" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleEndTurn(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleEndTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "next player" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleNextPlayer(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleNextPlayer(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "declare bankruptcy" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleDeclareBankruptcy(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleDeclareBankruptcy(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "manage properties" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleManageProperties(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleManageProperties(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "trade" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleTrade(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleTrade(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "pay bail" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handlePayBail(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handlePayBail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "use out of jail card" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleUseOutOfJailCard(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleUseOutOfJailCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
 /**
  * Function executed each time the "try escape with dice" state is entered.
- * @param machine The state machine used to represent the game.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleEscapeWithDice(machine: StateMachine<Transitions, States, GameEvent>, event: Transitions, additionalData?: GameEvent) {
+function handleEscapeWithDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
