@@ -47,7 +47,7 @@ export class GameManager {
      */
     private static createMachine(): StateMachine<Transitions, States, GameEvent> {
         // TODO: Finish this
-        // Not yet implemented : manage double rolls, payments
+        // Not yet implemented : manage double rolls, trades
         return new StateMachine<Transitions, States, GameEvent>(States.START_TURN, [
             new State<Transitions, States, GameEvent>(
                 States.START_TURN,
@@ -77,7 +77,7 @@ export class GameManager {
                 States.PAY_BAIL,
                 [Transitions.PAY_BAIL],
                 {
-                    [Transitions.ROLL_DICE]: States.ROLL_DICE,
+                    [Transitions.PAY_BAIL]: States.PAY,
                 },
                 [handlePayBail],
                 []
@@ -166,8 +166,10 @@ export class GameManager {
             new State<Transitions, States, GameEvent>(
                 States.BUY_PROPERTY,
                 [Transitions.BUY_PROPERTY],
-                {}, // TODO Handle payment
-                [],
+                {
+                    [Transitions.PAY_BANK]: States.PAY
+                },
+                [handlePayingProperty],
                 []
             ),
 
@@ -185,8 +187,10 @@ export class GameManager {
             new State<Transitions, States, GameEvent>(
                 States.PAY_RENT,
                 [Transitions.OWNER_NOT_IN_JAIL],
-                {}, // TODO: Handle payment
-                [],
+                {
+                    [Transitions.PAY_PLAYER]: States.PAY,
+                },
+                [handleRent],
                 []
             ),
 
@@ -203,8 +207,10 @@ export class GameManager {
             new State<Transitions, States, GameEvent>(
                 States.TAX,
                 [Transitions.LAND_ON_TAX],
-                {}, // TODO: Handle payment
-                [],
+                {
+                    [Transitions.PAY_BANK]: States.PAY,
+                },
+                [handlePayTax],
                 []
             ),
 
@@ -281,6 +287,49 @@ export class GameManager {
                 },
                 [handleTrade],
                 []
+            ),
+
+            new StateMachine<Transitions, States, GameEvent>(
+                States.CHECK_IF_PLAYER_CAN_AFFORD,
+                [
+                    new State<Transitions, States, GameEvent>(
+                        States.PLAYER_IN_DEBT,
+                        [Transitions.CANNOT_PAY],
+                        {
+                            [Transitions.DECLARE_BANKRUPTCY]: States.DECLARE_BANKRUPTCY,
+                            [Transitions.TRADE]: States.TRADE,
+                            [Transitions.MANAGE_PROPERTIES]: States.MANAGE_PROPERTIES,
+                            [Transitions.CAN_PAY]: States.TRANSFER_MONEY,
+                        },
+                        [handlePlayerInDebt],
+                        []
+                    ),
+                    
+                    new State<Transitions, States, GameEvent>(
+                        States.CHECK_IF_PLAYER_CAN_AFFORD,
+                        [],
+                        {
+                            [Transitions.CAN_PAY]: States.TRANSFER_MONEY,
+                            [Transitions.CANNOT_PAY]: States.PLAYER_IN_DEBT,
+                        },
+                        [handleCheckIfPlayerCanAfford],
+                        []
+                    ),
+                ],
+                false,
+                {
+                    name: States.PAY,
+                    outTransitions: {
+                        [Transitions.DECLARE_BANKRUPTCY]: States.DECLARE_BANKRUPTCY,
+                        [Transitions.END_TURN]: States.END_TURN,
+                        [Transitions.PAY_BAIL]: States.ROLL_DICE,
+                    },
+                    inTransitions: [
+                        Transitions.PAY_BAIL,
+                        Transitions.PAY_BANK,
+                        Transitions.PAY_PLAYER,
+                    ]
+                }
             ),
         ], false);
     }
@@ -499,6 +548,61 @@ function handleUseOutOfJailCard(currentMachine: StateMachine<Transitions, States
  * @param additionalData Additional data passed with the event.
  */
 function handleEscapeWithDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "player is in debt" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handlePlayerInDebt(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "pay property" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handlePayingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "pay rent" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleRent(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "pay tax" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handlePayTax(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "check if player can afford" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleCheckIfPlayerCanAfford(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 
