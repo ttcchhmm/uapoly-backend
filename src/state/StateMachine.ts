@@ -23,11 +23,6 @@ interface EmbedSettings<T extends string, N, D> {
      * The transitions that can be made from this state machine.
      */
     outTransitions: OutTransitions<T, N>;
-
-    /**
-     * The parent machine of this state machine.
-     */
-    parent: StateMachine<T, N, D>;
 }
 
 /**
@@ -84,7 +79,7 @@ export class StateMachine<T extends string, N, D> {
     private throwOnInvalidTransition: boolean;
 
     /**
-     * Constructs an non-embeddable new state machine.
+     * Constructs a new state machine.
      * @param initialState The initial state of the state machine.
      * @param states The states of the state machine.
      * @param throwOnInvalidTransition Whether or not to throw an error when an invalid transition is attempted.
@@ -98,11 +93,7 @@ export class StateMachine<T extends string, N, D> {
         this.throwOnInvalidTransition = throwOnInvalidTransition;
 
         // Set the parent machine of each state
-        this.states.forEach((state) => {
-            if(state instanceof State) {
-                state.setParentMachine(this);
-            }
-        });
+        this.states.forEach((state) => state.setParentMachine(this));
 
         // Get the initial state
         this.currentState = states.find((state) => state.getName() === initialState);
@@ -117,7 +108,6 @@ export class StateMachine<T extends string, N, D> {
             this.name = embedSettings.name;
             this.inTransitions = embedSettings.inTransitions;
             this.outTransitions = embedSettings.outTransitions;
-            this.parentMachine = embedSettings.parent;
             this.isReset = true;
         } else { // Main machine, enter the initial state
             this.currentState.enter(undefined);
@@ -200,6 +190,14 @@ export class StateMachine<T extends string, N, D> {
      */
     public isEmbedded(): boolean {
         return this.name !== undefined;
+    }
+
+    /**
+     * Sets the parent machine of this state machine, if embedded.
+     * @param parentMachine The parent machine of this state machine, if embedded.
+     */
+    public setParentMachine(parentMachine: StateMachine<T, N, D>) {
+        this.parentMachine = parentMachine;
     }
 
     /**
