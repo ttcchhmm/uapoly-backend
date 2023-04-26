@@ -307,7 +307,11 @@ export class GameManager {
                     
                     new State<Transitions, States, GameEvent>(
                         States.CHECK_IF_PLAYER_CAN_AFFORD,
-                        [],
+                        [
+                            Transitions.PAY_BAIL,
+                            Transitions.PAY_BANK,
+                            Transitions.PAY_PLAYER,
+                        ],
                         {
                             [Transitions.CAN_PAY]: States.TRANSFER_MONEY,
                             [Transitions.CANNOT_PAY]: States.PLAYER_IN_DEBT,
