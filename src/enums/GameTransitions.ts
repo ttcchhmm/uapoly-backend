@@ -1,7 +1,7 @@
 /**
  * An enum of all the possible transitions that can occur in the game.
  */
-export enum GameTransitions {
+export const enum GameTransitions {
     /**
      * The player is in jail.
      */

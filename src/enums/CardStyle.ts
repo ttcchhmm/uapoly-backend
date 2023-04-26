@@ -1,7 +1,7 @@
 /**
  * The style of a card.
  */
-export enum CardStyle {
+export const enum CardStyle {
     /**
      * A "Community Chest" card.
      */

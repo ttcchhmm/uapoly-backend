@@ -23,6 +23,7 @@
       "noImplicitReturns": true,
       "noImplicitThis": true,
       "strictBindCallApply": true,
-      "useUnknownInCatchVariables": true
+      "useUnknownInCatchVariables": true,
+      "preserveConstEnums": true
    }
 }

@@ -1,7 +1,7 @@
 /**
  * An enum of all the possible states that can occur in the game.
  */
-export enum GameStates {
+export const enum GameStates {
     /**
      * Start of a new turn.
      */

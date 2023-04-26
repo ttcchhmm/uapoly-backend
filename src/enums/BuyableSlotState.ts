@@ -1,7 +1,7 @@
 /**
  * The state of a buyable slot.
  */
-export enum BuyableSlotState {
+export const enum BuyableSlotState {
     /**
      * The slot is owned by a player.
      */
