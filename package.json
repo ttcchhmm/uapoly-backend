@@ -31,7 +31,9 @@
       "start": "ts-node src/index.ts",
       "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
       "dev": "nodemon --watch src --exec ts-node src/index.ts --skip-warnings-wait",
-      "socket-tester": "ts-node ./SocketDebugClient.ts"
+      "socket-tester": "ts-node ./SocketDebugClient.ts",
+      "build-prod": "tsc -p ./tsconfig-prod.json",
+      "clean": "rm -r ./dist ./build"
    },
    "optionalDependencies": {
       "bufferutil": "^4.0.7",
