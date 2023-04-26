@@ -288,7 +288,7 @@ export class GameManager {
                         {
                             [Transitions.ACCEPTED_TRADE]: States.TRADE_ACCEPTED,
                             [Transitions.END_TURN]: States.END_TURN,
-                            [Transitions.CONTINUE]: States.CHECK_IF_PLAYER_CAN_AFFORD,
+                            [Transitions.CONTINUE]: States.PAY,
                         },
                         [handleTrade],
                         []
@@ -299,7 +299,7 @@ export class GameManager {
                         [Transitions.ACCEPTED_TRADE],
                         {
                             [Transitions.END_TURN]: States.END_TURN,
-                            [Transitions.CONTINUE]: States.CHECK_IF_PLAYER_CAN_AFFORD,
+                            [Transitions.CONTINUE]: States.PAY,
                         },
                         [handleTradeAccepted],
                         []
@@ -313,7 +313,7 @@ export class GameManager {
                     ],
                     outTransitions: {
                         [Transitions.END_TURN]: States.END_TURN,
-                        [Transitions.CONTINUE]: States.CHECK_IF_PLAYER_CAN_AFFORD,
+                        [Transitions.CONTINUE]: States.PAY,
                     }
                 },
             ),
