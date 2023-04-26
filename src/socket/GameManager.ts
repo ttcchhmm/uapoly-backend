@@ -47,7 +47,7 @@ export class GameManager {
      */
     private static createMachine(): StateMachine<Transitions, States, GameEvent> {
         // TODO: Finish this
-        // Not yet implemented : manage double rolls, trades
+        // Not yet implemented : manage double rolls
         return new StateMachine<Transitions, States, GameEvent>(States.START_TURN, [
             new State<Transitions, States, GameEvent>(
                 States.START_TURN,
@@ -279,14 +279,43 @@ export class GameManager {
                 []
             ),
 
-            new State<Transitions, States, GameEvent>(
+            new StateMachine<Transitions, States, GameEvent>(
                 States.TRADE,
-                [Transitions.TRADE],
+                [
+                    new State<Transitions, States, GameEvent>(
+                        States.TRADE,
+                        [Transitions.TRADE],
+                        {
+                            [Transitions.ACCEPTED_TRADE]: States.TRADE_ACCEPTED,
+                            [Transitions.END_TURN]: States.END_TURN,
+                            [Transitions.CONTINUE]: States.CHECK_IF_PLAYER_CAN_AFFORD,
+                        },
+                        [handleTrade],
+                        []
+                    ),
+
+                    new State<Transitions, States, GameEvent>(
+                        States.TRADE_ACCEPTED,
+                        [Transitions.ACCEPTED_TRADE],
+                        {
+                            [Transitions.END_TURN]: States.END_TURN,
+                            [Transitions.CONTINUE]: States.CHECK_IF_PLAYER_CAN_AFFORD,
+                        },
+                        [handleTradeAccepted],
+                        []
+                    ),
+                ],
+                false,
                 {
-                    [Transitions.END_TURN]: States.END_TURN,
+                    name: States.TRADE,
+                    inTransitions: [
+                        Transitions.TRADE,
+                    ],
+                    outTransitions: {
+                        [Transitions.END_TURN]: States.END_TURN,
+                        [Transitions.CONTINUE]: States.CHECK_IF_PLAYER_CAN_AFFORD,
+                    }
                 },
-                [handleTrade],
-                []
             ),
 
             new StateMachine<Transitions, States, GameEvent>(
@@ -607,6 +636,17 @@ function handlePayTax(currentMachine: StateMachine<Transitions, States, GameEven
  * @param additionalData Additional data passed with the event.
  */
 function handleCheckIfPlayerCanAfford(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    // TODO
+}
+
+/**
+ * Function executed each time the "trade accepted state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleTradeAccepted(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
 }
 

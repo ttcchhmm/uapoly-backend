@@ -123,6 +123,11 @@ export enum GameStates {
     TRADE = 'TRADE',
 
     /**
+     * The player chose to accept the trade.
+     */
+    TRADE_ACCEPTED = 'TRADE_ACCEPTED',
+
+    /**
      * The player chose to declare bankruptcy.
      */
     DECLARE_BANKRUPTCY = 'DECLARE_BANKRUPTCY',
