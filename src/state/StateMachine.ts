@@ -79,6 +79,11 @@ export class StateMachine<T extends string, N, D> {
     private throwOnInvalidTransition: boolean;
 
     /**
+     * An array of all the transitions that have occurred.
+     */
+    private transitionsHistory: T[];
+
+    /**
      * Constructs a new state machine.
      * @param initialState The initial state of the state machine.
      * @param states The states of the state machine.
@@ -91,6 +96,7 @@ export class StateMachine<T extends string, N, D> {
         this.isReset = false;
         this.states = states;
         this.throwOnInvalidTransition = throwOnInvalidTransition;
+        this.transitionsHistory = [];
 
         // Set the parent machine of each state
         this.states.forEach((state) => state.setParentMachine(this));
@@ -137,6 +143,8 @@ export class StateMachine<T extends string, N, D> {
                 if(!newState.getInTransitions().includes(event) && this.throwOnInvalidTransition) {
                     throw new Error(`Invalid transition from ${this.currentState.getName()} to ${newState.getName()} with event ${event}`);
                 } else {
+                    this.transitionsHistory.push(event);
+
                     if(!this.isReset) {
                         this.currentState.exit(event, additionalData, parentMachine);
                     } else {
@@ -158,6 +166,14 @@ export class StateMachine<T extends string, N, D> {
      */
     public getCurrentState(): N {
         return this.currentState.getName();
+    }
+
+    /**
+     * Gets the transition history of the state machine.
+     * @returns An array containing all the transitions that have occurred.
+     */
+    public getTransitionHistory(): T[] {
+        return this.transitionsHistory;
     }
 
     /**
@@ -223,6 +239,7 @@ export class StateMachine<T extends string, N, D> {
         });
 
         this.currentState = this.states.find((state) => state.getName() === this.initialStateName);
+        this.transitionsHistory = [];
         this.isReset = true;
     }
 
