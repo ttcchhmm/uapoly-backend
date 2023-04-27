@@ -107,6 +107,31 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     return res.status(200).json(board.getSimplified());
 });
 
+GameRouter.get('/join', authenticateRequest, async (req: AuthenticatedRequest, res) => {
+    const user = await accountRepo.findOne({
+        where: {
+            login: req.user.login,
+        },
+        cache: true,
+    });
+
+    // Check if the user exists
+    if(!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Get the games the user is in
+    const players = await playerRepo.find({
+        where: {
+            accountLogin: user.login,
+        },
+        relations: ['game'],
+        cache: true,
+    });
+
+    return res.status(200).json(players.map((player) => player.game.getSimplified()));
+});
+
 GameRouter.post('/join', authenticateRequest, async (req: AuthenticatedRequest, res) => {
     if(!checkBody(req.body, 'gameId')) {
         return res.status(400).json({ message: 'Missing arguments' });

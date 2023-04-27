@@ -619,6 +619,41 @@ paths:
               required:
                 - gameId
         description: 'A JSON object with :'
+    get:
+      summary: Get the games the account is in
+      operationId: /game/join-get
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: An array with the games the account is in
+                items:
+                  $ref: '#/components/schemas/GameMetadata'
+              examples:
+                Example:
+                  value:
+                    - id: 1
+                      players: 2
+                      maxPlayers: 4
+                      salary: 200
+                      initialMoney: 2500
+                      private: true
+                      started: false
+                      friendsOnly: true
+                      name: My UApoly game
+                    - id: 2
+                      players: 4
+                      maxPlayers: 8
+                      salary: 250
+                      initialMoney: 3000
+                      private: false
+                      started: true
+                      friendsOnly: false
+                      name: Our UApoly game
+      description: Get the games the account is in.
   /game/boards:
     get:
       summary: Get localized boards
