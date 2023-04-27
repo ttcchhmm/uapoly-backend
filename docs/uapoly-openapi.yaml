@@ -1358,6 +1358,25 @@ paths:
                   email: user@example.com
                   password: password
         description: 'A JSON object with :'
+  '/user/picture/{login}':
+    get:
+      summary: Get the profile picture for an account
+      tags: []
+      responses: {}
+      operationId: /user/picture
+      security: []
+      parameters: []
+      description: Get the profile picture for an account. Redirects to Gravatar.
+    parameters:
+      - schema:
+          type: string
+          pattern: '^([a-zA-Z]|[0-9]|-|_){4,15}$'
+          minLength: 4
+          maxLength: 15
+        name: login
+        in: path
+        required: true
+        description: The name of the account to fetch
 components:
   schemas:
     Friend:

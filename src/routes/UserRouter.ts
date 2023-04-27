@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from '../auth/AuthenticatedRequest';
 import { AppDataSource } from '../data-source';
 import { Account } from '../entity/Account';
 import { checkBody } from '../utils/CheckBody';
+import md5 from 'md5';
 
 /**
  * The router for the /user endpoint.
@@ -202,4 +203,30 @@ UserRouter.post('/search', Auth.authenticateRequest, async (req: AuthenticatedRe
         .getMany();
 
     return res.json(users);
+});
+
+UserRouter.get('/picture/:username', async (req, res) => {
+    if(!req.params.username) {
+        return res.status(400).json({ message: 'Missing username' });
+    }
+
+    // Query the user
+    const user = await accountRepo.findOne({
+        where: {
+            login: req.params.username,
+        },
+        select: {
+            email: true,
+            login: false,
+        },
+        cache: true,
+    });
+
+    // If the user does not exist, return a default avatar
+    if(!user) {
+        return res.redirect(`https://www.gravatar.com/avatar/default?s=40&d=mp&r=pg&f=y`);
+    }
+
+    // If the user has an avatar, return it
+    return res.redirect(`https://www.gravatar.com/avatar/${md5(user.email)}?s=40&d=robohash&r=pg`);
 });

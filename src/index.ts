@@ -34,6 +34,7 @@ import { createServer } from 'http';
 import { Server } from "socket.io";
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-streams-adapter';
+import hpp from 'hpp';
 
 import { UserRouter } from "./routes/UserRouter";
 import { FriendRouter } from './routes/FriendRouter';
@@ -49,7 +50,10 @@ AppDataSource.initialize().then(async () => {
     // Initialize express
     const app: Express = express();
 
+    app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
+
+    app.use(hpp());
 
     // Disable CORS in development mode
     if(process.env.ENV !== 'prod') {
