@@ -86,7 +86,7 @@ def create_passwordless_game(base_url, tokens):
     with ProcessPoolExecutor() as executor:
         for response in executor.map(query, [(datetime.now(), base_url, '/game/create', 'POST', {
             "maxPlayers": 4,
-            "name": "UApoly game"
+            "name": "UApoly game",
             "salary": 200,
             "locale": "en-US",
             "initialMoney": 2500,
@@ -104,7 +104,7 @@ def create_password_game(base_url, tokens):
     with ProcessPoolExecutor() as executor:
         for response in executor.map(query, [(datetime.now(), base_url, '/game/create', 'POST', {
             "maxPlayers": 4,
-            "name": "UApoly game"
+            "name": "UApoly game",
             "salary": 200,
             "locale": "en-US",
             "initialMoney": 2500,
