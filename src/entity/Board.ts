@@ -78,6 +78,12 @@ export class Board {
     name: string;
 
     /**
+     * The index of the slot where players go when they go to jail.
+     */
+    @Column()
+    jailSlotIndex: number;
+
+    /**
      * The slots in the board.
      */
     @OneToMany(() => BoardSlot, slot => slot.board, {eager: true, cascade: true})

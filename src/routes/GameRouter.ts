@@ -68,6 +68,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.friendsOnly = req.body.friendsOnly;
     board.started = false;
     board.currentPlayerIndex = 0;
+    board.jailSlotIndex = 0;
 
     // If a password is provided, set it
     if(req.body.password) {
@@ -92,13 +93,17 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     board.players = [player];
 
+    const locale = Slots.get(req.body.locale);
+
     // TODO: Allow for custom slots and/or other default sets.
-    board.slots = Slots.get(req.body.locale).slots().map((slot) => {
+    board.slots = locale.slots().map((slot) => {
         slot.board = board;
         slot.boardId = board.id;
 
         return slot;
     });
+
+    board.jailSlotIndex = locale.jailPosition;
 
     // Save the new game in the database
     await boardRepo.save(board);

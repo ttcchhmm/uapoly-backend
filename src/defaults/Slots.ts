@@ -16,6 +16,11 @@ export interface SlotRegion {
      * @returns The slots of the region.
      */
     slots: () => BoardSlot[];
+
+    /**
+     * The position of the Jail slot.
+     */
+    jailPosition: number;
 }
 
 /**
@@ -26,9 +31,11 @@ export const Slots = new Map<string, SlotRegion>();
 Slots.set('en-US', {
     name: 'United States Board',
     slots: getAmericanSlots,
+    jailPosition: 10,
 });
 
 Slots.set('fr-FR', {
     name: 'Plateau Français',
     slots: getFrenchSlots,
+    jailPosition: 10,
 });
