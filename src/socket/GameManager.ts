@@ -5,8 +5,10 @@ import { StateMachine } from "../state/StateMachine";
 import { State } from "../state/State";
 import { writeFileSync } from "fs";
 import { AppDataSource } from "../data-source";
+import { Player } from "../entity/Player";
 
 const boardRepo = AppDataSource.getRepository(Board);
+const playerRepo = AppDataSource.getRepository(Player);
 
 /**
  * Additional data to pass to each transition function.
@@ -504,8 +506,13 @@ function handleDrawCard(currentMachine: StateMachine<Transitions, States, GameEv
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleGoToJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleGoToJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    player.inJail = true;
+    player.currentSlotIndex = additionalData.board.jailSlotIndex;
+    await playerRepo.save(player);
+
+    currentMachine.transition(Transitions.END_TURN, additionalData);
 }
 
 /**
