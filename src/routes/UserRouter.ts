@@ -224,9 +224,9 @@ UserRouter.get('/picture/:username', async (req, res) => {
 
     // If the user does not exist, return a default avatar
     if(!user) {
-        return res.redirect(`https://www.gravatar.com/avatar/default?s=40&d=mp&r=pg&f=y`);
+        return res.redirect(`https://www.gravatar.com/avatar/default?s=38&d=mp&r=pg&f=y`);
     }
 
     // If the user has an avatar, return it
-    return res.redirect(`https://www.gravatar.com/avatar/${md5(user.email)}?s=40&d=robohash&r=pg`);
+    return res.redirect(`https://www.gravatar.com/avatar/${md5(user.email)}?s=38&d=robohash&r=pg`);
 });
