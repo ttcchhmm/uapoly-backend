@@ -4,6 +4,9 @@ import { GameTransitions as Transitions } from "../enums/GameTransitions";
 import { StateMachine } from "../state/StateMachine";
 import { State } from "../state/State";
 import { writeFileSync } from "fs";
+import { AppDataSource } from "../data-source";
+
+const boardRepo = AppDataSource.getRepository(Board);
 
 /**
  * Additional data to pass to each transition function.
@@ -55,6 +58,7 @@ export class GameManager {
                 {
                     [Transitions.IS_IN_JAIL]: States.TRY_ESCAPE_JAIL,
                     [Transitions.IS_NOT_IN_JAIL]: States.ROLL_DICE,
+                    [Transitions.NEXT_PLAYER]: States.NEXT_PLAYER,
                 },
                 [startOfTurn],
                 []
@@ -384,7 +388,15 @@ export class GameManager {
  * @param additionalData Additional data passed with the event.
  */
 function startOfTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    if(player.money <= 0) {
+        currentMachine.transition(Transitions.NEXT_PLAYER, additionalData);
+    } else if(player.inJail) {
+        currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
+    } else {
+        currentMachine.transition(Transitions.IS_NOT_IN_JAIL, additionalData);
+    }
 }
 
 /**
@@ -514,8 +526,20 @@ function handleEndTurn(currentMachine: StateMachine<Transitions, States, GameEve
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleNextPlayer(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleNextPlayer(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    if(additionalData.board.currentPlayerIndex + 1 >= additionalData.board.players.length) {
+        additionalData.board.currentPlayerIndex = 0;
+    } else {
+        additionalData.board.currentPlayerIndex++;
+    }
+
+    await boardRepo.save(additionalData.board);
+    
+    if(additionalData.board.players.reduce((acc, player) => acc && player.money > 0, true)) {
+        currentMachine.transition(Transitions.NEXT_TURN, additionalData);
+    } else {
+        currentMachine.transition(Transitions.GAME_OVER, additionalData);
+    }
 }
 
 /**
