@@ -89,8 +89,9 @@ export class StateMachine<T extends string, N, D> {
      * @param states The states of the state machine.
      * @param throwOnInvalidTransition Whether or not to throw an error when an invalid transition is attempted.
      * @param embedSettings The settings to use if this state machine is embedded.
+     * @param additionalData Additional data to pass to the transition functions of the initial state.
      */
-    constructor(initialState: N, states: Stateable<T, N, D>[], throwOnInvalidTransition = true, embedSettings?: EmbedSettings<T, N, D>) {
+    constructor(initialState: N, states: Stateable<T, N, D>[], throwOnInvalidTransition = true, embedSettings?: EmbedSettings<T, N, D>, additionalData?: D) {
         this.initialStateName = initialState;
         this.name = undefined;
         this.isReset = false;
@@ -116,7 +117,7 @@ export class StateMachine<T extends string, N, D> {
             this.outTransitions = embedSettings.outTransitions;
             this.isReset = true;
         } else { // Main machine, enter the initial state
-            this.currentState.enter(undefined);
+            this.currentState.enter(undefined, additionalData);
         }
     }
 
