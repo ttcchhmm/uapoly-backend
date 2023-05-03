@@ -61,7 +61,7 @@ function onJoin(socket: AuthenticatedSocket) {
             return;
         }
 
-        await socket.to(`game-${room}`).emit('player-connected', {gameId: room, player: player.accountLogin});
+        socket.to(`game-${room}`).emit('player-connected', {gameId: room, player: player.accountLogin});
         await socket.join(`game-${room}`);
         socket.emit('joined', player.game);
     };
