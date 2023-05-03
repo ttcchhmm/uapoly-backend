@@ -435,7 +435,10 @@ function startOfTurn(currentMachine: StateMachine<Transitions, States, GameEvent
  * @param additionalData Additional data passed with the event.
  */
 function tryEscapeJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    getIo().to(`game-${additionalData.board.id}`).emit('tryEscapeJail', {
+        gameId: additionalData.board.id,
+        accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
+    });
 }
 
 /**
