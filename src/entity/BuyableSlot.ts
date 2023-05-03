@@ -1,8 +1,27 @@
 import { ChildEntity, Column, ManyToOne, OneToMany } from "typeorm";
 import { BoardSlot } from "./BoardSlot";
 import { Player } from "./Player";
-import { BuyableSlotState } from "../enums/BuyableSlotState";
 import { BuyableSlotTrade } from "./BuyableSlotTrade";
+
+/**
+ * The state of a buyable slot.
+ */
+export const enum BuyableSlotState {
+    /**
+     * The slot is owned by a player.
+     */
+    OWNED,
+
+    /**
+     * The slot is mortgaged.
+     */
+    MORTGAGED,
+
+    /**
+     * The slot is available to be bought.
+     */
+    AVAILABLE
+}
 
 /**
  * Represents a slot that can be bought by a player.

@@ -1,4 +1,4 @@
-import { CardSlot } from "../entity/CardSlot";
+import { CardSlot, CardStyle } from "../entity/CardSlot";
 import { FreeParkingSlot } from "../entity/FreeParkingSlot";
 import { GoToJailSlot } from "../entity/GoToJailSlot";
 import { PropertySlot } from "../entity/PropertySlot";
@@ -6,7 +6,6 @@ import { RestSlot } from "../entity/RestSlot";
 import { TaxSlot } from "../entity/TaxSlot";
 import { TrainStationSlot } from "../entity/TrainStationSlot";
 import { UtilitySlot } from "../entity/UtilitySlot";
-import { CardStyle } from "../enums/CardStyle";
 import { getRents } from "./Rents";
 
 /**

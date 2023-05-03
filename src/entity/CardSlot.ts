@@ -1,6 +1,20 @@
 import { BoardSlot } from "./BoardSlot";
-import { CardStyle } from "../enums/CardStyle";
 import { Column, ChildEntity } from "typeorm";
+
+/**
+ * The style of a card.
+ */
+export const enum CardStyle {
+    /**
+     * A "Community Chest" card.
+     */
+    COMMUNITY = "Community Chest",
+
+    /**
+     * A "Chance" card.
+     */
+    CHANCE = "Chance"
+}
 
 /**
  * Represents a slot that draws a card.
