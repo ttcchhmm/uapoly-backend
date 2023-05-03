@@ -118,11 +118,21 @@ export function authenticateRequest(req: AuthenticatedRequest, res: Response, ne
 export function authenticateSocket(socket: AuthenticatedSocket, next: (err?: Error) => void) {
     const token = socket.handshake.auth.token;
     if(!token) {
+        socket.emit('error', {
+            message: 'No token provided',
+            gameId: null,
+        });
+
         return next(new Error('No token provided'));
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err: VerifyErrors | null, payload: object | undefined) => {
         if(err) {
+            socket.emit('error', {
+                message: 'Invalid token',
+                gameId: null,
+            });
+            
             return next(new Error('Invalid token'));
         }
 
