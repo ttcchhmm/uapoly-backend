@@ -423,10 +423,17 @@ function startOfTurn(currentMachine: StateMachine<Transitions, States, GameEvent
 
     if(player.money <= 0) {
         currentMachine.transition(Transitions.NEXT_PLAYER, additionalData);
-    } else if(player.inJail) {
-        currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
     } else {
-        currentMachine.transition(Transitions.IS_NOT_IN_JAIL, additionalData);
+        getIo().to(`game-${additionalData.board.id}`).emit('startOfTurn', {
+            gameId: additionalData.board.id,
+            accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
+        });
+
+        if(player.inJail) {
+            currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
+        } else {
+            currentMachine.transition(Transitions.IS_NOT_IN_JAIL, additionalData);
+        }
     }
 }
 

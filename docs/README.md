@@ -43,6 +43,9 @@ The server can emit the following events:
   - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `accountLogin`: A string representing the player name.
   - `quitted`: A boolean representing whether the bankruptcy was caused by the player quitting the game.
+- `startOfTurn`: A player's turn has started. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `accountLogin`: A string representing the player name.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:
