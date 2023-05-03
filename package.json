@@ -3,6 +3,7 @@
    "version": "0.0.1",
    "description": "UApoly : A Monopoly inside your browser ! (backend)",
    "type": "commonjs",
+   "private": true,
    "devDependencies": {
       "@types/bcrypt": "^5.0.0",
       "@types/body-parser": "^1.19.2",
