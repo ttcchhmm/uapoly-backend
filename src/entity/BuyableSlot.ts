@@ -45,16 +45,4 @@ export abstract class BuyableSlot extends BoardSlot {
             ...super.getSimplified(),
         };
     }
-
-    /**
-     * Make a player buy the slot.
-     */
-    buy(player: Player) {
-        if(!this.owner) {
-            this.owner = player;
-            // TODO: Make the player pay the price.
-        } else {
-            throw new Error("The slot is already owned.");
-        }
-    }
 }

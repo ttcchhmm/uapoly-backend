@@ -1,6 +1,5 @@
 import { ChildEntity, Column } from "typeorm";
 import { BoardSlot } from "./BoardSlot";
-import { Player } from "./Player";
 
 /**
  * Represents a slot that makes the player pay taxes.
@@ -23,10 +22,5 @@ export class TaxSlot extends BoardSlot {
             amount: this.amount,
             ...super.getSimplified(),
         };
-    }
-
-    // TODO: Implement this method.
-    override onPlayerStop(player: Player): void {
-        throw new Error("Method not implemented.");
     }
 }

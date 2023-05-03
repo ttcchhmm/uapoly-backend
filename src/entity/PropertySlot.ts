@@ -1,6 +1,5 @@
 import { ChildEntity, Column } from "typeorm";
 import { BuyableSlot } from "./BuyableSlot";
-import { Player } from "./Player";
 import { PropertyRent } from "./PropertyRent";
 
 /**
@@ -38,9 +37,5 @@ export class PropertySlot extends BuyableSlot {
             propertyRent: this.propertyRent,
             ...super.getSimplified(),
         };
-    }
-
-    override onPlayerStop(player: Player): void {
-        throw new Error("Method not implemented."); // TODO: Implement this method.
     }
 }

@@ -1,6 +1,5 @@
 import { ChildEntity, Column } from "typeorm";
 import { BuyableSlot } from "./BuyableSlot";
-import { Player } from "./Player";
 import { TrainStationRent } from "./TrainStationRent";
 
 /**
@@ -24,9 +23,5 @@ export class TrainStationSlot extends BuyableSlot {
             trainRent: this.trainRent,
             ...super.getSimplified(),
         };
-    }
-
-    override onPlayerStop(player: Player): void {
-        throw new Error("Method not implemented."); // TODO: Implement this method.
     }
 }

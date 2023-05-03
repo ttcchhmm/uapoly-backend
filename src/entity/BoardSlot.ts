@@ -1,6 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryColumn, TableInheritance } from "typeorm";
 import { Board } from "./Board";
-import { Player } from "./Player";
 
 /**
  * Represents a slot in a board.
@@ -62,10 +61,4 @@ export abstract class BoardSlot {
             position: this.position,
         };
     }
-
-    /**
-     * The action to perform when a player lands on the slot.
-     * @param player The player that landed on the slot.
-     */
-    abstract onPlayerStop(player: Player): void;
 }
