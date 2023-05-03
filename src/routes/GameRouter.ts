@@ -7,7 +7,6 @@ import { Account } from "../entity/Account";
 import { Player } from "../entity/Player";
 import { checkBody } from "../utils/CheckBody";
 import { Friend } from "../entity/Friend";
-import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
 import { BoardSlot } from "../entity/BoardSlot";
 import { Slots } from "../defaults/Slots";
 import { Manager } from "../socket/GameManager";
@@ -17,6 +16,11 @@ import { getRandomName } from "../defaults/Names";
  * The router for the /game endpoint.
  */
 export const GameRouter = Router();
+
+/**
+ * The maximum number of players in a game.
+ */
+const MAX_PLAYERS = 8;
 
 const boardRepo = AppDataSource.getRepository(Board);
 const accountRepo = AppDataSource.getRepository(Account);
@@ -45,7 +49,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
         return res.status(404).json({ message: 'User not found' });
     }
 
-    if(req.body.maxPlayers && req.body.maxPlayers < 2) {
+    if(req.body.maxPlayers && req.body.maxPlayers < 2 && req.body.maxPlayers > MAX_PLAYERS) {
         return res.status(400).json({ message: 'Invalid max players' });
     }
 
@@ -71,7 +75,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.salary = req.body.salary;
     board.initialMoney = req.body.initialMoney;
     board.startingSlotIndex = 0;
-    board.maxPlayers = req.body.maxPlayers ? req.body.maxPlayers : PGSQL_MAX_INT;
+    board.maxPlayers = req.body.maxPlayers ? req.body.maxPlayers : MAX_PLAYERS;
     board.friendsOnly = req.body.friendsOnly;
     board.started = false;
     board.currentPlayerIndex = 0;
