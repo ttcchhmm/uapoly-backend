@@ -473,7 +473,14 @@ function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, 
  * @param additionalData Additional data passed with the event.
  */
 function handleJailRentCheck(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const slot = additionalData.board.slots[player.currentSlotIndex];
+
+    if(slot instanceof BuyableSlot && slot.owner.inJail) {
+        currentMachine.transition(Transitions.END_TURN, additionalData);
+    } else {
+        currentMachine.transition(Transitions.OWNER_NOT_IN_JAIL, additionalData);
+    }
 }
 
 /**
