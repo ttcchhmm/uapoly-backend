@@ -662,8 +662,18 @@ function handlePayBail(currentMachine: StateMachine<Transitions, States, GameEve
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleUseOutOfJailCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleUseOutOfJailCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    if(player.outOfJailCards > 0) {
+        player.outOfJailCards--;
+        player.inJail = false;
+
+        await playerRepo.save(player);
+
+        currentMachine.transition(Transitions.ROLL_DICE, additionalData);
+    } else {
+        currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
+    }
 }
 
 /**
