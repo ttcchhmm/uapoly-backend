@@ -6,6 +6,7 @@ import { State } from "../state/State";
 import { writeFileSync } from "fs";
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
+import { getIo } from "./IoGlobal";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -485,9 +486,16 @@ function handleFreeParking(currentMachine: StateMachine<Transitions, States, Gam
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleGo(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleGo(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    player.money += additionalData.board.salary;
+
+    await playerRepo.save(player);
+
+    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
+    currentMachine.transition(Transitions.END_TURN, additionalData);
 }
+
 /**
  * Function executed each time the "landed on Draw Card" state is entered.
  * @param currentMachine The state machine used to represent the game.
