@@ -35,6 +35,10 @@ The server can emit the following events:
 - `tryEscapeJail`: A player is currently in jail and should act to try to escape. The data sent by the server will be a JSON object with the following properties:
   - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `accountLogin`: A string representing the player name.
+- `diceRoll`: A player rolled the dice. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `accountLogin`: A string representing the player name.
+  - `dices`: An array containing the dices values.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:

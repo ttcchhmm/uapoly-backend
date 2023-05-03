@@ -9,6 +9,7 @@ import { Player } from "../entity/Player";
 import { getIo } from "../socket/IoGlobal";
 import { BuyableSlot } from "../entity/BuyableSlot";
 import { BoardSlot } from "../entity/BoardSlot";
+import { rollDices } from "./Dices";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -683,8 +684,24 @@ async function handleUseOutOfJailCard(currentMachine: StateMachine<Transitions, 
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleEscapeWithDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleEscapeWithDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const dices = rollDices(2);
+
+    getIo().to(`game-${additionalData.board.id}`).emit('diceRoll', {
+        gameId: additionalData.board.id,
+        accountLogin: player.accountLogin,
+        dices,
+    });
+
+    if(dices[0] === dices[1]) {
+        player.inJail = false;
+
+        await playerRepo.save(player);
+        currentMachine.transition(Transitions.ROLL_DICE, additionalData);
+    } else {
+        currentMachine.transition(Transitions.END_TURN, additionalData);
+    }
 }
 
 /**
