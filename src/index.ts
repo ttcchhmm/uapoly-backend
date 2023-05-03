@@ -42,6 +42,7 @@ import { HTTPError } from './utils/HTTPError';
 import { GameRouter } from './routes/GameRouter';
 import { authenticateSocket } from './auth/Auth';
 import { onConnect } from './socket/GameSocket';
+import { setIo } from './socket/IoGlobal';
 
 // Initialize the database
 AppDataSource.initialize().then(async () => {
@@ -106,6 +107,8 @@ AppDataSource.initialize().then(async () => {
 
     // Handle socket connections
     io.on('connection', onConnect);
+
+    setIo(io);
 
     // Start the server
     httpServer.listen(process.env.PORT, () => {
