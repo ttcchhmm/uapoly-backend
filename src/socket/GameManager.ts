@@ -110,6 +110,7 @@ export class GameManager {
                 [Transitions.PAY_BAIL],
                 {
                     [Transitions.PAY_BAIL]: States.PAY,
+                    [Transitions.IS_IN_JAIL]: States.TRY_ESCAPE_JAIL,
                 },
                 [handlePayBail],
                 []
@@ -120,6 +121,7 @@ export class GameManager {
                 [Transitions.USE_OUT_OF_JAIL_CARD],
                 {
                     [Transitions.ROLL_DICE]: States.ROLL_DICE,
+                    [Transitions.IS_IN_JAIL]: States.TRY_ESCAPE_JAIL,
                 },
                 [handleUseOutOfJailCard],
                 []
