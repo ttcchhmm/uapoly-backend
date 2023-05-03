@@ -619,8 +619,9 @@ async function handleNextPlayer(currentMachine: StateMachine<Transitions, States
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleDeclareBankruptcy(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleDeclareBankruptcy(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    await additionalData.board.players[additionalData.board.currentPlayerIndex].bankrupt();
+    currentMachine.transition(Transitions.NEXT_PLAYER, additionalData);
 }
 
 /**
