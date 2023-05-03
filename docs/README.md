@@ -29,6 +29,9 @@ The server can emit the following events:
 - `left`: The client has successfully left the game. The server will send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
 - `update`: An updated state of the game has been sent by the server. The data sent by the server will be a JSON `Game` object.
+- `game-over`: The game is over. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `winner`: A string representing the winner's name. Can be `null` if the game ended early.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:

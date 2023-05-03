@@ -10,6 +10,7 @@ import { Friend } from "../entity/Friend";
 import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
 import { BoardSlot } from "../entity/BoardSlot";
 import { Slots } from "../defaults/Slots";
+import { Manager } from "../socket/GameManager";
 
 /**
  * The router for the /game endpoint.
@@ -297,32 +298,37 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
         return res.status(400).json({ message: 'You are not in this game' });
     }
 
-    // Check if the game started
-    if(board.started) {
-        throw new Error('NOT IMPLEMENTED: Bankrupt player when leaving a started game'); // TODO: Bankrupt player
-    }
+    if(board.players.length === 1 || (board.players.length < 2 && board.started)) { // The game can't continue without players
+        await Manager.stopGame(board, null);
+    } else {
+        // Check if the game started
+        if(board.started) {
+            // Return the properties to the bank
+            const promises: Promise<any>[] = [];
+            player.ownedProperties.forEach((property) => {
+                property.owner = null;
+                promises.push(slotsRepo.save(property));
+            });
 
-    // Check if the player was the game master
-    if(player.isGameMaster) {
-        if(board.players.length === 1) { // Now the game is empty
-            // Remove the player
-            await playerRepo.remove(player);
+            await Promise.all(promises);
+        }
 
-            // Remove the board
-            await slotsRepo.delete({ boardId: board.id });
-            await boardRepo.remove(board);
-        } else { // There are still players in the game
+        // Check if the player is the game master
+        const promises: Promise<any>[] = [];
+        if(player.isGameMaster) {
             // Get the next player
             const nextPlayer = board.players.find((p) => p.accountLogin !== player.accountLogin);
 
             // Make the next player the game master
             nextPlayer.isGameMaster = true;
 
-            await Promise.all([
-                playerRepo.save(nextPlayer),
-                playerRepo.remove(player), // Remove the player
-            ]);
+            promises.push(playerRepo.save(nextPlayer));
         }
+
+        // Delete the player
+        promises.push(playerRepo.remove(player));
+
+        await Promise.all(promises);
     }
 
     return res.status(200).json({ message: 'Left game' });

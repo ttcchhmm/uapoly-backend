@@ -8,9 +8,11 @@ import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
 import { getIo } from "./IoGlobal";
 import { BuyableSlot } from "../entity/BuyableSlot";
+import { BoardSlot } from "../entity/BoardSlot";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
+const slotsRepo = AppDataSource.getRepository(BoardSlot);
 
 /**
  * Additional data to pass to each transition function.
@@ -37,6 +39,28 @@ export class GameManager {
      */
     startGame(board: Board) {
         this.games.set(board.id, GameManager.createMachine());
+    }
+
+    /**
+     * Stop a game.
+     * @param board The board the game was played on.
+     * @param winner The winner of the game, or null if the game was aborted.
+     */
+    async stopGame(board: Board, winner: Player | null) {
+        // Send the game over event
+        getIo().to(`game-${board.id}`).emit("game-over", {
+            gameId: board.id,
+            winner: winner ? winner.accountLogin : null,
+        });
+
+        // Close the room
+        getIo().in(`game-${board.id}`).socketsLeave(`game-${board.id}`);
+        
+        // Delete the game
+        this.games.delete(board.id);
+        await playerRepo.delete({ gameId: board.id });
+        await slotsRepo.delete({ boardId: board.id });
+        await boardRepo.remove(board);
     }
 
     /**
