@@ -1541,13 +1541,12 @@ components:
           description: The locale of the board
         name:
           type: string
-          description: The name of the lobby
+          description: The name of the lobby. An random name will be used if unset.
       required:
         - salary
         - initialMoney
         - friendsOnly
         - locale
-        - name
     GameListPage:
       type: object
       x-examples:

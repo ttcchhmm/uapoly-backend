@@ -11,6 +11,7 @@ import { PGSQL_MAX_INT } from "../utils/PgsqlConstants";
 import { BoardSlot } from "../entity/BoardSlot";
 import { Slots } from "../defaults/Slots";
 import { Manager } from "../socket/GameManager";
+import { getRandomName } from "../defaults/Names";
 
 /**
  * The router for the /game endpoint.
@@ -60,7 +61,12 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     // TODO: Review default values ?
 
-    board.name = req.body.name;
+    if(!req.body.name || req.body.name.length === 0) {
+        board.name = getRandomName();
+    } else {
+        board.name = req.body.name;
+    }
+
     board.jackpot = 0;
     board.salary = req.body.salary;
     board.initialMoney = req.body.initialMoney;
