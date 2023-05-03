@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { Account } from "./Account";
 import { Board } from "./Board";
-import { BuyableSlot } from "./BuyableSlot";
+import { BuyableSlot, BuyableSlotState } from "./BuyableSlot";
 import { Message } from "./Message";
 import { PropertySlot } from "./PropertySlot";
 import { AppDataSource } from "../data-source";
@@ -100,6 +100,7 @@ export class Player {
         const promises: Promise<any>[] = [playerRepo.save(this)];
         this.ownedProperties.forEach(property => {
             property.owner = null;
+            property.state = BuyableSlotState.AVAILABLE;
             
             // TODO : (Game Balance) maybe we should keep the buildings for the next player.
             if(property instanceof PropertySlot) {
