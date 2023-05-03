@@ -7,6 +7,7 @@ import { writeFileSync } from "fs";
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
 import { getIo } from "./IoGlobal";
+import { BuyableSlot } from "../entity/BuyableSlot";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -443,7 +444,14 @@ function endTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, u
  * @param additionalData Additional data passed with the event.
  */
 function handleLandedOnBuyableSlot(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const slot = additionalData.board.slots[player.currentSlotIndex];
+
+    if(slot instanceof BuyableSlot && slot.owner) {
+        currentMachine.transition(Transitions.BOUGHT, additionalData);
+    } else {
+        currentMachine.transition(Transitions.NOT_BOUGHT, additionalData);
+    }
 }
 
 /**
