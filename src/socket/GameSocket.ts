@@ -3,6 +3,7 @@ import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
 import { Player } from "../entity/Player";
 import { Manager } from "./GameManager";
+import { getIo } from "./IoGlobal";
 
 const playerRepo = AppDataSource.getRepository(Player);
 const boardRepo = AppDataSource.getRepository(Board);
@@ -163,7 +164,7 @@ async function updateRoom(socket: AuthenticatedSocket, room: number, global = tr
     }
 
     if(global) {
-        socket.to(`game-${room}`).emit('update', board);
+        getIo().to(`game-${room}`).emit('update', board);
     } else {
         socket.emit('update', board);
     }
