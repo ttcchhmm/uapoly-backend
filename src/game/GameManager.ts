@@ -314,6 +314,14 @@ export class GameManager {
                 []
             ),
 
+            new State<Transitions, States, GameEvent>(
+                States.END_GAME,
+                [Transitions.GAME_OVER],
+                {},
+                [handleGameOver],
+                []
+            ),
+
             new StateMachine<Transitions, States, GameEvent>(
                 States.TRADE,
                 [
@@ -612,7 +620,13 @@ async function handleNextPlayer(currentMachine: StateMachine<Transitions, States
 
     await boardRepo.save(additionalData.board);
     
-    if(additionalData.board.players.reduce((acc, player) => acc && player.money > 0, true)) {
+    if(additionalData.board.players.reduce((acc, player) => {
+        if(player.money <= 0) {
+            return acc;
+        } else {
+            return acc + 1;
+        }
+    }, 0) > 1) {
         currentMachine.transition(Transitions.NEXT_TURN, additionalData);
     } else {
         currentMachine.transition(Transitions.GAME_OVER, additionalData);
@@ -776,6 +790,18 @@ function handleCheckIfPlayerCanAfford(currentMachine: StateMachine<Transitions, 
  */
 function handleTradeAccepted(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     // TODO
+}
+
+/**
+ * Function executed each time the "game over" is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+function handleGameOver(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const winner = additionalData.board.players.find(player => player.money > 0);
+    Manager.stopGame(additionalData.board, winner);
 }
 
 /**
