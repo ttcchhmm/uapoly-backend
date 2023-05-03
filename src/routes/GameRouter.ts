@@ -313,14 +313,7 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
     } else {
         // Check if the game started
         if(board.started) {
-            // Return the properties to the bank
-            const promises: Promise<any>[] = [];
-            player.ownedProperties.forEach((property) => {
-                property.owner = null;
-                promises.push(slotsRepo.save(property));
-            });
-
-            await Promise.all(promises);
+            await player.bankrupt(true);
         }
 
         // Check if the player is the game master

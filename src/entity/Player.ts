@@ -3,6 +3,9 @@ import { Account } from "./Account";
 import { Board } from "./Board";
 import { BuyableSlot } from "./BuyableSlot";
 import { Message } from "./Message";
+import { PropertySlot } from "./PropertySlot";
+import { AppDataSource } from "../data-source";
+import { getIo } from "../socket/IoGlobal";
 
 /**
  * Represents a player in the database.
@@ -86,4 +89,37 @@ export class Player {
      */
     @OneToMany(() => Message, message => message.sender, {eager: false})
     messagesSent: Promise<Message[]>;
+
+    /**
+     * Bankrupt the player.
+     * @param quitted Whether the bankruptcy is due to the player quitting the game.
+     */
+    async bankrupt(quitted: boolean = false) {
+        this.money = 0;
+
+        const promises: Promise<any>[] = [playerRepo.save(this)];
+        this.ownedProperties.forEach(property => {
+            property.owner = null;
+            
+            // TODO : (Game Balance) maybe we should keep the buildings for the next player.
+            if(property instanceof PropertySlot) {
+                property.numberOfBuildings = 0;
+            }
+    
+            promises.push(slotsRepo.save(property));
+        });
+    
+        await Promise.all(promises);
+
+        // Not pretty here, but a player can go bankrupt outside of the state machine and we need to notify the clients.
+        getIo().to(`game-${this.gameId}`).emit('bankrupt', {
+            gameId: this.gameId,
+            accountLogin: this.accountLogin,
+            quitted,
+        });
+    }
 }
+
+// At the bottom to avoid getting "Player is used before its declaration".
+const playerRepo = AppDataSource.getRepository(Player);
+const slotsRepo = AppDataSource.getRepository(BuyableSlot);
