@@ -475,8 +475,18 @@ function handleJailRentCheck(currentMachine: StateMachine<Transitions, States, G
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleFreeParking(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleFreeParking(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    player.money += additionalData.board.jackpot;
+
+    additionalData.board.jackpot = 0;
+    await Promise.all([
+        playerRepo.save(player),
+        boardRepo.save(additionalData.board),
+    ]);
+
+    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
+    currentMachine.transition(Transitions.END_TURN, additionalData);
 }
 
 /**
