@@ -39,7 +39,7 @@ export class GameManager {
      * @param board The board to start the game on.
      */
     startGame(board: Board) {
-        this.games.set(board.id, GameManager.createMachine());
+        this.games.set(board.id, GameManager.createMachine(board));
     }
 
     /**
@@ -77,7 +77,7 @@ export class GameManager {
      * Create a new state machine for a game.
      * @returns A new state machine for a game.
      */
-    private static createMachine(): StateMachine<Transitions, States, GameEvent> {
+    private static createMachine(board: Board): StateMachine<Transitions, States, GameEvent> {
         // TODO: Finish this
         // Not yet implemented : manage double rolls
         return new StateMachine<Transitions, States, GameEvent>(States.START_TURN, [
@@ -407,7 +407,7 @@ export class GameManager {
                     ]
                 }
             ),
-        ], false);
+        ], false, undefined, { board });
     }
 
     /**
@@ -415,7 +415,7 @@ export class GameManager {
      * @param filename The filename to write the graph to.
      */
     static dumpMachineGraph(filename: string) {
-        writeFileSync(filename, this.createMachine().generateDot());
+        writeFileSync(filename, this.createMachine(null).generateDot());
     }
 }
 
