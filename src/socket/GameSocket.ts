@@ -57,7 +57,7 @@ function onJoin(socket: AuthenticatedSocket) {
         });
 
         if (!player) {
-            socket.emit('error', 'You are not in this game');
+            socket.emit('error', getErrorMessage(room, 'You are not in this game'));
             return;
         }
 
