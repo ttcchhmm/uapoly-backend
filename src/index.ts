@@ -1,4 +1,4 @@
-import { GameManager } from './socket/GameManager';
+import { GameManager } from './game/GameManager';
 
 // Generate a graph of the state machine if needed
 if(process.argv.includes('--dump-state-machine')) {

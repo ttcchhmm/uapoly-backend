@@ -9,7 +9,7 @@ import { checkBody } from "../utils/CheckBody";
 import { Friend } from "../entity/Friend";
 import { BoardSlot } from "../entity/BoardSlot";
 import { Slots } from "../defaults/Slots";
-import { Manager } from "../socket/GameManager";
+import { Manager } from "../game/GameManager";
 import { getRandomName } from "../defaults/Names";
 
 /**

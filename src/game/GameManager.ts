@@ -1,12 +1,12 @@
 import { Board } from "../entity/Board";
-import { GameStates as States } from "../enums/GameStates";
-import { GameTransitions as Transitions } from "../enums/GameTransitions";
+import { GameStates as States } from "./GameStates";
+import { GameTransitions as Transitions } from "./GameTransitions";
 import { StateMachine } from "../state/StateMachine";
 import { State } from "../state/State";
 import { writeFileSync } from "fs";
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
-import { getIo } from "./IoGlobal";
+import { getIo } from "../socket/IoGlobal";
 import { BuyableSlot } from "../entity/BuyableSlot";
 import { BoardSlot } from "../entity/BoardSlot";
 

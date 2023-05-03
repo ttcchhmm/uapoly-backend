@@ -2,7 +2,7 @@ import { AuthenticatedSocket } from "../auth/AuthenticatedSocket";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
 import { Player } from "../entity/Player";
-import { Manager } from "./GameManager";
+import { Manager } from "../game/GameManager";
 import { getIo } from "./IoGlobal";
 
 const playerRepo = AppDataSource.getRepository(Player);
