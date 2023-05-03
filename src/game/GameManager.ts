@@ -10,6 +10,10 @@ import { getIo } from "../socket/IoGlobal";
 import { BuyableSlot } from "../entity/BuyableSlot";
 import { BoardSlot } from "../entity/BoardSlot";
 import { rollDices } from "./Dices";
+import { CardSlot } from "../entity/CardSlot";
+import { FreeParkingSlot } from "../entity/FreeParkingSlot";
+import { GoToJailSlot } from "../entity/GoToJailSlot";
+import { TaxSlot } from "../entity/TaxSlot";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -467,7 +471,27 @@ function tryEscapeJail(currentMachine: StateMachine<Transitions, States, GameEve
  * @param additionalData Additional data passed with the event.
  */
 function handleLanding(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    if(player.currentSlotIndex === 0) {
+        currentMachine.transition(Transitions.LAND_ON_START, additionalData);
+    } else {
+        const currentSlot = additionalData.board.slots[player.currentSlotIndex];
+
+        if(currentSlot instanceof CardSlot) {
+            currentMachine.transition(Transitions.LAND_ON_DRAW_CARD, additionalData);
+        } else if(currentSlot instanceof FreeParkingSlot) {
+            currentMachine.transition(Transitions.LAND_ON_FREE_PARKING, additionalData);
+        } else if(currentSlot instanceof GoToJailSlot) {
+            currentMachine.transition(Transitions.LAND_ON_GO_TO_JAIL, additionalData);
+        } else if(currentSlot instanceof BuyableSlot) {
+            currentMachine.transition(Transitions.LAND_ON_BUYABLE, additionalData);
+        } else if(currentSlot instanceof TaxSlot) {
+            currentMachine.transition(Transitions.LAND_ON_TAX, additionalData);
+        } else {
+            throw new Error(`Unknown slot type: ${currentSlot.constructor.name}`);
+        }
+    }
 }
 
 /**
