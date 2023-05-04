@@ -87,6 +87,8 @@ export const ChanceActions: CardActionFunction[] = [
 
     // Get out of jail free
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+        // TODO: Limit to 2 cards max per game
+
         player.outOfJailCards++;
         await playerRepo.save(player);
 
