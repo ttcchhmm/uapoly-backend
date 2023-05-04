@@ -10,10 +10,12 @@ import { getIo } from "../socket/IoGlobal";
 import { BuyableSlot } from "../entity/BuyableSlot";
 import { BoardSlot } from "../entity/BoardSlot";
 import { rollDices } from "./Dices";
-import { CardSlot } from "../entity/CardSlot";
+import { CardSlot, CardStyle } from "../entity/CardSlot";
 import { FreeParkingSlot } from "../entity/FreeParkingSlot";
 import { GoToJailSlot } from "../entity/GoToJailSlot";
 import { TaxSlot } from "../entity/TaxSlot";
+import { Card } from "../defaults/CardsActions";
+import { Slots } from "../defaults/Slots";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -598,8 +600,33 @@ async function handleGo(currentMachine: StateMachine<Transitions, States, GameEv
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleDrawCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleDrawCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const slot = additionalData.board.slots[player.currentSlotIndex];
+    
+    if(slot instanceof CardSlot) {
+        let deck: Card[];
+
+        switch(slot.cardStyle) {
+            case CardStyle.CHANCE:
+                deck = Slots.get(additionalData.board.locale).deck.chance;
+                break;
+
+            case CardStyle.COMMUNITY:
+                deck = Slots.get(additionalData.board.locale).deck.communityChest;
+                break;
+        }
+
+        const card = deck[Math.floor(Math.random() * deck.length)];
+
+        getIo().to(`game-${additionalData.board.id}`).emit('cardDrawn', {
+            gameId: additionalData.board.id,
+            accountLogin: player.accountLogin,
+            description: card.description,
+        });
+
+        await card.action(currentMachine, player);
+    }
 }
 
 /**
