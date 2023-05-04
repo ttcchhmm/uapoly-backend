@@ -746,7 +746,14 @@ function handleTrade(currentMachine: StateMachine<Transitions, States, GameEvent
  * @param additionalData Additional data passed with the event.
  */
 function handlePayBail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    currentMachine.transition(Transitions.PAY_BANK, {
+        payment: {
+            amount: 50,
+            receiver: 'bank',
+        },
+
+        ...additionalData,
+    });
 }
 
 /**
