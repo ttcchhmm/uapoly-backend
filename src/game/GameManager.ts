@@ -839,7 +839,13 @@ async function handleEscapeWithDice(currentMachine: StateMachine<Transitions, St
  * @param additionalData Additional data passed with the event.
  */
 function handlePlayerInDebt(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    getIo().to(`game-${additionalData.board.id}`).emit('playerInDebt', {
+        gameId: additionalData.board.id,
+        accountLogin: player.accountLogin,
+        amount: additionalData.payment.amount,
+    });
 }
 
 /**
