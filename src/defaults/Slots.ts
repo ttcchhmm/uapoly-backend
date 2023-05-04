@@ -1,5 +1,8 @@
 import { BoardSlot } from "../entity/BoardSlot";
+import { AmericanDeck } from "./AmericanCards";
 import { getAmericanSlots } from "./AmericanSlots";
+import { CardDeck } from "./CardsActions";
+import { FrenchDeck } from "./FrenchCards";
 import { getFrenchSlots } from "./FrenchSlots";
 
 /**
@@ -21,6 +24,11 @@ export interface SlotRegion {
      * The position of the Jail slot.
      */
     jailPosition: number;
+
+    /**
+     * The deck of cards for the region.
+     */
+    deck: CardDeck;
 }
 
 /**
@@ -32,10 +40,12 @@ Slots.set('en-US', {
     name: 'United States Board',
     slots: getAmericanSlots,
     jailPosition: 10,
+    deck: AmericanDeck,
 });
 
 Slots.set('fr-FR', {
     name: 'Plateau Français',
     slots: getFrenchSlots,
     jailPosition: 10,
+    deck: FrenchDeck,
 });

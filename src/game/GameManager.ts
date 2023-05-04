@@ -22,7 +22,7 @@ const slotsRepo = AppDataSource.getRepository(BoardSlot);
 /**
  * Additional data to pass to each transition function.
  */
-interface GameEvent {
+export interface GameEvent {
     /**
      * The board the game is being played on.
      */
@@ -269,6 +269,7 @@ export class GameManager {
                 {
                     [Transitions.END_TURN]: States.END_TURN,
                     [Transitions.DREW_GO_TO_JAIL_CARD]: States.GO_TO_JAIL,
+                    [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT,
                 },
                 [handleDrawCard],
                 []
@@ -614,6 +615,7 @@ async function handleGoToJail(currentMachine: StateMachine<Transitions, States, 
     player.currentSlotIndex = additionalData.board.jailSlotIndex;
     await playerRepo.save(player);
 
+    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
     currentMachine.transition(Transitions.END_TURN, additionalData);
 }
 
