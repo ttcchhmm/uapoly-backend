@@ -955,7 +955,19 @@ function handleRent(currentMachine: StateMachine<Transitions, States, GameEvent>
  * @param additionalData Additional data passed with the event.
  */
 function handlePayTax(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const slot = additionalData.board.slots[player.currentSlotIndex];
+
+    if(slot instanceof TaxSlot) {
+        currentMachine.transition(Transitions.PAY_BANK, {
+            payment: {
+                receiver: 'jackpot',
+                amount: slot.amount,
+            },
+
+            ...additionalData,
+        });
+    }
 }
 
 /**
