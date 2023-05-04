@@ -7,7 +7,7 @@ import { writeFileSync } from "fs";
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
 import { getIo } from "../socket/IoGlobal";
-import { BuyableSlot } from "../entity/BuyableSlot";
+import { BuyableSlot, BuyableSlotState } from "../entity/BuyableSlot";
 import { BoardSlot } from "../entity/BoardSlot";
 import { rollDices } from "./Dices";
 import { CardSlot, CardStyle } from "../entity/CardSlot";
@@ -551,8 +551,32 @@ function handleLandedOnBuyableSlot(currentMachine: StateMachine<Transitions, Sta
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const slot = additionalData.board.slots[player.currentSlotIndex];
+
+    if(slot instanceof BuyableSlot) {
+        slot.state = BuyableSlotState.OWNED;
+        slot.owner = player;
+
+        getIo().to(`game-${additionalData.board.id}`).emit('propertyBought', {
+            gameId: additionalData.board.id,
+            accountLogin: player.accountLogin,
+            slotIndex: player.currentSlotIndex,
+            price: slot.price,
+        });
+
+        await slotsRepo.save(slot);
+
+        currentMachine.transition(Transitions.PAY_BANK, {
+            payment: {
+                receiver: 'bank',
+                amount: slot.price,
+            },
+
+            ...additionalData,
+        });
+    }
 }
 
 /**
