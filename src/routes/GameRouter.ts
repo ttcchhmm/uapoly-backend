@@ -80,6 +80,7 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
     board.started = false;
     board.currentPlayerIndex = 0;
     board.jailSlotIndex = 0;
+    board.locale = req.body.locale;
 
     // If a password is provided, set it
     if(req.body.password) {

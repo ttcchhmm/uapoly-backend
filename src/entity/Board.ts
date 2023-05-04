@@ -84,6 +84,12 @@ export class Board {
     jailSlotIndex: number;
 
     /**
+     * The locale of the board.
+     */
+    @Column()
+    locale: string;
+
+    /**
      * The slots in the board.
      */
     @OneToMany(() => BoardSlot, slot => slot.board, {eager: true, cascade: true})
