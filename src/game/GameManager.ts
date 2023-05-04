@@ -16,6 +16,9 @@ import { GoToJailSlot } from "../entity/GoToJailSlot";
 import { TaxSlot } from "../entity/TaxSlot";
 import { Card } from "../defaults/CardsActions";
 import { Slots } from "../defaults/Slots";
+import { PropertySlot } from "../entity/PropertySlot";
+import { TrainStationSlot } from "../entity/TrainStationSlot";
+import { UtilitySlot } from "../entity/UtilitySlot";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -834,7 +837,84 @@ function handlePayingProperty(currentMachine: StateMachine<Transitions, States, 
  * @param additionalData Additional data passed with the event.
  */
 function handleRent(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const property = additionalData.board.slots[player.currentSlotIndex];
+
+    if(property instanceof BuyableSlot) {
+        const data: GameEvent = {
+            payment: {
+                receiver: property.owner,
+                amount: undefined,
+            },
+
+            ...additionalData,
+        };
+    
+        if(property instanceof PropertySlot) {
+            switch(property.numberOfBuildings) {
+                case 0:
+                    data.payment.amount = property.propertyRent.noBuildings;
+                    break;
+
+                case 1:
+                    data.payment.amount = property.propertyRent.oneBuilding;
+                    break;
+
+                case 2:
+                    data.payment.amount = property.propertyRent.twoBuildings;
+                    break;
+
+                case 3:
+                    data.payment.amount = property.propertyRent.threeBuildings;
+                    break;
+
+                case 4:
+                    data.payment.amount = property.propertyRent.fourBuildings;
+                    break;
+
+                case 5:
+                    data.payment.amount = property.propertyRent.hotel;
+                    break;
+            }
+        } else if(property instanceof TrainStationSlot) {
+            const numberOfTrainStations = property.owner.ownedProperties.filter(slot => slot instanceof TrainStationSlot).length;
+
+            switch(numberOfTrainStations) {
+                case 1:
+                    data.payment.amount = property.trainRent.oneStation;
+                    break;
+                case 2:
+                    data.payment.amount = property.trainRent.twoStations;
+                    break;
+                case 3:
+                    data.payment.amount = property.trainRent.threeStations;
+                    break;
+                case 4:
+                    data.payment.amount = property.trainRent.fourStations;
+                    break;
+            }
+        } else if(property instanceof UtilitySlot) {
+            const dices = rollDices(2);
+
+            getIo().to(`game-${additionalData.board.id}`).emit('diceRoll', {
+                gameId: additionalData.board.id,
+                accountLogin: player.accountLogin,
+                dices,
+            });
+
+            const numberOfUtilities = property.owner.ownedProperties.filter(slot => slot instanceof UtilitySlot).length;
+
+            if(numberOfUtilities === 1) {
+                data.payment.amount = (dices[0] + dices[1]) * 4;
+            } else if(numberOfUtilities === 2) {
+                data.payment.amount = (dices[0] + dices[1]) * 10;
+            }
+        }
+
+        currentMachine.transition(Transitions.PAY_PLAYER, data);
+    } else {
+        throw new Error(`Player is not on a buyable slot: ${property.constructor.name}}`);
+    }
 }
 
 /**
