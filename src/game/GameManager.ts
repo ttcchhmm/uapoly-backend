@@ -966,7 +966,13 @@ function handlePayTax(currentMachine: StateMachine<Transitions, States, GameEven
  * @param additionalData Additional data passed with the event.
  */
 function handleCheckIfPlayerCanAfford(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    if(player.money < additionalData.payment.amount) {
+        currentMachine.transition(Transitions.CANNOT_PAY, additionalData);
+    } else {
+        currentMachine.transition(Transitions.CAN_PAY, additionalData);
+    }
 }
 
 /**
