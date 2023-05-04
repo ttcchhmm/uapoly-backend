@@ -25,16 +25,24 @@ export class PropertySlot extends BuyableSlot {
     @Column()
     numberOfBuildings: number;
 
-    constructor(name: string, description: string, iconStyle: string, position: number, price: number, color: string, propertyRent: PropertyRent) {
+    /**
+     * The price for a building on the property.
+     */
+    @Column()
+    buildingPrice: number;
+
+    constructor(name: string, description: string, iconStyle: string, position: number, price: number, color: string, buildingPrice: number, propertyRent: PropertyRent) {
         super(name, description, iconStyle, position, price);
         this.color = color;
         this.propertyRent = propertyRent;
+        this.buildingPrice = buildingPrice;
     }
 
     override getSimplified() {
         return {
             color: this.color,
             propertyRent: this.propertyRent,
+            buildingPrice: this.buildingPrice,
             ...super.getSimplified(),
         };
     }

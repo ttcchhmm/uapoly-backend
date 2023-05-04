@@ -1677,11 +1677,20 @@ components:
                 hotel:
                   type: integer
                   minimum: 1
+            buildingPrice:
+              type: integer
+              minimum: 0
+              description: The cost of building something on this slot
           required:
             - propertyRent
+            - buildingPrice
       description: Represents a property slot
       examples:
-        - color: brown
+        - price: 60
+          name: Mediterranean Avenue
+          description: Buy this property for $60.
+          iconStyle: brown
+          position: 1
           propertyRent:
             noBuildings: 2
             oneBuilding: 10
@@ -1689,11 +1698,7 @@ components:
             threeBuildings: 90
             fourBuildings: 160
             hotel: 250
-          price: 60
-          name: Mediterranean Avenue
-          description: Buy this property for $60.
-          iconStyle: brown
-          position: 1
+          buildingPrice: 50
     TaxSlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'
