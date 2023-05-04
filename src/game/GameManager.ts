@@ -625,7 +625,10 @@ async function handleGoToJail(currentMachine: StateMachine<Transitions, States, 
  * @param additionalData Additional data passed with the event.
  */
 function handleEndTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+    getIo().to(`game-${additionalData.board.id}`).emit('endOfTurn', {
+        gameId: additionalData.board.id,
+        accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex],
+    });
 }
 
 /**

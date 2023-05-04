@@ -46,6 +46,9 @@ The server can emit the following events:
 - `startOfTurn`: A player's turn has started. The data sent by the server will be a JSON object with the following properties:
   - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `accountLogin`: A string representing the player name.
+- `endOfTurn`: A player's turn has ended. The client should emit one of the following events to proceed : `trade`, `manageProperties`, `declareBankruptcy`, `nextPlayer`. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `accountLogin`: A string representing the player name.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:
