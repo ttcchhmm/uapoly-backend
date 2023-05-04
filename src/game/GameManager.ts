@@ -29,6 +29,21 @@ export interface GameEvent {
      * The board the game is being played on.
      */
     board: Board;
+
+    /**
+     * If a payment is being made, the details of the payment. Undefined otherwise.
+     */
+    payment?: {
+        /**
+         * The player making the payment.
+         */
+        receiver: Player | 'bank' | 'jackpot',
+
+        /**
+         * The amount being paid.
+         */
+        amount: number,
+    }
 }
 
 /**
