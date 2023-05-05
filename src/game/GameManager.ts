@@ -1038,6 +1038,8 @@ function handleGameOver(currentMachine: StateMachine<Transitions, States, GameEv
 async function handleTransferMoney(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
 
+    let receiverStr = '';
+
     const promises: Promise<any>[] = [];
 
     if(additionalData.payment.receiver === 'jackpot') { // Jackpot
@@ -1046,10 +1048,14 @@ async function handleTransferMoney(currentMachine: StateMachine<Transitions, Sta
 
         promises.push(playerRepo.save(player));
         promises.push(boardRepo.save(additionalData.board));
+
+        receiverStr = 'jackpot';
     } else if(additionalData.payment.receiver === 'bank') { // Bank
         player.money -= additionalData.payment.amount;
 
         promises.push(playerRepo.save(player));
+
+        receiverStr = 'bank';
     } else { // Player
         // A bit hacky, but it makes the TypeScript compiler happy.
         const target = additionalData.payment.receiver;
@@ -1065,12 +1071,21 @@ async function handleTransferMoney(currentMachine: StateMachine<Transitions, Sta
             } else {
                 throw new Error(`Player ${additionalData.payment.receiver} does not exist.`);
             }
+
+            receiverStr = target.accountLogin;
         } else { // This should never happen. Famous last words.
             throw new Error(`Invalid payment receiver: ${additionalData.payment.receiver}`);
         }
     }
 
     await Promise.all(promises);
+
+    getIo().to(`game-${additionalData.board.id}`).emit('paymentSucceeded', {
+        gameId: additionalData.board.id,
+        sender: player.accountLogin,
+        receiver: receiverStr,
+        amount: additionalData.payment.amount,
+    });
 
     // If there is a callback, execute it.
     if(additionalData.payment.callback) {

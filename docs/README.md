@@ -62,6 +62,11 @@ The server can emit the following events:
   - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `accountLogin`: A string representing the player name.
   - `amount`: An integer representing the debt.
+- `paymentSucceeded`: A player successfully paid a debt. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `sender`: A string representing the sender's name.
+  - `receiver`: A string representing the receiver's name.  Can be `bank` or `jackpot` if the payment was made to the bank or the jackpot.
+  - `amount`: An integer representing the amount of the payment.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:
