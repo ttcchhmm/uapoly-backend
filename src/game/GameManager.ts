@@ -988,7 +988,7 @@ function handleCheckIfPlayerCanAfford(currentMachine: StateMachine<Transitions, 
 }
 
 /**
- * Function executed each time the "trade accepted state is entered.
+ * Function executed each time the "trade accepted" state is entered.
  * @param currentMachine The state machine used to represent the game.
  * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
@@ -999,7 +999,7 @@ function handleTradeAccepted(currentMachine: StateMachine<Transitions, States, G
 }
 
 /**
- * Function executed each time the "game over" is entered.
+ * Function executed each time the "game over" state is entered.
  * @param currentMachine The state machine used to represent the game.
  * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
  * @param event The event that triggered the transition.
