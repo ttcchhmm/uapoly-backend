@@ -1,5 +1,6 @@
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
+import { PropertySlot } from "../entity/PropertySlot";
 import { GameEvent } from "../game/GameManager";
 import { GameStates } from "../game/GameStates";
 import { GameTransitions } from "../game/GameTransitions";
@@ -116,12 +117,36 @@ export const ChanceActions: CardActionFunction[] = [
 
     // You are assessed for street repairs. $40 per house. $115 per hotel.
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        let total = 0;
+
+        player.ownedProperties.forEach(property => {
+            if(property instanceof PropertySlot) {
+                if(property.numberOfBuildings <= 4) {
+                    total += property.numberOfBuildings * 40;
+                } else {
+                    total += 115;
+                }
+            } 
+        });
+
+        stateMachine.transition(GameTransitions.PAY_BANK, {
+            board: player.game,
+            payment: {
+                amount: total,
+                receiver: 'jackpot',
+            },
+        });
     },
 
     // Pay speeding fine of $15
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        stateMachine.transition(GameTransitions.PAY_BANK, {
+            board: player.game,
+            payment: {
+                amount: 15,
+                receiver: 'jackpot',
+            },
+        });
     },
 
     // Take a trip to Reading Railroad
@@ -131,7 +156,28 @@ export const ChanceActions: CardActionFunction[] = [
 
     // You have been elected chairman of the board. Pay each player $50
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        stateMachine.transition(GameTransitions.PAY_BANK, {
+            board: player.game,
+            payment: {
+                amount: 50 * (player.game.players.length - 1),
+                receiver: 'bank',
+                callback: async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+                    const promises: Promise<any>[] = [];
+
+                    player.game.players.forEach(async (otherPlayer) => {
+                        if(player !== otherPlayer) { // Don't pay yourself
+                            otherPlayer.money += 50;
+                            promises.push(playerRepo.save(otherPlayer));
+                        }
+                    });
+
+                    await Promise.all(promises);
+
+                    getIo().to(`game-${player.game.id}`).emit('update', player.game);
+                    stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+                },
+            },
+        });
     },
 
     // Your building and loan matures. Collect $150
@@ -162,7 +208,13 @@ export const CommunityChestActions: CardActionFunction[] = [
 
     // Doctor's fee. Pay $50
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        stateMachine.transition(GameTransitions.PAY_BANK, {
+            board: player.game,
+            payment: {
+                amount: 50,
+                receiver: 'jackpot',
+            },
+        });
     },
 
     // From sale of stock you get $50
@@ -209,12 +261,24 @@ export const CommunityChestActions: CardActionFunction[] = [
     
     // Pay hospital fees of $100
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        stateMachine.transition(GameTransitions.PAY_BANK, {
+            board: player.game,
+            payment: {
+                amount: 100,
+                receiver: 'jackpot',
+            },
+        });
     },
 
     // Pay school fees of $50
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        stateMachine.transition(GameTransitions.PAY_BANK, {
+            board: player.game,
+            payment: {
+                amount: 50,
+                receiver: 'jackpot',
+            },
+        });
     },
 
     // Receive $25 consultancy fee
