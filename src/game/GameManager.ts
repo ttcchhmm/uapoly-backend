@@ -101,7 +101,7 @@ export class GameManager {
      * Create a new state machine for a game.
      * @returns A new state machine for a game.
      */
-    private static createMachine(board: Board): StateMachine<Transitions, States, GameEvent> {
+    private static createMachine(board: Board, doNotEnterInitialState: boolean = false): StateMachine<Transitions, States, GameEvent> {
         // TODO: Finish this
         // Not yet implemented : manage double rolls
         return new StateMachine<Transitions, States, GameEvent>(States.START_TURN, [
@@ -432,7 +432,7 @@ export class GameManager {
                     ]
                 }
             ),
-        ], false, undefined, { board });
+        ], false, undefined, { board }, doNotEnterInitialState);
     }
 
     /**
@@ -440,7 +440,7 @@ export class GameManager {
      * @param filename The filename to write the graph to.
      */
     static dumpMachineGraph(filename: string) {
-        writeFileSync(filename, this.createMachine(null).generateDot());
+        writeFileSync(filename, this.createMachine(null, true).generateDot());
     }
 }
 
