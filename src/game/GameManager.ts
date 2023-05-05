@@ -178,7 +178,7 @@ export class GameManager {
                     [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT,
                     [Transitions.PASS_START]: States.LANDED_ON_SLOT,
                 },
-                [],
+                [handleRollDice],
                 []
             ),
 
@@ -509,8 +509,17 @@ function tryEscapeJail(currentMachine: StateMachine<Transitions, States, GameEve
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleLanding(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+async function handleLanding(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    // Pay salary if the player passed the start slot
+    if(event === Transitions.PASS_START) {
+        player.money += additionalData.board.salary;
+        await playerRepo.save(player);
+    }
+
+    // Update the clients
+    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
 
     if(player.currentSlotIndex === 0) {
         currentMachine.transition(Transitions.LAND_ON_START, additionalData);
@@ -1094,6 +1103,35 @@ async function handleTransferMoney(currentMachine: StateMachine<Transitions, Sta
         currentMachine.transition(Transitions.END_TURN, {
             board: additionalData.board, // Remove the payment from the data passed to the next state.
         });
+    }
+}
+
+/**
+ * Function executed each time the "roll dices" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+async function handleRollDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const dices = rollDices(2); // TODO: Make the number of dices configurable.
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    getIo().to(`game-${additionalData.board.id}`).emit('dicesRolled', {
+        gameId: additionalData.board.id,
+        dices,
+        player: player.accountLogin,
+    });
+
+    const total = dices.reduce((acc, val) => acc + val, 0);
+
+    // Passed Go
+    if(player.currentSlotIndex + total > additionalData.board.slots.length) {
+        player.currentSlotIndex = (player.currentSlotIndex + total) % additionalData.board.slots.length;
+        currentMachine.transition(Transitions.PASS_START, additionalData);
+    } else {
+        player.currentSlotIndex = (player.currentSlotIndex + total) % additionalData.board.slots.length;
+        currentMachine.transition(Transitions.MOVED_PLAYER, additionalData);
     }
 }
 
