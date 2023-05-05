@@ -46,6 +46,14 @@ export interface GameEvent {
          * The amount being paid.
          */
         amount: number,
+
+        /**
+         * A callback to be called after the payment has been made. If undefined, the turn will end.
+         * @param stateMachine The state machine for the game.
+         * @param sender The player making the payment.
+         * @param receiver The receiver of the payment.
+         */
+        callback?: (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot') => Promise<void>;
     }
 }
 
@@ -414,6 +422,16 @@ export class GameManager {
                             [Transitions.CANNOT_PAY]: States.PLAYER_IN_DEBT,
                         },
                         [handleCheckIfPlayerCanAfford],
+                        []
+                    ),
+
+                    new State<Transitions, States, GameEvent>(
+                        States.TRANSFER_MONEY,
+                        [Transitions.CAN_PAY],
+                        {
+                            [Transitions.END_TURN]: States.END_TURN,
+                        },
+                        [handleTransferMoney],
                         []
                     ),
                 ],
@@ -1008,6 +1026,60 @@ function handleTradeAccepted(currentMachine: StateMachine<Transitions, States, G
 function handleGameOver(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
     const winner = additionalData.board.players.find(player => player.money > 0);
     Manager.stopGame(additionalData.board, winner);
+}
+
+/**
+ * Function executed each time the "transfer money" state is entered.
+ * @param currentMachine The state machine used to represent the game.
+ * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
+ * @param event The event that triggered the transition.
+ * @param additionalData Additional data passed with the event.
+ */
+async function handleTransferMoney(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+    const promises: Promise<any>[] = [];
+
+    if(additionalData.payment.receiver === 'jackpot') { // Jackpot
+        player.money -= additionalData.payment.amount;
+        additionalData.board.jackpot += additionalData.payment.amount;
+
+        promises.push(playerRepo.save(player));
+        promises.push(boardRepo.save(additionalData.board));
+    } else if(additionalData.payment.receiver === 'bank') { // Bank
+        player.money -= additionalData.payment.amount;
+
+        promises.push(playerRepo.save(player));
+    } else { // Player
+        // A bit hacky, but it makes the TypeScript compiler happy.
+        const target = additionalData.payment.receiver;
+        if(target instanceof Player) {
+            const receiver = additionalData.board.players.find(player => player.accountLogin === target.accountLogin);
+
+            if(receiver) {
+                player.money -= additionalData.payment.amount;
+                receiver.money += additionalData.payment.amount;
+
+                promises.push(playerRepo.save(player));
+                promises.push(playerRepo.save(receiver));
+            } else {
+                throw new Error(`Player ${additionalData.payment.receiver} does not exist.`);
+            }
+        } else { // This should never happen. Famous last words.
+            throw new Error(`Invalid payment receiver: ${additionalData.payment.receiver}`);
+        }
+    }
+
+    await Promise.all(promises);
+
+    // If there is a callback, execute it.
+    if(additionalData.payment.callback) {
+        await additionalData.payment.callback(upperMachine, player, additionalData.payment.receiver);
+    } else { // No callback, just end the turn.
+        currentMachine.transition(Transitions.END_TURN, {
+            board: additionalData.board, // Remove the payment from the data passed to the next state.
+        });
+    }
 }
 
 /**
