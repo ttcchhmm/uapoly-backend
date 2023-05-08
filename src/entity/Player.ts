@@ -122,6 +122,8 @@ export class Player {
             accountLogin: this.accountLogin,
             quitted,
         });
+
+        // TODO: force skip turn if it's the player's turn.
     }
 
     /**
