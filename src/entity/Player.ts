@@ -10,6 +10,7 @@ import { StateMachine } from "../state/StateMachine";
 import { GameTransitions } from "../game/GameTransitions";
 import { GameStates } from "../game/GameStates";
 import { GameEvent } from "../game/GameManager";
+import { BoardSlot } from "./BoardSlot";
 
 /**
  * Represents a player in the database.
@@ -161,6 +162,32 @@ export class Player {
         } else {
             stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: this.game });
         }
+    }
+
+    /**
+     * Move the player to the nearest slot of the given type.
+     * @param stateMachine The state machine of the game.
+     * @param slotType The type of slot to move the player to.
+     */
+    async movePlayerToNearest<T extends new(...args: any[]) => BoardSlot>(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, slotType: T) {
+        let i = this.currentSlotIndex + 1; // Start at the next slot
+        while(i !== this.currentSlotIndex) {
+            // Wrap around
+            if(i >= this.game.slots.length) {
+                i = 0;
+            }
+
+            const slot = this.game.slots[i];
+            if(slot instanceof slotType) { // If the slot is of the given type
+                await this.movePlayerTo(stateMachine, i % this.game.slots.length);
+                return;
+            }
+
+            i++;
+        }
+
+        // If we get here, it means that no slot of the given type was found. Should not happen with the default boards.
+        throw new Error(`No slot of the given type was found: ${slotType.constructor.name}`);
     }
 }
 
