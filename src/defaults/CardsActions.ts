@@ -1,6 +1,8 @@
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
 import { PropertySlot } from "../entity/PropertySlot";
+import { TrainStationSlot } from "../entity/TrainStationSlot";
+import { UtilitySlot } from "../entity/UtilitySlot";
 import { GameEvent } from "../game/GameManager";
 import { GameStates } from "../game/GameStates";
 import { GameTransitions } from "../game/GameTransitions";
@@ -66,12 +68,12 @@ export const ChanceActions: CardActionFunction[] = [
 
     // Advance to the nearest railroad
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        await player.movePlayerToNearest(stateMachine, TrainStationSlot);
     },
 
     // Advance to the nearest utility
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        await player.movePlayerToNearest(stateMachine, UtilitySlot);
     },
 
     // Bank pays you dividend of $50
