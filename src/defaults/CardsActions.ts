@@ -46,25 +46,22 @@ const playerRepo = AppDataSource.getRepository(Player);
 export const ChanceActions: CardActionFunction[] = [
     // Advance to Boardwalk
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        await player.movePlayerTo(stateMachine, 39);
     },
 
     // Advance to Go
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        player.currentSlotIndex = 0;
-        
-        await playerRepo.save(player);
-        stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: player.game });
+        await player.movePlayerTo(stateMachine, 0);
     },
 
     // Advance to Illinois Ave
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        await player.movePlayerTo(stateMachine, 24);
     },
 
     // Advance to St. Charles Place
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        await player.movePlayerTo(stateMachine, 11);
     },
 
     // Advance to the nearest railroad
@@ -151,7 +148,7 @@ export const ChanceActions: CardActionFunction[] = [
 
     // Take a trip to Reading Railroad
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        // TODO: Implement
+        player.movePlayerTo(stateMachine, 5);
     },
 
     // You have been elected chairman of the board. Pay each player $50
