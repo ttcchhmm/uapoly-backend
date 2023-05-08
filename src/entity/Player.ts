@@ -137,11 +137,13 @@ export class Player {
             this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % this.game.slots.length;
 
             playerRepo.save(this);
+            getIo().to(`game-${this.gameId}`).emit('update', this.game);
             stateMachine.transition(GameTransitions.PASS_START, { board: this.game });
         } else {
             this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % this.game.slots.length;
 
             playerRepo.save(this);
+            getIo().to(`game-${this.gameId}`).emit('update', this.game);
             stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: this.game });
         }
     }
@@ -151,6 +153,7 @@ export class Player {
 
         this.currentSlotIndex = slotIndex;
         await playerRepo.save(this);
+        getIo().to(`game-${this.gameId}`).emit('update', this.game);
 
         // Passed Go
         if(numberOfSlots < 0) {
