@@ -1125,14 +1125,7 @@ async function handleRollDice(currentMachine: StateMachine<Transitions, States, 
 
     const total = dices.reduce((acc, val) => acc + val, 0);
 
-    // Passed Go
-    if(player.currentSlotIndex + total > additionalData.board.slots.length) {
-        player.currentSlotIndex = (player.currentSlotIndex + total) % additionalData.board.slots.length;
-        currentMachine.transition(Transitions.PASS_START, additionalData);
-    } else {
-        player.currentSlotIndex = (player.currentSlotIndex + total) % additionalData.board.slots.length;
-        currentMachine.transition(Transitions.MOVED_PLAYER, additionalData);
-    }
+    await player.movePlayer(currentMachine, total);
 }
 
 /**

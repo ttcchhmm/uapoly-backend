@@ -6,6 +6,10 @@ import { Message } from "./Message";
 import { PropertySlot } from "./PropertySlot";
 import { AppDataSource } from "../data-source";
 import { getIo } from "../socket/IoGlobal";
+import { StateMachine } from "../state/StateMachine";
+import { GameTransitions } from "../game/GameTransitions";
+import { GameStates } from "../game/GameStates";
+import { GameEvent } from "../game/GameManager";
 
 /**
  * Represents a player in the database.
@@ -118,6 +122,40 @@ export class Player {
             accountLogin: this.accountLogin,
             quitted,
         });
+    }
+
+    /**
+     * Move the player on the board.
+     * @param stateMachine The state machine of the game.
+     * @param numberOfSlots The number of slots to move the player.
+     */
+    async movePlayer(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, numberOfSlots: number) {
+        // Passed Go
+        if(this.currentSlotIndex + numberOfSlots > this.game.slots.length) {
+            this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % this.game.slots.length;
+
+            playerRepo.save(this);
+            stateMachine.transition(GameTransitions.PASS_START, { board: this.game });
+        } else {
+            this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % this.game.slots.length;
+
+            playerRepo.save(this);
+            stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: this.game });
+        }
+    }
+
+    async movePlayerTo(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, slotIndex: number) {
+        const numberOfSlots = slotIndex - this.currentSlotIndex;
+
+        this.currentSlotIndex = slotIndex;
+        await playerRepo.save(this);
+
+        // Passed Go
+        if(numberOfSlots < 0) {
+            stateMachine.transition(GameTransitions.PASS_START, { board: this.game });
+        } else {
+            stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: this.game });
+        }
     }
 }
 
