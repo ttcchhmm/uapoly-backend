@@ -572,17 +572,6 @@ async function handleLanding(currentMachine: StateMachine<Transitions, States, G
 }
 
 /**
- * Function executed each time the "end turn" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function endTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
-}
-
-/**
  * Function executed each time the "landed on buyable slot" state is entered.
  * @param currentMachine The state machine used to represent the game.
  * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
