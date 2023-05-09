@@ -19,10 +19,12 @@ import { Slots } from "../defaults/Slots";
 import { PropertySlot } from "../entity/PropertySlot";
 import { TrainStationSlot } from "../entity/TrainStationSlot";
 import { UtilitySlot } from "../entity/UtilitySlot";
+import { Message } from "../entity/Message";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
 const slotsRepo = AppDataSource.getRepository(BoardSlot);
+const messageRepo = AppDataSource.getRepository(Message);
 
 /**
  * Represents a modification to a property.
@@ -116,6 +118,15 @@ export class GameManager {
         
         // Delete the game
         this.games.delete(board.id);
+        
+        const promises: Promise<any>[] = [];
+
+        // Delete messages
+        board.messages.forEach(message => {
+            promises.push(messageRepo.remove(message));
+        });
+        await Promise.all(promises);
+
         await playerRepo.delete({ gameId: board.id });
         await slotsRepo.delete({ boardId: board.id });
         await boardRepo.remove(board);
