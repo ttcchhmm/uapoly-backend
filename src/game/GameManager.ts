@@ -25,6 +25,26 @@ const playerRepo = AppDataSource.getRepository(Player);
 const slotsRepo = AppDataSource.getRepository(BoardSlot);
 
 /**
+ * Represents a modification to a property.
+ */
+export interface PropertyEdit {
+    /**
+     * The position of the modified property.
+     */
+    position: number,
+
+    /**
+     * The new state of the property.
+     */
+    newState?: BuyableSlotState,
+
+    /**
+     * The new number of buildings on the property.
+     */
+    newNumberOfBuildings?: number,
+}
+
+/**
  * Additional data to pass to each transition function.
  */
 export interface GameEvent {
@@ -54,7 +74,12 @@ export interface GameEvent {
          * @param receiver The receiver of the payment.
          */
         callback?: (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot') => Promise<void>;
-    }
+    },
+
+    /**
+     * If modifications are being made to the properties of a player, the details of the modifications. Undefined otherwise.
+     */
+    propertiesEdit?: PropertyEdit[],
 }
 
 /**
@@ -343,6 +368,9 @@ export class GameManager {
                 [Transitions.MANAGE_PROPERTIES],
                 {
                     [Transitions.END_TURN]: States.END_TURN,
+                    [Transitions.PAY_BAIL]: States.PAY,
+                    [Transitions.PAY_BANK]: States.PAY,
+                    [Transitions.PAY_PLAYER]: States.PAY,
                 },
                 [handleManageProperties],
                 []
@@ -778,8 +806,63 @@ async function handleDeclareBankruptcy(currentMachine: StateMachine<Transitions,
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handleManageProperties(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handleManageProperties(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    if(additionalData.propertiesEdit) {
+        const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+        let debt = 0;
+
+        const promises: Promise<any>[] = [];
+        additionalData.propertiesEdit.forEach(propertyEdit => {
+            const property = player.ownedProperties.find(p => p.position === propertyEdit.position);
+
+            if(property) {
+                if(propertyEdit.newState === BuyableSlotState.MORTGAGED && property.state === BuyableSlotState.OWNED) {
+                    debt -= property.price / 2;
+                    property.state = BuyableSlotState.MORTGAGED;
+                } else if(propertyEdit.newState === BuyableSlotState.OWNED && property.state === BuyableSlotState.MORTGAGED) {
+                    debt += property.price / 2 + property.price / 10;
+                    property.state = BuyableSlotState.OWNED;
+                }
+
+                if(propertyEdit.newNumberOfBuildings >= 0 && propertyEdit.newNumberOfBuildings <= 5 && property instanceof PropertySlot) {
+                    debt += (property.numberOfBuildings - propertyEdit.newNumberOfBuildings) * property.buildingPrice;
+                    property.numberOfBuildings = propertyEdit.newNumberOfBuildings;
+                }
+
+                promises.push(slotsRepo.save(property));
+            }
+        });
+
+        await Promise.all(promises);
+
+        if(debt < 0) {
+            player.money -= debt;
+        } else {
+            currentMachine.transition(Transitions.PAY_BANK, {
+                board: additionalData.board,
+                payment: {
+                    receiver: 'bank',
+                    amount: debt,
+                },
+            });
+        }
+    }
+
+    const transition = currentMachine.getTransitionHistory()
+        .reverse()
+        .find(transition => transition === Transitions.END_TURN || transition === Transitions.PAY_BANK || transition === Transitions.PAY_BAIL || transition === Transitions.PAY_PLAYER);
+
+    if(transition === Transitions.END_TURN) {
+        currentMachine.transition(Transitions.END_TURN, {
+            board: additionalData.board,
+        });
+    } else {
+        currentMachine.transition(transition, {
+            board: additionalData.board,
+            payment: additionalData.payment,
+        });
+    }
 }
 
 /**

@@ -2,7 +2,7 @@ import { AuthenticatedSocket } from "../auth/AuthenticatedSocket";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
 import { Player } from "../entity/Player";
-import { Manager } from "../game/GameManager";
+import { Manager, PropertyEdit } from "../game/GameManager";
 import { GameTransitions } from "../game/GameTransitions";
 import { getIo } from "./IoGlobal";
 
@@ -21,6 +21,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('update', onUpdate(socket));
     socket.on('declareBankruptcy', onDeclareBankruptcy(socket));
     socket.on('nextPlayer', onNextPlayer(socket));
+    socket.on('manageProperties', onManageProperties(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -238,6 +239,48 @@ function onNextPlayer(socket: AuthenticatedSocket) {
         }
 
         Manager.games.get(room).transition(GameTransitions.NEXT_PLAYER, { board: board });
+    }
+}
+
+function onManageProperties(socket: AuthenticatedSocket) {
+    return async (data: { room: number, properties: PropertyEdit[] }) => {
+        const [player, board] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: data.room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: data.room,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if (!player) {
+            socket.emit('error', getErrorMessage(data.room, 'You are not in this game'));
+            return;
+        }
+
+        if (!board) {
+            socket.emit('error', getErrorMessage(data.room, 'This game does not exist'));
+            return;
+        }
+
+        if (!board.started) {
+            socket.emit('error', getErrorMessage(data.room, 'This game has not started yet'));
+            return;
+        }
+
+        if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
+            socket.emit('error', getErrorMessage(data.room, 'It is not your turn'));
+            return;
+        }
+
+        Manager.games.get(data.room).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
     }
 }
 

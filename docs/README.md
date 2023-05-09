@@ -19,6 +19,9 @@ The client can emit the following events:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
 - `nextPlayer`: End the current player's turn. The client must send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
+- `manageProperties`: Manage the current player's properties. The client must send the following data:
+  - An integer representing the game ID. This is the same as the game ID in the REST API.
+  - An array of `PropertyEdit`.
 
 ### Server events
 The server can emit the following events:
@@ -94,6 +97,10 @@ The following schemas are used by the Socket.IO API:
   - `startingSlotIndex`: An integer representing the starting slot index.
   - `initialMoney`: An integer representing the initial money.
   - `name`: The game's name.
+- `PropertyEdit`:
+  - `position`: An integer representing the slot index of the property.
+  - `newState`: The new state of the property. Can be `MORTGAGED` or `OWNED`.
+  - `newNumberOfBuildings`: An integer representing the new number of buildings on the property. Should be between 0 and 5 (hotel).
 
 ### Errors
 In case of an error, the server will emit the `error` event. The client must listen for this event. The data sent by the server will be a JSON object with the following properties:

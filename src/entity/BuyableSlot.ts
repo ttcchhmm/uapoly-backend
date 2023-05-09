@@ -10,17 +10,17 @@ export const enum BuyableSlotState {
     /**
      * The slot is owned by a player.
      */
-    OWNED,
+    OWNED = 'OWNED',
 
     /**
      * The slot is mortgaged.
      */
-    MORTGAGED,
+    MORTGAGED = 'MORTGAGED',
 
     /**
      * The slot is available to be bought.
      */
-    AVAILABLE
+    AVAILABLE = 'AVAILABLE',
 }
 
 /**
