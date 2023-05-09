@@ -17,6 +17,8 @@ The client can emit the following events:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
 - `declareBankruptcy`: Declare bankruptcy. The client must send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
+- `nextPlayer`: End the current player's turn. The client must send the following data:
+  - An integer representing the game ID. This is the same as the game ID in the REST API.
 
 ### Server events
 The server can emit the following events:
