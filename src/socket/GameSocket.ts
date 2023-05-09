@@ -22,6 +22,8 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('declareBankruptcy', onDeclareBankruptcy(socket));
     socket.on('nextPlayer', onNextPlayer(socket));
     socket.on('manageProperties', onManageProperties(socket));
+    socket.on('buy', onBuy(socket));
+    socket.on('doNotBuy', onDoNotBuy(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -231,6 +233,64 @@ function onManageProperties(socket: AuthenticatedSocket) {
 
         if(checkBoardAndPlayerValidity(board, player, socket, data.room)) {
             Manager.games.get(data.room).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'doNotBuy' event, to not buy a property.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'doNotBuy' event
+ */
+function onDoNotBuy(socket: AuthenticatedSocket) {
+    return async (room: number) => {
+        const [player, board] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: room,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, room)) {
+            Manager.games.get(room).transition(GameTransitions.DO_NOT_BUY_PROPERTY, { board: board });
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'buy' event, to buy a property.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'buy' event
+ */
+function onBuy(socket: AuthenticatedSocket) {
+    return async (room: number) => {
+        const [player, board] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: room,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, room)) {
+            Manager.games.get(room).transition(GameTransitions.BUY_PROPERTY, { board: board });
         }
     }
 }

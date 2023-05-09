@@ -607,32 +607,13 @@ function handleLandedOnBuyableSlot(currentMachine: StateMachine<Transitions, Sta
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-async function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const slot = additionalData.board.slots[player.currentSlotIndex];
-
-    if(slot instanceof BuyableSlot) {
-        slot.state = BuyableSlotState.OWNED;
-        slot.owner = player;
-
-        getIo().to(`game-${additionalData.board.id}`).emit('propertyBought', {
-            gameId: additionalData.board.id,
-            accountLogin: player.accountLogin,
-            slotIndex: player.currentSlotIndex,
-            price: slot.price,
-        });
-
-        await slotsRepo.save(slot);
-
-        currentMachine.transition(Transitions.PAY_BANK, {
-            payment: {
-                receiver: 'bank',
-                amount: slot.price,
-            },
-
-            ...additionalData,
-        });
-    }
+function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    getIo().to(`game-${additionalData.board.id}`).emit('landedOnUnowned', {
+        gameId: additionalData.board.id,
+        accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
+        position: additionalData.board.players[additionalData.board.currentPlayerIndex].currentSlotIndex,
+        price: (additionalData.board.slots[additionalData.board.players[additionalData.board.currentPlayerIndex].currentSlotIndex] as BuyableSlot).price,
+    });
 }
 
 /**
@@ -966,8 +947,32 @@ function handlePlayerInDebt(currentMachine: StateMachine<Transitions, States, Ga
  * @param event The event that triggered the transition.
  * @param additionalData Additional data passed with the event.
  */
-function handlePayingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
+async function handlePayingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
+    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+    const slot = additionalData.board.slots[player.currentSlotIndex];
+
+    if(slot instanceof BuyableSlot) {
+        slot.state = BuyableSlotState.OWNED;
+        slot.owner = player;
+
+        getIo().to(`game-${additionalData.board.id}`).emit('propertyBought', {
+            gameId: additionalData.board.id,
+            accountLogin: player.accountLogin,
+            slotIndex: player.currentSlotIndex,
+            price: slot.price,
+        });
+
+        await slotsRepo.save(slot);
+
+        currentMachine.transition(Transitions.PAY_BANK, {
+            payment: {
+                receiver: 'bank',
+                amount: slot.price,
+            },
+
+            ...additionalData,
+        });
+    }
 }
 
 /**

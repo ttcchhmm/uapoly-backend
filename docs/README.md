@@ -22,6 +22,10 @@ The client can emit the following events:
 - `manageProperties`: Manage the current player's properties. The client must send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
   - An array of `PropertyEdit`.
+- `doNotBuy`: Do not buy a property and end the turn. The client must send the following data:
+  - An integer representing the game ID. This is the same as the game ID in the REST API.
+- `buy`: Buy a property. The client must send the following data:
+  - An integer representing the game ID. This is the same as the game ID in the REST API.
 
 ### Server events
 The server can emit the following events:
@@ -74,6 +78,11 @@ The server can emit the following events:
   - `sender`: A string representing the sender's name.
   - `receiver`: A string representing the receiver's name.  Can be `bank` or `jackpot` if the payment was made to the bank or the jackpot.
   - `amount`: An integer representing the amount of the payment.
+- `landedOnUnowned`: The player landed on a unowned slot. The client should emit one of the following events to proceed : `buy`, `doNotBuy`. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `position`: An integer representing the slot index.
+  - `price`: An integer representing the price of the property.
+  - `accountLogin`: A string representing the player name.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:
