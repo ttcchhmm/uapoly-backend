@@ -36,7 +36,7 @@ export const FrenchDeck: CardDeck = {
         },
 
         {
-            description: 'La banque vous verse un dividende de 50€',
+            description: 'La banque vous verse un dividende de $50',
             action: ChanceActions[6],
         },
 
