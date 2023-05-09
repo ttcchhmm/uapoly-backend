@@ -172,6 +172,7 @@ function onDeclareBankruptcy(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -201,6 +202,7 @@ function onNextPlayer(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -230,6 +232,7 @@ function onManageProperties(socket: AuthenticatedSocket) {
                 where: {
                     id: data.room,
                 },
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -259,6 +262,7 @@ function onDoNotBuy(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -288,6 +292,7 @@ function onBuy(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
+                relations: ['players'],
                 cache: true,
             }),
         ]);
