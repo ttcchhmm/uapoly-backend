@@ -1,6 +1,7 @@
 import { AuthenticatedSocket } from "../auth/AuthenticatedSocket";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
+import { Message } from "../entity/Message";
 import { Player } from "../entity/Player";
 import { Manager, PropertyEdit } from "../game/GameManager";
 import { GameTransitions } from "../game/GameTransitions";
@@ -8,6 +9,7 @@ import { getIo } from "./IoGlobal";
 
 const playerRepo = AppDataSource.getRepository(Player);
 const boardRepo = AppDataSource.getRepository(Board);
+const messageRepo = AppDataSource.getRepository(Message);
 
 /**
  * Function called when a socket connects, after authentication.
@@ -24,6 +26,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('manageProperties', onManageProperties(socket));
     socket.on('buy', onBuy(socket));
     socket.on('doNotBuy', onDoNotBuy(socket));
+    socket.on('message', onMessage(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -291,6 +294,43 @@ function onBuy(socket: AuthenticatedSocket) {
 
         if(checkBoardAndPlayerValidity(board, player, socket, room)) {
             Manager.games.get(room).transition(GameTransitions.BUY_PROPERTY, { board: board });
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'message' event, to send a message.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'message' event
+ */
+function onMessage(socket: AuthenticatedSocket) {
+    return async(data: { room: number, message: string }) => {
+        const [player, board] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: data.room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: data.room,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, data.room)) {
+            const msg = new Message(board, data.message, player);
+            board.messages.push(msg);
+
+            await Promise.all([
+                boardRepo.save(board),
+                messageRepo.save(msg),
+            ]);
+
+            getIo().to(`game-${data.room}`).emit('message', msg);
         }
     }
 }

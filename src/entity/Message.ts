@@ -43,4 +43,12 @@ export class Message {
      */
     @OneToOne(type => TradeOffer, tradeOffer => tradeOffer.message, {eager: true})
     tradeOffer: TradeOffer | null;
+
+    constructor(board: Board, content: string, sender: Player, recipient: Player | null = null, tradeOffer: TradeOffer | null = null) {
+        this.board = board;
+        this.content = content;
+        this.sender = sender;
+        this.recipient = recipient;
+        this.tradeOffer = tradeOffer;
+    }
 }
