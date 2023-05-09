@@ -3,6 +3,7 @@ import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
 import { Player } from "../entity/Player";
 import { Manager } from "../game/GameManager";
+import { GameTransitions } from "../game/GameTransitions";
 import { getIo } from "./IoGlobal";
 
 const playerRepo = AppDataSource.getRepository(Player);
@@ -18,6 +19,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('leave', onLeave(socket));
     socket.on('start', onStart(socket));
     socket.on('update', onUpdate(socket));
+    socket.on('declareBankruptcy', onDeclareBankruptcy(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -141,6 +143,53 @@ function onStart(socket: AuthenticatedSocket) {
 function onUpdate(socket: AuthenticatedSocket) {
     return async (room: number) => {
         await updateRoom(socket, room, false);
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'declareBankruptcy' event, to declare bankruptcy.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'declareBankruptcy' event
+ */
+function onDeclareBankruptcy(socket: AuthenticatedSocket) {
+    return async (room: number) => {
+        const [player, board] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: room,
+                },
+                cache: true,
+            }),
+        ]);
+    
+        if (!player) {
+            socket.emit('error', getErrorMessage(room, 'You are not in this game'));
+            return;
+        }
+    
+        if (!board) {
+            socket.emit('error', getErrorMessage(room, 'This game does not exist'));
+            return;
+        }
+    
+        if (!board.started) {
+            socket.emit('error', getErrorMessage(room, 'This game has not started yet'));
+            return;
+        }
+    
+        if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
+            socket.emit('error', getErrorMessage(room, 'It is not your turn'));
+            return;
+        }
+    
+        Manager.games.get(room).transition(GameTransitions.DECLARE_BANKRUPTCY, { board: board });
     }
 }
 
