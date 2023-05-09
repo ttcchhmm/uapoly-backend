@@ -171,27 +171,9 @@ function onDeclareBankruptcy(socket: AuthenticatedSocket) {
             }),
         ]);
     
-        if (!player) {
-            socket.emit('error', getErrorMessage(room, 'You are not in this game'));
-            return;
+        if(checkBoardAndPlayerValidity(board, player, socket, room)) {
+            Manager.games.get(room).transition(GameTransitions.DECLARE_BANKRUPTCY, { board: board });
         }
-    
-        if (!board) {
-            socket.emit('error', getErrorMessage(room, 'This game does not exist'));
-            return;
-        }
-    
-        if (!board.started) {
-            socket.emit('error', getErrorMessage(room, 'This game has not started yet'));
-            return;
-        }
-    
-        if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
-            socket.emit('error', getErrorMessage(room, 'It is not your turn'));
-            return;
-        }
-    
-        Manager.games.get(room).transition(GameTransitions.DECLARE_BANKRUPTCY, { board: board });
     }
 }
 
@@ -218,27 +200,9 @@ function onNextPlayer(socket: AuthenticatedSocket) {
             }),
         ]);
 
-        if (!player) {
-            socket.emit('error', getErrorMessage(room, 'You are not in this game'));
-            return;
+        if(checkBoardAndPlayerValidity(board, player, socket, room)) {
+            Manager.games.get(room).transition(GameTransitions.NEXT_PLAYER, { board: board });
         }
-
-        if (!board) {
-            socket.emit('error', getErrorMessage(room, 'This game does not exist'));
-            return;
-        }
-
-        if (!board.started) {
-            socket.emit('error', getErrorMessage(room, 'This game has not started yet'));
-            return;
-        }
-
-        if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
-            socket.emit('error', getErrorMessage(room, 'It is not your turn'));
-            return;
-        }
-
-        Manager.games.get(room).transition(GameTransitions.NEXT_PLAYER, { board: board });
     }
 }
 
@@ -260,28 +224,34 @@ function onManageProperties(socket: AuthenticatedSocket) {
             }),
         ]);
 
-        if (!player) {
-            socket.emit('error', getErrorMessage(data.room, 'You are not in this game'));
-            return;
+        if(checkBoardAndPlayerValidity(board, player, socket, data.room)) {
+            Manager.games.get(data.room).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
         }
-
-        if (!board) {
-            socket.emit('error', getErrorMessage(data.room, 'This game does not exist'));
-            return;
-        }
-
-        if (!board.started) {
-            socket.emit('error', getErrorMessage(data.room, 'This game has not started yet'));
-            return;
-        }
-
-        if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
-            socket.emit('error', getErrorMessage(data.room, 'It is not your turn'));
-            return;
-        }
-
-        Manager.games.get(data.room).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
     }
+}
+
+function checkBoardAndPlayerValidity(board: Board, player: Player, socket: AuthenticatedSocket, room: number) {
+    if (!player) {
+        socket.emit('error', getErrorMessage(room, 'You are not in this game'));
+        return false;
+    }
+
+    if (!board) {
+        socket.emit('error', getErrorMessage(room, 'This game does not exist'));
+        return false;
+    }
+
+    if (!board.started) {
+        socket.emit('error', getErrorMessage(room, 'This game has not started yet'));
+        return false;
+    }
+
+    if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
+        socket.emit('error', getErrorMessage(room, 'It is not your turn'));
+        return false;
+    }
+
+    return true;
 }
 
 /**
