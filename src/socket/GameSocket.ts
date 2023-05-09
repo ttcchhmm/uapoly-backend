@@ -206,6 +206,11 @@ function onNextPlayer(socket: AuthenticatedSocket) {
     }
 }
 
+/**
+ * Get a function that will be called when the socket emits a 'manageProperties' event, to manage properties.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'manageProperties' event
+ */
 function onManageProperties(socket: AuthenticatedSocket) {
     return async (data: { room: number, properties: PropertyEdit[] }) => {
         const [player, board] = await Promise.all([
