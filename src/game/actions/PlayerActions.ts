@@ -65,9 +65,9 @@ export const PlayerActions = {
     
             getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
     
-            if(debt < 0) {
+            if(debt < 0) { // The bank owes the player money
                 player.money -= debt;
-            } else {
+            } else { // The player owes the bank money
                 currentMachine.transition(Transitions.PAY_BANK, {
                     board: additionalData.board,
                     payment: {
@@ -82,11 +82,12 @@ export const PlayerActions = {
             .reverse()
             .find(transition => transition === Transitions.END_TURN || transition === Transitions.PAY_BANK || transition === Transitions.PAY_BAIL || transition === Transitions.PAY_PLAYER);
     
+        // The player managed their properties at the end of their turn. End the turn.
         if(transition === Transitions.END_TURN) {
             currentMachine.transition(Transitions.END_TURN, {
                 board: additionalData.board,
             });
-        } else {
+        } else { // The player decided to manage properties to pay a debt. Continue the payment.
             currentMachine.transition(transition, {
                 board: additionalData.board,
                 payment: additionalData.payment,
