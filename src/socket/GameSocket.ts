@@ -57,6 +57,11 @@ function getErrorMessage(room: number, message: string) {
  */
 function onJoin(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+        
         const player = await playerRepo.findOne({
             where: {
                 gameId: room,
@@ -84,6 +89,11 @@ function onJoin(socket: AuthenticatedSocket) {
  */
 function onLeave(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         if(socket.rooms.has(`game-${room}`)) {
             await socket.leave(`game-${room}`);
             socket.emit('left', room);
@@ -110,6 +120,11 @@ function onLeave(socket: AuthenticatedSocket) {
  */
 function onStart(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         const board = await boardRepo.findOne({
             where: {
                 id: room,
@@ -149,6 +164,11 @@ function onStart(socket: AuthenticatedSocket) {
  */
 function onUpdate(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         await updateRoom(socket, room, false);
     }
 }
@@ -160,6 +180,11 @@ function onUpdate(socket: AuthenticatedSocket) {
  */
 function onDeclareBankruptcy(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
@@ -190,6 +215,11 @@ function onDeclareBankruptcy(socket: AuthenticatedSocket) {
  */
 function onNextPlayer(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
@@ -220,6 +250,14 @@ function onNextPlayer(socket: AuthenticatedSocket) {
  */
 function onManageProperties(socket: AuthenticatedSocket) {
     return async (data: { room: number, properties: PropertyEdit[] }) => {
+        if(isNaN(data.room)) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
+            return;
+        } else if(!Array.isArray(data.properties)) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid properties'));
+            return;
+        }
+
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
@@ -237,6 +275,16 @@ function onManageProperties(socket: AuthenticatedSocket) {
             }),
         ]);
 
+        data.properties.forEach(p => {
+            if(isNaN(p.position)) {
+                socket.emit('error', getErrorMessage(data.room, 'Invalid properties'));
+                return;
+            } else if(!player.ownedProperties.find(op => op.position === p.position)) {
+                socket.emit('error', getErrorMessage(data.room, `You do not own this property: ${p.position}`));
+                return;
+            }
+        });
+
         if(checkBoardAndPlayerValidity(board, player, socket, data.room)) {
             Manager.games.get(data.room).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
         }
@@ -250,6 +298,11 @@ function onManageProperties(socket: AuthenticatedSocket) {
  */
 function onDoNotBuy(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
@@ -280,6 +333,11 @@ function onDoNotBuy(socket: AuthenticatedSocket) {
  */
 function onBuy(socket: AuthenticatedSocket) {
     return async (room: number) => {
+        if(isNaN(room)) {
+            socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
+            return;
+        }
+
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
@@ -310,6 +368,14 @@ function onBuy(socket: AuthenticatedSocket) {
  */
 function onMessage(socket: AuthenticatedSocket) {
     return async(data: { room: number, message: string }) => {
+        if(isNaN(data.room)) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
+            return;
+        } else if(typeof data.message !== 'string' || data.message.length === 0) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid message'));
+            return;
+        }
+
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
