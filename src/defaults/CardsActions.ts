@@ -1,4 +1,5 @@
 import { AppDataSource } from "../data-source";
+import { CardStyle } from "../entity/CardSlot";
 import { Player } from "../entity/Player";
 import { PropertySlot } from "../entity/PropertySlot";
 import { TrainStationSlot } from "../entity/TrainStationSlot";
@@ -28,16 +29,11 @@ export interface Card {
 /**
  * Represent a deck of cards.
  */
-export interface CardDeck {
+export type CardDeck = {
     /**
-     * The chance cards.
+     * The cards of a given type in the deck.
      */
-    chance: Card[],
-
-    /**
-     * The community chest cards.
-     */
-    communityChest: Card[],
+    [Key in CardStyle]: Card[];
 }
 
 const playerRepo = AppDataSource.getRepository(Player);

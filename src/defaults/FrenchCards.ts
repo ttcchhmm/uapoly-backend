@@ -1,10 +1,11 @@
+import { CardStyle } from "../entity/CardSlot";
 import { CardDeck, ChanceActions, CommunityChestActions } from "./CardsActions";
 
 /**
  * The default deck of cards for the French region.
  */
 export const FrenchDeck: CardDeck = {
-    chance: [
+    [CardStyle.CHANCE]: [
         {
             description: 'Avancez jusqu\'à Rue de la Paix',
             action: ChanceActions[0],
@@ -80,7 +81,7 @@ export const FrenchDeck: CardDeck = {
             action: ChanceActions[14],
         },
     ],
-    communityChest: [
+    [CardStyle.COMMUNITY]: [
         {
             description: 'Avancez jusqu\'à la case Départ',
             action: CommunityChestActions[0],

@@ -135,18 +135,7 @@ export const LandActions = {
         const slot = additionalData.board.slots[player.currentSlotIndex];
         
         if(slot instanceof CardSlot) {
-            let deck: Card[];
-    
-            switch(slot.cardStyle) {
-                case CardStyle.CHANCE:
-                    deck = Slots.get(additionalData.board.locale).deck.chance;
-                    break;
-    
-                case CardStyle.COMMUNITY:
-                    deck = Slots.get(additionalData.board.locale).deck.communityChest;
-                    break;
-            }
-    
+            const deck = Slots.get(additionalData.board.locale).deck[slot.cardStyle];
             const card = deck[Math.floor(Math.random() * deck.length)];
     
             getIo().to(`game-${additionalData.board.id}`).emit('cardDrawn', {
