@@ -75,6 +75,22 @@ export async function login(account: Account, password: string): Promise<string>
 }
 
 /**
+ * Authenticates a token.
+ * @param token The token to authenticate.
+ * @param success Callback called if the token is valid.
+ * @param failure Callback called if the token is invalid.
+ */
+function authenticate(token: string, success: (payload: Token) => void, failure: (err: VerifyErrors) => void) {
+    jwt.verify(token, process.env.JWT_SECRET, (err: VerifyErrors | null, payload: object | undefined) => {
+        if(err) {
+            failure(err);
+        } else {
+            success(payload as Token);
+        }
+    });
+}
+
+/**
  * An Express middleware that checks if the request is authenticated.
  * @param req Express request
  * @param res Express response
@@ -92,16 +108,13 @@ export function authenticateRequest(req: AuthenticatedRequest, res: Response, ne
             });
         }
 
-        // Validate the token
-        jwt.verify(header[1], process.env.JWT_SECRET, (err: VerifyErrors | null, payload: object | undefined) => {
-            if(err) { // Invalid token
-                res.status(403).json({
-                    error: 'Invalid token',
-                });
-            } else { // Authorized
-                req.user = payload as Token;
-                next();
-            }
+        authenticate(header[1], (payload: Token) => {
+            req.user = payload;
+            next();
+        }, (err: VerifyErrors) => {
+            res.status(403).json({
+                error: 'Invalid token',
+            });
         });
     } else { // Invalid header
         res.status(401).json({
@@ -126,17 +139,15 @@ export function authenticateSocket(socket: AuthenticatedSocket, next: (err?: Err
         return next(new Error('No token provided'));
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err: VerifyErrors | null, payload: object | undefined) => {
-        if(err) {
-            socket.emit('error', {
-                message: 'Invalid token',
-                gameId: null,
-            });
-            
-            return next(new Error('Invalid token'));
-        }
-
-        socket.user = payload as Token;
+    authenticate(token, (payload: Token) => {
+        socket.user = payload;
         next();
+    }, (err: VerifyErrors) => {
+        socket.emit('error', {
+            message: 'Invalid token',
+            gameId: null,
+        });
+        
+        return next(new Error('Invalid token'));
     });
 }
