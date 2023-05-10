@@ -367,7 +367,7 @@ function onBuy(socket: AuthenticatedSocket) {
  * @returns A function that will be called when the socket emits a 'message' event
  */
 function onMessage(socket: AuthenticatedSocket) {
-    return async(data: { room: number, message: string }) => {
+    return async(data: { room: number, message: string, recipient: string | undefined }) => {
         if(isNaN(data.room)) {
             socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
             return;
@@ -376,7 +376,8 @@ function onMessage(socket: AuthenticatedSocket) {
             return;
         }
 
-        const [player, board] = await Promise.all([
+        // Get the player and the board
+        const promises = [
             playerRepo.findOne({
                 where: {
                     gameId: data.room,
@@ -390,14 +391,33 @@ function onMessage(socket: AuthenticatedSocket) {
                 },
                 cache: true,
             }),
-        ]);
+        ];
 
-        if(checkBoardAndPlayerValidity(board, player, socket, data.room)) {
-            const msg = new Message(board, data.message, player);
-            board.messages.push(msg);
+        // Get the recipient if it exists
+        if(data.recipient && typeof data.recipient === 'string') {
+            promises.push(playerRepo.findOne({
+                where: {
+                    gameId: data.room,
+                    accountLogin: data.recipient,
+                },
+                cache: true,
+            }));
+        }
+
+        const [player, board, recipient] = await Promise.all(promises);
+
+        // If a recipient was specified, check if it exists within the game
+        if(data.recipient && !recipient) {
+            socket.emit('error', getErrorMessage(data.room, `This player does not exist: ${data.recipient}`));
+            return;
+        }
+
+        if(checkBoardAndPlayerValidity(board as Board, player as Player, socket, data.room)) {
+            const msg = new Message(board as Board, data.message, player as Player, recipient as Player);
+            (board as Board).messages.push(msg);
 
             await Promise.all([
-                boardRepo.save(board),
+                boardRepo.save(board as Board),
                 messageRepo.save(msg),
             ]);
 
