@@ -64,4 +64,20 @@ export abstract class BuyableSlot extends BoardSlot {
             ...super.getSimplified(),
         };
     }
+
+    /**
+     * Get the mortgage value of the slot.
+     * @returns The mortgage value of the slot.
+     */
+    getMortgageValue() {
+        return Math.ceil(this.price / 2);
+    }
+
+    /**
+     * Get the price to unmortgage the slot.
+     * @returns The price to unmortgage the slot.
+     */
+    getUnmortgagePrice() {
+        return Math.ceil(this.price / 2 + this.price / 10);
+    }
 }

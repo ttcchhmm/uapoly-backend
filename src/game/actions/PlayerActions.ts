@@ -45,10 +45,10 @@ export const PlayerActions = {
     
                 if(property) {
                     if(propertyEdit.newState === BuyableSlotState.MORTGAGED && property.state === BuyableSlotState.OWNED) {
-                        debt -= property.price / 2;
+                        debt -= property.getMortgageValue();
                         property.state = BuyableSlotState.MORTGAGED;
                     } else if(propertyEdit.newState === BuyableSlotState.OWNED && property.state === BuyableSlotState.MORTGAGED) {
-                        debt += property.price / 2 + property.price / 10;
+                        debt += property.getUnmortgagePrice();
                         property.state = BuyableSlotState.OWNED;
                     }
     
