@@ -7,19 +7,14 @@ import { writeFileSync } from "fs";
 import { AppDataSource } from "../data-source";
 import { Player } from "../entity/Player";
 import { getIo } from "../socket/IoGlobal";
-import { BuyableSlot, BuyableSlotState } from "../entity/BuyableSlot";
+import { BuyableSlotState } from "../entity/BuyableSlot";
 import { BoardSlot } from "../entity/BoardSlot";
-import { rollDices } from "./Dices";
-import { CardSlot, CardStyle } from "../entity/CardSlot";
-import { FreeParkingSlot } from "../entity/FreeParkingSlot";
-import { GoToJailSlot } from "../entity/GoToJailSlot";
-import { TaxSlot } from "../entity/TaxSlot";
-import { Card } from "../defaults/CardsActions";
-import { Slots } from "../defaults/Slots";
-import { PropertySlot } from "../entity/PropertySlot";
-import { TrainStationSlot } from "../entity/TrainStationSlot";
-import { UtilitySlot } from "../entity/UtilitySlot";
 import { Message } from "../entity/Message";
+import { TurnActions } from "./actions/TurnActions";
+import { JailActions } from "./actions/JailActions";
+import { LandActions } from "./actions/LandActions";
+import { PlayerActions } from "./actions/PlayerActions";
+import { PaymentActions } from "./actions/PaymentActions";
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
@@ -157,7 +152,7 @@ export class GameManager {
                     [Transitions.IS_NOT_IN_JAIL]: States.ROLL_DICE,
                     [Transitions.NEXT_PLAYER]: States.NEXT_PLAYER,
                 },
-                [startOfTurn],
+                [TurnActions.startOfTurn],
                 []
             ),
 
@@ -170,7 +165,7 @@ export class GameManager {
                     [Transitions.PAY_BAIL]: States.PAY_BAIL,
                     [Transitions.USE_OUT_OF_JAIL_CARD]: States.USE_OUT_OF_JAIL_CARD,
                 },
-                [tryEscapeJail],
+                [JailActions.tryEscapeJail],
                 []
             ),
 
@@ -181,7 +176,7 @@ export class GameManager {
                     [Transitions.PAY_BAIL]: States.PAY,
                     [Transitions.IS_IN_JAIL]: States.TRY_ESCAPE_JAIL,
                 },
-                [handlePayBail],
+                [JailActions.handlePayBail],
                 []
             ),
 
@@ -192,7 +187,7 @@ export class GameManager {
                     [Transitions.ROLL_DICE]: States.ROLL_DICE,
                     [Transitions.IS_IN_JAIL]: States.TRY_ESCAPE_JAIL,
                 },
-                [handleUseOutOfJailCard],
+                [JailActions.handleUseOutOfJailCard],
                 []
             ),
 
@@ -203,7 +198,7 @@ export class GameManager {
                     [Transitions.ROLL_DICE]: States.ROLL_DICE, // Success
                     [Transitions.END_TURN]: States.END_TURN, // Failure
                 },
-                [handleEscapeWithDice],
+                [JailActions.handleEscapeWithDice],
                 []
             ),
 
@@ -214,7 +209,7 @@ export class GameManager {
                     [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT,
                     [Transitions.PASS_START]: States.LANDED_ON_SLOT,
                 },
-                [handleRollDice],
+                [TurnActions.handleRollDice],
                 []
             ),
 
@@ -230,7 +225,7 @@ export class GameManager {
                     [Transitions.LAND_ON_REST]: States.END_TURN,
                     [Transitions.LAND_ON_DRAW_CARD]: States.DRAW_CARD,
                 },
-                [handleLanding],
+                [LandActions.handleLanding],
                 []
             ),
 
@@ -240,7 +235,7 @@ export class GameManager {
                 {
                     [Transitions.END_TURN]: States.END_TURN,
                 },
-                [handleGoToJail],
+                [LandActions.handleGoToJail],
                 []
             ),
 
@@ -251,7 +246,7 @@ export class GameManager {
                     [Transitions.NOT_BOUGHT]: States.UNOWNED_SLOT,
                     [Transitions.BOUGHT]: States.OWNED_SLOT,
                 },
-                [handleLandedOnBuyableSlot],
+                [LandActions.handleLandedOnBuyableSlot],
                 []
             ),
 
@@ -262,7 +257,7 @@ export class GameManager {
                     [Transitions.BUY_PROPERTY]: States.BUY_PROPERTY,
                     [Transitions.DO_NOT_BUY_PROPERTY]: States.END_TURN,
                 },
-                [handleBuyingProperty],
+                [LandActions.handleBuyingProperty],
                 []
             ),
 
@@ -272,7 +267,7 @@ export class GameManager {
                 {
                     [Transitions.PAY_BANK]: States.PAY
                 },
-                [handlePayingProperty],
+                [LandActions.handlePayingProperty],
                 []
             ),
 
@@ -283,7 +278,7 @@ export class GameManager {
                     [Transitions.END_TURN]: States.END_TURN,
                     [Transitions.OWNER_NOT_IN_JAIL]: States.PAY_RENT,
                 },
-                [handleJailRentCheck],
+                [LandActions.handleJailRentCheck],
                 []
             ),
 
@@ -293,7 +288,7 @@ export class GameManager {
                 {
                     [Transitions.PAY_PLAYER]: States.PAY,
                 },
-                [handleRent],
+                [LandActions.handleRent],
                 []
             ),
 
@@ -303,7 +298,7 @@ export class GameManager {
                 {
                     [Transitions.END_TURN]: States.END_TURN,
                 },
-                [handleFreeParking],
+                [LandActions.handleFreeParking],
                 [],
             ),
 
@@ -313,7 +308,7 @@ export class GameManager {
                 {
                     [Transitions.PAY_BANK]: States.PAY,
                 },
-                [handlePayTax],
+                [LandActions.handlePayTax],
                 []
             ),
 
@@ -323,7 +318,7 @@ export class GameManager {
                 {
                     [Transitions.END_TURN]: States.END_TURN,
                 },
-                [handleGo],
+                [LandActions.handleGo],
                 []
             ),
 
@@ -336,7 +331,7 @@ export class GameManager {
                     [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT,
                     [Transitions.PASS_START]: States.LANDED_ON_SLOT,
                 },
-                [handleDrawCard],
+                [LandActions.handleDrawCard],
                 []
             ),
 
@@ -349,7 +344,7 @@ export class GameManager {
                     [Transitions.DECLARE_BANKRUPTCY]: States.DECLARE_BANKRUPTCY,
                     [Transitions.TRADE]: States.TRADE,
                 },
-                [handleEndTurn],
+                [TurnActions.handleEndTurn],
                 []
             ),
 
@@ -360,7 +355,7 @@ export class GameManager {
                     [Transitions.NEXT_TURN]: States.START_TURN,
                     [Transitions.GAME_OVER]: States.END_GAME,
                 },
-                [handleNextPlayer],
+                [TurnActions.handleNextPlayer],
                 []
             ),
 
@@ -370,7 +365,7 @@ export class GameManager {
                 {
                     [Transitions.NEXT_PLAYER]: States.NEXT_PLAYER,
                 },
-                [handleDeclareBankruptcy],
+                [PlayerActions.handleDeclareBankruptcy],
                 []
             ),
 
@@ -383,7 +378,7 @@ export class GameManager {
                     [Transitions.PAY_BANK]: States.PAY,
                     [Transitions.PAY_PLAYER]: States.PAY,
                 },
-                [handleManageProperties],
+                [PlayerActions.handleManageProperties],
                 []
             ),
 
@@ -391,7 +386,7 @@ export class GameManager {
                 States.END_GAME,
                 [Transitions.GAME_OVER],
                 {},
-                [handleGameOver],
+                [TurnActions.handleGameOver],
                 []
             ),
 
@@ -406,7 +401,7 @@ export class GameManager {
                             [Transitions.END_TURN]: States.END_TURN,
                             [Transitions.CONTINUE]: States.PAY,
                         },
-                        [handleTrade],
+                        [PlayerActions.handleTrade],
                         []
                     ),
 
@@ -417,7 +412,7 @@ export class GameManager {
                             [Transitions.END_TURN]: States.END_TURN,
                             [Transitions.CONTINUE]: States.PAY,
                         },
-                        [handleTradeAccepted],
+                        [PlayerActions.handleTradeAccepted],
                         []
                     ),
                 ],
@@ -446,7 +441,7 @@ export class GameManager {
                             [Transitions.MANAGE_PROPERTIES]: States.MANAGE_PROPERTIES,
                             [Transitions.CAN_PAY]: States.TRANSFER_MONEY,
                         },
-                        [handlePlayerInDebt],
+                        [PaymentActions.handlePlayerInDebt],
                         []
                     ),
                     
@@ -461,7 +456,7 @@ export class GameManager {
                             [Transitions.CAN_PAY]: States.TRANSFER_MONEY,
                             [Transitions.CANNOT_PAY]: States.PLAYER_IN_DEBT,
                         },
-                        [handleCheckIfPlayerCanAfford],
+                        [PaymentActions.handleCheckIfPlayerCanAfford],
                         []
                     ),
 
@@ -471,7 +466,7 @@ export class GameManager {
                         {
                             [Transitions.END_TURN]: States.END_TURN,
                         },
-                        [handleTransferMoney],
+                        [PaymentActions.handleTransferMoney],
                         []
                     ),
                 ],
@@ -500,721 +495,6 @@ export class GameManager {
     static dumpMachineGraph(filename: string) {
         writeFileSync(filename, this.createMachine(null, true).generateDot());
     }
-}
-
-/**
- * Function executed each time the "start of turn" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function startOfTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-    if(player.money <= 0) {
-        currentMachine.transition(Transitions.NEXT_PLAYER, additionalData);
-    } else {
-        getIo().to(`game-${additionalData.board.id}`).emit('startOfTurn', {
-            gameId: additionalData.board.id,
-            accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
-        });
-
-        if(player.inJail) {
-            currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
-        } else {
-            currentMachine.transition(Transitions.IS_NOT_IN_JAIL, additionalData);
-        }
-    }
-}
-
-/**
- * Function executed each time the "try escape jail" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function tryEscapeJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    getIo().to(`game-${additionalData.board.id}`).emit('tryEscapeJail', {
-        gameId: additionalData.board.id,
-        accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
-    });
-}
-
-/**
- * Function executed each time the "landed on slot" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleLanding(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-    // Pay salary if the player passed the start slot
-    if(event === Transitions.PASS_START) {
-        player.money += additionalData.board.salary;
-        await playerRepo.save(player);
-    }
-
-    // Update the clients
-    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
-
-    if(player.currentSlotIndex === 0) {
-        currentMachine.transition(Transitions.LAND_ON_START, additionalData);
-    } else {
-        const currentSlot = additionalData.board.slots[player.currentSlotIndex];
-
-        if(currentSlot instanceof CardSlot) {
-            currentMachine.transition(Transitions.LAND_ON_DRAW_CARD, additionalData);
-        } else if(currentSlot instanceof FreeParkingSlot) {
-            currentMachine.transition(Transitions.LAND_ON_FREE_PARKING, additionalData);
-        } else if(currentSlot instanceof GoToJailSlot) {
-            currentMachine.transition(Transitions.LAND_ON_GO_TO_JAIL, additionalData);
-        } else if(currentSlot instanceof BuyableSlot) {
-            currentMachine.transition(Transitions.LAND_ON_BUYABLE, additionalData);
-        } else if(currentSlot instanceof TaxSlot) {
-            currentMachine.transition(Transitions.LAND_ON_TAX, additionalData);
-        } else {
-            throw new Error(`Unknown slot type: ${currentSlot.constructor.name}`);
-        }
-    }
-}
-
-/**
- * Function executed each time the "landed on buyable slot" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleLandedOnBuyableSlot(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const slot = additionalData.board.slots[player.currentSlotIndex];
-
-    if(slot instanceof BuyableSlot && slot.owner) {
-        currentMachine.transition(Transitions.BOUGHT, additionalData);
-    } else {
-        currentMachine.transition(Transitions.NOT_BOUGHT, additionalData);
-    }
-}
-
-/**
- * Function executed each time the "buy property" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleBuyingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    getIo().to(`game-${additionalData.board.id}`).emit('landedOnUnowned', {
-        gameId: additionalData.board.id,
-        accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
-        position: additionalData.board.players[additionalData.board.currentPlayerIndex].currentSlotIndex,
-        price: (additionalData.board.slots[additionalData.board.players[additionalData.board.currentPlayerIndex].currentSlotIndex] as BuyableSlot).price,
-    });
-}
-
-/**
- * Function executed each time the "landed on bought slot" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleJailRentCheck(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const slot = additionalData.board.slots[player.currentSlotIndex];
-
-    if(slot instanceof BuyableSlot && slot.owner.inJail) {
-        currentMachine.transition(Transitions.END_TURN, additionalData);
-    } else {
-        currentMachine.transition(Transitions.OWNER_NOT_IN_JAIL, additionalData);
-    }
-}
-
-/**
- * Function executed each time the "Free Parking" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleFreeParking(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    player.money += additionalData.board.jackpot;
-
-    additionalData.board.jackpot = 0;
-    await Promise.all([
-        playerRepo.save(player),
-        boardRepo.save(additionalData.board),
-    ]);
-
-    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
-    currentMachine.transition(Transitions.END_TURN, additionalData);
-}
-
-/**
- * Function executed each time the "landed on Go" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleGo(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    player.money += additionalData.board.salary;
-
-    await playerRepo.save(player);
-
-    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
-    currentMachine.transition(Transitions.END_TURN, additionalData);
-}
-
-/**
- * Function executed each time the "landed on Draw Card" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleDrawCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const slot = additionalData.board.slots[player.currentSlotIndex];
-    
-    if(slot instanceof CardSlot) {
-        let deck: Card[];
-
-        switch(slot.cardStyle) {
-            case CardStyle.CHANCE:
-                deck = Slots.get(additionalData.board.locale).deck.chance;
-                break;
-
-            case CardStyle.COMMUNITY:
-                deck = Slots.get(additionalData.board.locale).deck.communityChest;
-                break;
-        }
-
-        const card = deck[Math.floor(Math.random() * deck.length)];
-
-        getIo().to(`game-${additionalData.board.id}`).emit('cardDrawn', {
-            gameId: additionalData.board.id,
-            accountLogin: player.accountLogin,
-            description: card.description,
-        });
-
-        await card.action(currentMachine, player);
-    }
-}
-
-/**
- * Function executed each time the "Go To Jail" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleGoToJail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    player.inJail = true;
-    player.currentSlotIndex = additionalData.board.jailSlotIndex;
-    await playerRepo.save(player);
-
-    getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
-    currentMachine.transition(Transitions.END_TURN, additionalData);
-}
-
-/**
- * Function executed each time the "end turn" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleEndTurn(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    getIo().to(`game-${additionalData.board.id}`).emit('endOfTurn', {
-        gameId: additionalData.board.id,
-        accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex],
-    });
-}
-
-/**
- * Function executed each time the "next player" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleNextPlayer(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    if(additionalData.board.currentPlayerIndex + 1 >= additionalData.board.players.length) {
-        additionalData.board.currentPlayerIndex = 0;
-    } else {
-        additionalData.board.currentPlayerIndex++;
-    }
-
-    await boardRepo.save(additionalData.board);
-    
-    if(additionalData.board.players.reduce((acc, player) => {
-        if(player.money <= 0) {
-            return acc;
-        } else {
-            return acc + 1;
-        }
-    }, 0) > 1) {
-        currentMachine.transition(Transitions.NEXT_TURN, additionalData);
-    } else {
-        currentMachine.transition(Transitions.GAME_OVER, additionalData);
-    }
-}
-
-/**
- * Function executed each time the "declare bankruptcy" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleDeclareBankruptcy(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    await additionalData.board.players[additionalData.board.currentPlayerIndex].bankrupt();
-    currentMachine.transition(Transitions.NEXT_PLAYER, additionalData);
-}
-
-/**
- * Function executed each time the "manage properties" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleManageProperties(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    if(additionalData.propertiesEdit) {
-        const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-        let debt = 0;
-
-        const promises: Promise<any>[] = [];
-        additionalData.propertiesEdit.forEach(propertyEdit => {
-            const property = player.ownedProperties.find(p => p.position === propertyEdit.position);
-
-            if(property) {
-                if(propertyEdit.newState === BuyableSlotState.MORTGAGED && property.state === BuyableSlotState.OWNED) {
-                    debt -= property.price / 2;
-                    property.state = BuyableSlotState.MORTGAGED;
-                } else if(propertyEdit.newState === BuyableSlotState.OWNED && property.state === BuyableSlotState.MORTGAGED) {
-                    debt += property.price / 2 + property.price / 10;
-                    property.state = BuyableSlotState.OWNED;
-                }
-
-                if(propertyEdit.newNumberOfBuildings >= 0 && propertyEdit.newNumberOfBuildings <= 5 && property instanceof PropertySlot) {
-                    debt += (property.numberOfBuildings - propertyEdit.newNumberOfBuildings) * property.buildingPrice;
-                    property.numberOfBuildings = propertyEdit.newNumberOfBuildings;
-                }
-
-                promises.push(slotsRepo.save(property));
-            }
-        });
-
-        await Promise.all(promises);
-
-        if(debt < 0) {
-            player.money -= debt;
-        } else {
-            currentMachine.transition(Transitions.PAY_BANK, {
-                board: additionalData.board,
-                payment: {
-                    receiver: 'bank',
-                    amount: debt,
-                },
-            });
-        }
-    }
-
-    const transition = currentMachine.getTransitionHistory()
-        .reverse()
-        .find(transition => transition === Transitions.END_TURN || transition === Transitions.PAY_BANK || transition === Transitions.PAY_BAIL || transition === Transitions.PAY_PLAYER);
-
-    if(transition === Transitions.END_TURN) {
-        currentMachine.transition(Transitions.END_TURN, {
-            board: additionalData.board,
-        });
-    } else {
-        currentMachine.transition(transition, {
-            board: additionalData.board,
-            payment: additionalData.payment,
-        });
-    }
-}
-
-/**
- * Function executed each time the "trade" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleTrade(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
-}
-
-/**
- * Function executed each time the "pay bail" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handlePayBail(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    currentMachine.transition(Transitions.PAY_BANK, {
-        payment: {
-            amount: 50,
-            receiver: 'bank',
-        },
-
-        ...additionalData,
-    });
-}
-
-/**
- * Function executed each time the "use out of jail card" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleUseOutOfJailCard(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    if(player.outOfJailCards > 0) {
-        player.outOfJailCards--;
-        player.inJail = false;
-
-        await playerRepo.save(player);
-
-        currentMachine.transition(Transitions.ROLL_DICE, additionalData);
-    } else {
-        currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
-    }
-}
-
-/**
- * Function executed each time the "try escape with dice" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleEscapeWithDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const dices = rollDices(2);
-
-    getIo().to(`game-${additionalData.board.id}`).emit('diceRoll', {
-        gameId: additionalData.board.id,
-        accountLogin: player.accountLogin,
-        dices,
-    });
-
-    if(dices[0] === dices[1]) {
-        player.inJail = false;
-
-        await playerRepo.save(player);
-        currentMachine.transition(Transitions.ROLL_DICE, additionalData);
-    } else {
-        currentMachine.transition(Transitions.END_TURN, additionalData);
-    }
-}
-
-/**
- * Function executed each time the "player is in debt" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handlePlayerInDebt(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-    getIo().to(`game-${additionalData.board.id}`).emit('playerInDebt', {
-        gameId: additionalData.board.id,
-        accountLogin: player.accountLogin,
-        amount: additionalData.payment.amount,
-    });
-}
-
-/**
- * Function executed each time the "pay property" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handlePayingProperty(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const slot = additionalData.board.slots[player.currentSlotIndex];
-
-    if(slot instanceof BuyableSlot) {
-        slot.state = BuyableSlotState.OWNED;
-        slot.owner = player;
-
-        getIo().to(`game-${additionalData.board.id}`).emit('propertyBought', {
-            gameId: additionalData.board.id,
-            accountLogin: player.accountLogin,
-            slotIndex: player.currentSlotIndex,
-            price: slot.price,
-        });
-
-        await slotsRepo.save(slot);
-
-        currentMachine.transition(Transitions.PAY_BANK, {
-            payment: {
-                receiver: 'bank',
-                amount: slot.price,
-            },
-
-            ...additionalData,
-        });
-    }
-}
-
-/**
- * Function executed each time the "pay rent" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleRent(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const property = additionalData.board.slots[player.currentSlotIndex];
-
-    if(property instanceof BuyableSlot) {
-        const data: GameEvent = {
-            payment: {
-                receiver: property.owner,
-                amount: undefined,
-            },
-
-            ...additionalData,
-        };
-    
-        if(property instanceof PropertySlot) {
-            switch(property.numberOfBuildings) {
-                case 0:
-                    data.payment.amount = property.propertyRent.noBuildings;
-                    break;
-
-                case 1:
-                    data.payment.amount = property.propertyRent.oneBuilding;
-                    break;
-
-                case 2:
-                    data.payment.amount = property.propertyRent.twoBuildings;
-                    break;
-
-                case 3:
-                    data.payment.amount = property.propertyRent.threeBuildings;
-                    break;
-
-                case 4:
-                    data.payment.amount = property.propertyRent.fourBuildings;
-                    break;
-
-                case 5:
-                    data.payment.amount = property.propertyRent.hotel;
-                    break;
-            }
-        } else if(property instanceof TrainStationSlot) {
-            const numberOfTrainStations = property.owner.ownedProperties.filter(slot => slot instanceof TrainStationSlot).length;
-
-            switch(numberOfTrainStations) {
-                case 1:
-                    data.payment.amount = property.trainRent.oneStation;
-                    break;
-                case 2:
-                    data.payment.amount = property.trainRent.twoStations;
-                    break;
-                case 3:
-                    data.payment.amount = property.trainRent.threeStations;
-                    break;
-                case 4:
-                    data.payment.amount = property.trainRent.fourStations;
-                    break;
-            }
-        } else if(property instanceof UtilitySlot) {
-            const dices = rollDices(2);
-
-            getIo().to(`game-${additionalData.board.id}`).emit('diceRoll', {
-                gameId: additionalData.board.id,
-                accountLogin: player.accountLogin,
-                dices,
-            });
-
-            const numberOfUtilities = property.owner.ownedProperties.filter(slot => slot instanceof UtilitySlot).length;
-
-            if(numberOfUtilities === 1) {
-                data.payment.amount = (dices[0] + dices[1]) * 4;
-            } else if(numberOfUtilities === 2) {
-                data.payment.amount = (dices[0] + dices[1]) * 10;
-            }
-        }
-
-        currentMachine.transition(Transitions.PAY_PLAYER, data);
-    } else {
-        throw new Error(`Player is not on a buyable slot: ${property.constructor.name}}`);
-    }
-}
-
-/**
- * Function executed each time the "pay tax" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handlePayTax(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-    const slot = additionalData.board.slots[player.currentSlotIndex];
-
-    if(slot instanceof TaxSlot) {
-        currentMachine.transition(Transitions.PAY_BANK, {
-            payment: {
-                receiver: 'jackpot',
-                amount: slot.amount,
-            },
-
-            ...additionalData,
-        });
-    }
-}
-
-/**
- * Function executed each time the "check if player can afford" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleCheckIfPlayerCanAfford(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-    if(player.money < additionalData.payment.amount) {
-        currentMachine.transition(Transitions.CANNOT_PAY, additionalData);
-    } else {
-        currentMachine.transition(Transitions.CAN_PAY, additionalData);
-    }
-}
-
-/**
- * Function executed each time the "trade accepted" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleTradeAccepted(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    // TODO
-}
-
-/**
- * Function executed each time the "game over" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-function handleGameOver(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const winner = additionalData.board.players.find(player => player.money > 0);
-    Manager.stopGame(additionalData.board, winner);
-}
-
-/**
- * Function executed each time the "transfer money" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleTransferMoney(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-    let receiverStr = '';
-
-    const promises: Promise<any>[] = [];
-
-    if(additionalData.payment.receiver === 'jackpot') { // Jackpot
-        player.money -= additionalData.payment.amount;
-        additionalData.board.jackpot += additionalData.payment.amount;
-
-        promises.push(playerRepo.save(player));
-        promises.push(boardRepo.save(additionalData.board));
-
-        receiverStr = 'jackpot';
-    } else if(additionalData.payment.receiver === 'bank') { // Bank
-        player.money -= additionalData.payment.amount;
-
-        promises.push(playerRepo.save(player));
-
-        receiverStr = 'bank';
-    } else { // Player
-        // A bit hacky, but it makes the TypeScript compiler happy.
-        const target = additionalData.payment.receiver;
-        if(target instanceof Player) {
-            const receiver = additionalData.board.players.find(player => player.accountLogin === target.accountLogin);
-
-            if(receiver) {
-                player.money -= additionalData.payment.amount;
-                receiver.money += additionalData.payment.amount;
-
-                promises.push(playerRepo.save(player));
-                promises.push(playerRepo.save(receiver));
-            } else {
-                throw new Error(`Player ${additionalData.payment.receiver} does not exist.`);
-            }
-
-            receiverStr = target.accountLogin;
-        } else { // This should never happen. Famous last words.
-            throw new Error(`Invalid payment receiver: ${additionalData.payment.receiver}`);
-        }
-    }
-
-    await Promise.all(promises);
-
-    getIo().to(`game-${additionalData.board.id}`).emit('paymentSucceeded', {
-        gameId: additionalData.board.id,
-        sender: player.accountLogin,
-        receiver: receiverStr,
-        amount: additionalData.payment.amount,
-    });
-
-    // If there is a callback, execute it.
-    if(additionalData.payment.callback) {
-        await additionalData.payment.callback(upperMachine, player, additionalData.payment.receiver);
-    } else { // No callback, just end the turn.
-        currentMachine.transition(Transitions.END_TURN, {
-            board: additionalData.board, // Remove the payment from the data passed to the next state.
-        });
-    }
-}
-
-/**
- * Function executed each time the "roll dices" state is entered.
- * @param currentMachine The state machine used to represent the game.
- * @param upperMachine If the current state machine is embedded in another state machine, this is the parent state machine. Undefined otherwise.
- * @param event The event that triggered the transition.
- * @param additionalData Additional data passed with the event.
- */
-async function handleRollDice(currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) {
-    const dices = rollDices(2); // TODO: Make the number of dices configurable.
-    const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
-
-    getIo().to(`game-${additionalData.board.id}`).emit('dicesRolled', {
-        gameId: additionalData.board.id,
-        dices,
-        player: player.accountLogin,
-    });
-
-    const total = dices.reduce((acc, val) => acc + val, 0);
-
-    await player.movePlayer(currentMachine, total);
 }
 
 /**
