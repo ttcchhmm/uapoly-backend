@@ -49,7 +49,7 @@ export const TurnActions = {
     handleEndTurn: (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
         getIo().to(`game-${additionalData.board.id}`).emit('endOfTurn', {
             gameId: additionalData.board.id,
-            accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex],
+            accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
         });
     },
 
@@ -105,10 +105,10 @@ export const TurnActions = {
         const dices = rollDices(2); // TODO: Make the number of dices configurable.
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
     
-        getIo().to(`game-${additionalData.board.id}`).emit('dicesRolled', {
+        getIo().to(`game-${additionalData.board.id}`).emit('diceRoll', {
             gameId: additionalData.board.id,
             dices,
-            player: player.accountLogin,
+            accountLogin: player.accountLogin,
         });
     
         const total = dices.reduce((acc, val) => acc + val, 0);
