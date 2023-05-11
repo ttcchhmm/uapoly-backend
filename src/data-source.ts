@@ -1,8 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 
-import fs from "fs";
-
 export const AppDataSource = new DataSource({
     type: "postgres",
     host: process.env.DB_HOST || "127.0.0.1",
