@@ -426,7 +426,16 @@ function onMessage(socket: AuthenticatedSocket) {
     }
 }
 
-function checkBoardAndPlayerValidity(board: Board, player: Player, socket: AuthenticatedSocket, room: number) {
+/**
+ * Check if the board and player are valid, and send an error if they are not.
+ * @param board The board to check
+ * @param player The player to check
+ * @param socket The socket to send an error to
+ * @param room The room to send an error to
+ * @param checkTurn Whether to check if it is the player's turn
+ * @returns True if the board and player are valid, false otherwise
+ */
+function checkBoardAndPlayerValidity(board: Board, player: Player, socket: AuthenticatedSocket, room: number, checkTurn = true) {
     if (!player) {
         socket.emit('error', getErrorMessage(room, 'You are not in this game'));
         return false;
@@ -442,7 +451,7 @@ function checkBoardAndPlayerValidity(board: Board, player: Player, socket: Authe
         return false;
     }
 
-    if (board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
+    if (checkTurn && board.players[board.currentPlayerIndex].accountLogin !== player.accountLogin) {
         socket.emit('error', getErrorMessage(room, 'It is not your turn'));
         return false;
     }
