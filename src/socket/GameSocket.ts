@@ -1,15 +1,22 @@
 import { AuthenticatedSocket } from "../auth/AuthenticatedSocket";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
+import { BuyableSlotTrade } from "../entity/BuyableSlotTrade";
 import { Message } from "../entity/Message";
+import { MoneyTrade } from "../entity/MoneyTrade";
 import { Player } from "../entity/Player";
+import { TradeItem } from "../entity/TradeItem";
+import { TradeOffer } from "../entity/TradeOffer";
 import { Manager, PropertyEdit } from "../game/GameManager";
 import { GameTransitions } from "../game/GameTransitions";
+import { checkBody } from "../utils/CheckBody";
 import { getIo } from "./IoGlobal";
 
 const playerRepo = AppDataSource.getRepository(Player);
 const boardRepo = AppDataSource.getRepository(Board);
 const messageRepo = AppDataSource.getRepository(Message);
+const tradeOfferRepo = AppDataSource.getRepository(TradeOffer);
+const tradeItemRepo = AppDataSource.getRepository(TradeItem);
 
 /**
  * Function called when a socket connects, after authentication.
@@ -27,6 +34,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('buy', onBuy(socket));
     socket.on('doNotBuy', onDoNotBuy(socket));
     socket.on('message', onMessage(socket));
+    socket.on('trade', onTrade(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -421,6 +429,112 @@ function onMessage(socket: AuthenticatedSocket) {
                 messageRepo.save(msg),
             ]);
 
+            getIo().to(`game-${data.room}`).emit('message', {
+                unsafe: true, // TODO: Update this when the private message functionality is actually private
+                ...msg,
+            });
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'trade' event, to trade with another player.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'trade' event
+ */
+function onTrade(socket: AuthenticatedSocket) {
+    return async (data: { room: number, propertiesOffered: number[], moneyOffered: number, propertiesRequested: number[], moneyRequested: number, recipient: string, message: string | undefined }) => {
+        // Sanity checks
+        if(!checkBody(data, 'room', 'propertiesOffered', 'moneyOffered', 'propertiesRequested', 'moneyRequested', 'recipient')) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid properties'));
+            return;
+        }
+
+        if(isNaN(data.room)) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
+            return;
+        }
+
+        if(data.moneyOffered <= 0 || data.moneyRequested <= 0) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid money'));
+            return;
+        }
+
+        // Get the player, board and recipient
+        const [player, board, recipient] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: data.room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: data.room,
+                },
+                relations: ['players'],
+                cache: true,
+            }),
+            playerRepo.findOne({
+                where: {
+                    gameId: data.room,
+                    accountLogin: data.recipient,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, data.room, false)) {
+            // Fetch the properties
+            const offered: TradeItem[] = [];
+            const requested: TradeItem[] = [];
+
+            data.propertiesOffered.forEach((id) => {
+                const property = player.ownedProperties.find((p) => p.position === id);
+
+                if(!property) {
+                    socket.emit('error', getErrorMessage(data.room, `Invalid property: ${id}`));
+                    return;
+                }
+
+                offered.push(new BuyableSlotTrade(property));
+            });
+
+            data.propertiesRequested.forEach((id) => {
+                const property = recipient.ownedProperties.find((p) => p.position === id);
+
+                if(!property) {
+                    socket.emit('error', getErrorMessage(data.room, `Invalid property: ${id}`));
+                    return;
+                }
+
+                requested.push(new BuyableSlotTrade(property));
+            });
+
+            // Add money trades
+            offered.push(new MoneyTrade(data.moneyOffered));
+            requested.push(new MoneyTrade(data.moneyRequested));
+
+            // Build the offer
+            const trade = new TradeOffer();
+            trade.offered = offered;
+            trade.requested = requested;
+
+            // Create the message
+            const msg = new Message(board, data.message || '', player, recipient, trade)
+            board.messages.push(msg);
+
+            // Save everything
+            const promises: Promise<any>[] = offered.map((item) => tradeItemRepo.save(item));
+            promises.concat(requested.map((item) => tradeItemRepo.save(item)));
+            promises.push(tradeOfferRepo.save(trade));
+            promises.push(messageRepo.save(msg));
+            promises.push(boardRepo.save(board));
+
+            await Promise.all(promises);
+
+            // Send the message
             getIo().to(`game-${data.room}`).emit('message', {
                 unsafe: true, // TODO: Update this when the private message functionality is actually private
                 ...msg,

@@ -12,4 +12,9 @@ export class BuyableSlotTrade extends TradeItem {
      */
     @ManyToOne(type => BuyableSlot, buyableSlot => buyableSlot.trades, {eager: true})
     buyableSlot: BuyableSlot;
+
+    constructor(buyableSlot: BuyableSlot) {
+        super();
+        this.buyableSlot = buyableSlot;
+    }
 }

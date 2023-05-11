@@ -11,4 +11,9 @@ export class MoneyTrade extends TradeItem {
      */
     @Column()
     moneyAmount: number;
+
+    constructor(moneyAmount: number) {
+        super();
+        this.moneyAmount = moneyAmount;
+    }
 }
