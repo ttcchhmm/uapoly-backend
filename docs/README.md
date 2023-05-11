@@ -20,8 +20,8 @@ The client can emit the following events:
 - `nextPlayer`: End the current player's turn. The client must send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
 - `manageProperties`: Manage the current player's properties. The client must send the following data:
-  - An integer representing the game ID. This is the same as the game ID in the REST API.
-  - An array of `PropertyEdit`.
+  - `room`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `properties`: An array of `PropertyEdit`.
 - `doNotBuy`: Do not buy a property and end the turn. The client must send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
 - `buy`: Buy a property. The client must send the following data:
