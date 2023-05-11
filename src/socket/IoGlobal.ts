@@ -1,9 +1,10 @@
 import { Server } from "socket.io";
+import { ClientEvents, ServerEvents } from "./Events";
 
 /**
  * The socket.io server.
  */
-let io: Server;
+let io: Server<ClientEvents, ServerEvents>;
 
 /**
  * Set the socket.io server.
