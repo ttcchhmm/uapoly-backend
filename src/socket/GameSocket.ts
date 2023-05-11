@@ -421,7 +421,10 @@ function onMessage(socket: AuthenticatedSocket) {
                 messageRepo.save(msg),
             ]);
 
-            getIo().to(`game-${data.room}`).emit('message', msg);
+            getIo().to(`game-${data.room}`).emit('message', {
+                unsafe: true, // TODO: Update this when the private message functionality is actually private
+                ...msg,
+            });
         }
     }
 }
