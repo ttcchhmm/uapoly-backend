@@ -26,6 +26,18 @@ The client can emit the following events:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
 - `buy`: Buy a property. The client must send the following data:
   - An integer representing the game ID. This is the same as the game ID in the REST API.
+- `message`: Send a message to the other players. The client must send the following data:
+  - `room`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `message`: A string representing the message to send.
+  - `recipient`: A string representing the recipient of the message. Can be `null` or undefined to send the message to all players.
+- `trade`: Start a trade with another player. The client must send the following data:
+  - `room`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `recipient`: A string representing the recipient of the trade.
+  - `propertiesOffered`: An array containing the positions of the properties offered by the current player.
+  - `moneyOffered`: An integer representing the amount of money offered by the current player.
+  - `propertiesRequested`: An array containing the positions of the properties requested by the current player.
+  - `moneyRequested`: An integer representing the amount of money requested by the current player.
+  - `messages`: A string with the message. Can be undefined to not add a message.
 
 ### Server events
 The server can emit the following events:
@@ -83,6 +95,7 @@ The server can emit the following events:
   - `position`: An integer representing the slot index.
   - `price`: An integer representing the price of the property.
   - `accountLogin`: A string representing the player name.
+- `message`: A message has been sent. See the `Message` schema for details.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:
@@ -100,7 +113,7 @@ The following schemas are used by the Socket.IO API:
   - `friendsOnly`: A boolean representing whether the game is for friends only.
   - `jackpot`: The current amount of money in the jackpot.
   - `maxPlayers`: The maximum number of players in the game.
-  - `messages`: TODO
+  - `messages`: An array of `Message` objects representing the messages in the game.
   - `slots`: An array containing the slots in the game. See the `BoardSlot` schema in the OpenAPI specification for more information.
   - `started`: A boolean representing whether the game has started.
   - `startingSlotIndex`: An integer representing the starting slot index.
@@ -110,6 +123,20 @@ The following schemas are used by the Socket.IO API:
   - `position`: An integer representing the slot index of the property.
   - `newState`: The new state of the property. Can be `MORTGAGED` or `OWNED`.
   - `newNumberOfBuildings`: An integer representing the new number of buildings on the property. Should be between 0 and 5 (hotel).
+- `Message`:
+  - `unsafe`: A boolean representing whether the message is unsafe. If a private message is unsafe, that means that it was sent to every client.
+  - `sender`: A string representing the sender's name.
+  - `recipient`: A string representing the recipient's name. `null` if the message is public.
+  - `id`: An integer representing the message ID.
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `content`: A string representing the message content.
+  - `tradeOffer`: A JSON object representing the trade offer. `null` if the message is not a trade offer.
+    - `requested`: An array of `TradeItem` representing the items requested by the sender.
+    - `offered`: An array of `TradeItem` representing the items offered by the sender.
+- `TradeItem`:
+  - `id`: The ID of this `TradeItem`.
+  - `buyableSlot`: Contains the slot concerned by this trade. Undefined if the item is money.
+  - `moneyAmount`: Contains the amount of money concerned by this trade. Undefined if the item is a slot.
 
 ### Errors
 In case of an error, the server will emit the `error` event. The client must listen for this event. The data sent by the server will be a JSON object with the following properties:
