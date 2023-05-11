@@ -26,7 +26,7 @@ export function getAmericanSlots() {
         new CardSlot(CardStyle.CHANCE, position++),
         new PropertySlot("Vermont Avenue", "Buy this property for $100.", "lightblue", position++, 100, "lightblue", 50, rents.next().value),
         new PropertySlot("Connecticut Avenue", "Buy this property for $120.", "lightblue", position++, 120, "lightblue", 50, rents.next().value),
-        new RestSlot("Jail", "Just visiting.", "jail", position++),
+        new RestSlot("Jail / Simple Visit", "Just visiting.", "jail", position++),
         new PropertySlot("St. Charles Place", "Buy this property for $140.", "pink", position++, 140, "pink", 100, rents.next().value),
         new UtilitySlot("Electric Company", "Buy this property for $150.", "utility", position++, 150, rents.next().value),
         new PropertySlot("States Avenue", "Buy this property for $140.", "pink", position++, 140, "pink", 100, rents.next().value),

@@ -26,7 +26,7 @@ export function getFrenchSlots() {
         new CardSlot(CardStyle.CHANCE, position++),
         new PropertySlot("Rue de Courcelles", "Achetez cette propriété pour $100.", "lightblue", position++, 100, "lightblue", 50, rents.next().value),
         new PropertySlot("Avenue de la République", "Achetez cette propriété pour $120.", "lightblue", position++, 120, "lightblue", 50, rents.next().value),
-        new RestSlot("Prison", "Simple visite.", "jail", position++),
+        new RestSlot("Prison / Simple Visite", "Simple visite.", "jail", position++),
         new PropertySlot("Boulevard de la Villette", "Achetez cette propriété pour $140.", "pink", position++, 140, "pink", 100, rents.next().value),
         new UtilitySlot("Compagnie de Distribution de l'Électricité", "Achetez cette propriété pour $150.", "utility", position++, 150, rents.next().value),
         new PropertySlot("Avenue de Neuilly", "Achetez cette propriété pour $140.", "pink", position++, 140, "pink", 100, rents.next().value),
