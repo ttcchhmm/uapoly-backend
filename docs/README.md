@@ -38,6 +38,9 @@ The client can emit the following events:
   - `propertiesRequested`: An array containing the positions of the properties requested by the current player.
   - `moneyRequested`: An integer representing the amount of money requested by the current player.
   - `messages`: A string with the message. Can be undefined to not add a message.
+- `acceptTrade`: Accept a trade. The client must send the following data:
+  - `room`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `message`: An integer representing the message ID with the trade.
 
 ### Server events
 The server can emit the following events:
@@ -96,6 +99,10 @@ The server can emit the following events:
   - `price`: An integer representing the price of the property.
   - `accountLogin`: A string representing the player name.
 - `message`: A message has been sent. See the `Message` schema for details.
+- `tradeSucceeded`: A player accepted a trade. This event will always be followed by an `update` event. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `sender`: A string representing the sender's name.
+  - `recipient`: A string representing the recipient's name.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:

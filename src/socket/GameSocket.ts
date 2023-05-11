@@ -1,6 +1,7 @@
 import { AuthenticatedSocket } from "../auth/AuthenticatedSocket";
 import { AppDataSource } from "../data-source";
 import { Board } from "../entity/Board";
+import { BoardSlot } from "../entity/BoardSlot";
 import { BuyableSlotTrade } from "../entity/BuyableSlotTrade";
 import { Message } from "../entity/Message";
 import { MoneyTrade } from "../entity/MoneyTrade";
@@ -17,6 +18,7 @@ const boardRepo = AppDataSource.getRepository(Board);
 const messageRepo = AppDataSource.getRepository(Message);
 const tradeOfferRepo = AppDataSource.getRepository(TradeOffer);
 const tradeItemRepo = AppDataSource.getRepository(TradeItem);
+const slotsRepo = AppDataSource.getRepository(BoardSlot);
 
 /**
  * Function called when a socket connects, after authentication.
@@ -35,6 +37,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('doNotBuy', onDoNotBuy(socket));
     socket.on('message', onMessage(socket));
     socket.on('trade', onTrade(socket));
+    socket.on('acceptTrade', onAcceptTrade(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -539,6 +542,151 @@ function onTrade(socket: AuthenticatedSocket) {
                 unsafe: true, // TODO: Update this when the private message functionality is actually private
                 ...msg,
             });
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'acceptTrade' event, to accept a trade offer.
+ * @param socket The socket to bind to
+ * @returns A function that will be called when the socket emits a 'acceptTrade' event
+ */
+function onAcceptTrade(socket: AuthenticatedSocket) {
+    return async (data: { room: number, message: number }) => {
+        if(!checkBody(data, 'room', 'message')) {
+            socket.emit('error', getErrorMessage(data.room, 'Missing parameters'));
+            return;
+        }
+
+        if(isNaN(data.room) || isNaN(data.message)) {
+            socket.emit('error', getErrorMessage(data.room, 'Invalid parameters'));
+            return;
+        }
+
+        const [player, board, message] = await Promise.all([
+            playerRepo.findOne({
+                where: {
+                    gameId: data.room,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+            boardRepo.findOne({
+                where: {
+                    id: data.room,
+                },
+                relations: ['players'],
+                cache: true,
+            }),
+            messageRepo.findOne({
+                where: {
+                    id: data.message,
+                },
+                relations: ['tradeOffer', 'sender', 'recipient'],
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, data.room, false)) {
+            if(!message) {
+                socket.emit('error', getErrorMessage(data.room, 'Invalid message ID'));
+                return;
+            } else if(!message.tradeOffer) {
+                socket.emit('error', getErrorMessage(data.room, 'This message does not contain a trade offer'));
+                return;
+            }
+
+            // Check if the player is the recipient
+            if(message.recipient.accountLogin !== player.accountLogin) {
+                socket.emit('error', getErrorMessage(data.room, 'You are not the recipient of this trade'));
+                return;
+            }
+
+            // Check if both parties have enough money
+            const totalOfferedMoney = message.tradeOffer.offered.reduce((prev, curr) => {
+                if(curr instanceof MoneyTrade) {
+                    return prev + curr.moneyAmount;
+                } else {
+                    return prev;
+                }
+            }, 0);
+
+            if(totalOfferedMoney > message.sender.money) {
+                socket.emit('error', getErrorMessage(data.room, 'The sender does not have enough money'));
+                return;
+            }
+
+            const totalRequestedMoney = message.tradeOffer.requested.reduce((prev, curr) => {
+                if(curr instanceof MoneyTrade) {
+                    return prev + curr.moneyAmount;
+                } else {
+                    return prev;
+                }
+            }, 0);
+
+            if(totalRequestedMoney > player.money) {
+                socket.emit('error', getErrorMessage(data.room, 'You do not have enough money'));
+                return;
+            }
+
+            // Check if both parties have all the properties
+            if(message.tradeOffer.offered.reduce((prev, curr) => {
+                if(curr instanceof BuyableSlotTrade && curr.buyableSlot.owner.accountLogin !== message.sender.accountLogin) {
+                    return true;
+                } else {
+                    return prev;
+                }
+            }, false)) {
+                socket.emit('error', getErrorMessage(data.room, 'The sender does not own all the properties'));
+                return;
+            }
+
+            if(message.tradeOffer.requested.reduce((prev, curr) => {
+                if(curr instanceof BuyableSlotTrade && curr.buyableSlot.owner.accountLogin !== player.accountLogin) {
+                    return true;
+                } else {
+                    return prev;
+                }
+            }, false)) {
+                socket.emit('error', getErrorMessage(data.room, 'You do not own all the properties'));
+                return;
+            }
+
+            // Perform the trade
+            let promises: Promise<any>[] = message.tradeOffer.offered.map((item) => {
+                if(item instanceof MoneyTrade) {
+                    message.sender.money -= item.moneyAmount;
+                    return playerRepo.save(message.sender);
+                } else if(item instanceof BuyableSlotTrade) {
+                    item.buyableSlot.owner = player;
+                    return slotsRepo.save(item.buyableSlot);
+                } else {
+                    return Promise.resolve(); // Should never happen, but makes the compiler happy
+                }
+            });
+
+            promises = promises.concat(message.tradeOffer.requested.map((item) => {
+                if(item instanceof MoneyTrade) {
+                    player.money -= item.moneyAmount;
+                    return playerRepo.save(player);
+                } else if(item instanceof BuyableSlotTrade) {
+                    item.buyableSlot.owner = message.sender;
+                    return slotsRepo.save(item.buyableSlot);
+                } else {
+                    return Promise.resolve(); // Should never happen, but makes the compiler happy
+                }
+            }));
+
+            await Promise.all(promises);
+
+            // Notify the clients
+            getIo().to(`game-${data.room}`).emit('tradeSucceeded', {
+                gameId: data.room,
+                sender: message.sender.accountLogin,
+                recipient: player.accountLogin,
+            });
+
+            await updateRoom(socket, data.room);
         }
     }
 }
