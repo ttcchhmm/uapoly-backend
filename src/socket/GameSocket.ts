@@ -90,6 +90,8 @@ function onJoin(socket: AuthenticatedSocket) {
         socket.to(`game-${room}`).emit('player-connected', {gameId: room, player: player.accountLogin});
         await socket.join(`game-${room}`);
         socket.emit('joined', player.game);
+
+        await updateRoom(socket, room);
     };
 }
 
@@ -118,6 +120,8 @@ function onLeave(socket: AuthenticatedSocket) {
             });
 
             socket.to(`game-${room}`).emit('player-disconnected', {gameId: room, player: player.accountLogin});
+
+            await updateRoom(socket, room);
         } else {
             socket.emit('error', getErrorMessage(room, 'You did not join this game'));
         }
