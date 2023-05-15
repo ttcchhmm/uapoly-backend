@@ -138,6 +138,8 @@ export class Board {
      */
     @AfterLoad()
     sortSlots() {
-        this.slots.sort((a, b) => a.position - b.position);
+        if(this.slots) {
+            this.slots.sort((a, b) => a.position - b.position);
+        }
     }
 }
