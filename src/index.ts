@@ -1,5 +1,5 @@
 // Read the config file
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config({ debug: true }); // Always enable debug mode to warn about not overwriting existing variables
 
 import { GameManager } from './game/GameManager';
