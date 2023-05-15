@@ -44,6 +44,15 @@ import { authenticateSocket } from './auth/Auth';
 import { onConnect } from './socket/GameSocket';
 import { setIo } from './socket/IoGlobal';
 
+/**
+ * Prefixes a route with /api if running in dev mode. This matches the behavior when running in production behind a reverse proxy.
+ * @param initialRoute The initial name of the route
+ * @returns The route with the prefix added if running in dev mode
+ */
+function prefixRoute(initialRoute: string): string {
+    return process.env.ENV === 'prod' ? initialRoute : `/api${initialRoute}`;
+}
+
 // Initialize the database
 AppDataSource.initialize().then(async () => {
     console.log('Database connection established');
@@ -65,10 +74,10 @@ AppDataSource.initialize().then(async () => {
     }
 
     // Initialize the routes
-    app.use('/docs', express.static('docs'));
-    app.use('/user', UserRouter);
-    app.use('/friend', FriendRouter);
-    app.use('/game', GameRouter);
+    app.use(prefixRoute('/docs'), express.static('docs'));
+    app.use(prefixRoute('/user'), UserRouter);
+    app.use(prefixRoute('/friend'), FriendRouter);
+    app.use(prefixRoute('/game'), GameRouter);
 
     // Handle 404
     app.use((req: Request, res: Response, next: NextFunction) => {
