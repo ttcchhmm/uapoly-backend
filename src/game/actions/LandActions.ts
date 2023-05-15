@@ -211,9 +211,6 @@ export const LandActions = {
         const slot = additionalData.board.slots[player.currentSlotIndex];
 
         if(slot instanceof BuyableSlot) {
-            slot.state = BuyableSlotState.OWNED;
-            slot.owner = player;
-
             getIo().to(`game-${additionalData.board.id}`).emit('propertyBought', {
                 gameId: additionalData.board.id,
                 accountLogin: player.accountLogin,
@@ -221,12 +218,21 @@ export const LandActions = {
                 price: slot.price,
             });
 
-            await slotsRepo.save(slot);
-
             currentMachine.transition(Transitions.PAY_BANK, {
                 payment: {
                     receiver: 'bank',
                     amount: slot.price,
+                    callback: async (stateMachine, sender, receiver) => {
+                        // Give ownership of the slot to the player
+                        slot.state = BuyableSlotState.OWNED;
+                        slot.owner = player;
+
+                        await slotsRepo.save(slot);
+
+                        stateMachine.transition(Transitions.END_TURN, {
+                            board: sender.game,
+                        });
+                    }
                 },
 
                 ...additionalData,
