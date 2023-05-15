@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { AfterLoad, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { BoardSlot } from "./BoardSlot";
 import { Message } from "./Message";
@@ -131,5 +131,13 @@ export class Board {
             started: this.started,
             friendsOnly: this.friendsOnly,
         }
+    }
+
+    /**
+     * Sorts the slots by their position.
+     */
+    @AfterLoad()
+    sortSlots() {
+        this.slots.sort((a, b) => a.position - b.position);
     }
 }
