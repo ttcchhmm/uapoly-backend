@@ -12,8 +12,8 @@ export class TaxSlot extends BoardSlot {
     @Column()
     amount: number;
 
-    constructor(amount: number, position: number) {
-        super("Tax", `Pay $${amount} in taxes.`, "tax", position);
+    constructor(name: string, description: string, amount: number, position: number) {
+        super(name, description, "tax", position);
         this.amount = amount;
     }
 

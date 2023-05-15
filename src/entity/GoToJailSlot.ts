@@ -6,7 +6,7 @@ import { BoardSlot } from "./BoardSlot";
  */
 @ChildEntity()
 export class GoToJailSlot extends BoardSlot {
-    constructor(position: number) {
-        super("Go to Jail", "Go directly to jail. Do not pass Go, do not collect $200.", "go-to-jail", position);
+    constructor(name: string, description: string, position: number) {
+        super(name, description, "go-to-jail", position);
     }
 }

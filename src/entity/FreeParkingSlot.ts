@@ -6,7 +6,7 @@ import { BoardSlot } from "./BoardSlot";
  */
 @ChildEntity()
 export class FreeParkingSlot extends BoardSlot {
-    constructor(position: number) {
-        super("Free Parking", "The next player to land on this slot will win the jackpot.", "free-parking", position);
+    constructor(name: string, description: string, position: number) {
+        super(name, description, "free-parking", position);
     }
 }
