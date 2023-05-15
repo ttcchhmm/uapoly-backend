@@ -1,3 +1,7 @@
+// Read the config file
+import dotenv from 'dotenv';
+dotenv.config({ debug: true }); // Always enable debug mode to warn about not overwriting existing variables
+
 import { GameManager } from './game/GameManager';
 
 // Generate a graph of the state machine if needed
@@ -6,10 +10,6 @@ if(process.argv.includes('--dump-state-machine')) {
     console.log('Dumped state machine to ./state-machine.dot');
     process.exit(0);
 }
-
-// Reading the config file
-import dotenv from 'dotenv';
-dotenv.config();
 
 // Warn the user if they are running in development mode
 import child_process from 'child_process';
