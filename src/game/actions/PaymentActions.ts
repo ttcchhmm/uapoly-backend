@@ -107,6 +107,8 @@ export const PaymentActions = {
             amount: additionalData.payment.amount,
         });
 
+        getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
+
         // If there is a callback, execute it.
         if(additionalData.payment.callback) {
             await additionalData.payment.callback(upperMachine, player, additionalData.payment.receiver);

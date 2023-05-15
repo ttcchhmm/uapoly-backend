@@ -30,6 +30,8 @@ export const TurnActions = {
                 gameId: additionalData.board.id,
                 accountLogin: additionalData.board.players[additionalData.board.currentPlayerIndex].accountLogin,
             });
+
+            getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board); 
     
             if(player.inJail) {
                 currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
