@@ -735,6 +735,7 @@ async function updateRoom(socket: AuthenticatedSocket, room: number, global = tr
         where: {
             id: room,
         },
+        relations: ['players'],
         cache: true,
     });
 
