@@ -124,6 +124,8 @@ export class Player {
             quitted,
         });
 
+        getIo().to(`game-${this.gameId}`).emit('update', this.game);
+
         // TODO: force skip turn if it's the player's turn.
     }
 
