@@ -386,10 +386,12 @@ function onMessage(socket: AuthenticatedSocket) {
         if(isNaN(data.gameId)) {
             socket.emit('error', getErrorMessage(data.gameId, 'Invalid game ID'));
             return;
-        } else if(typeof data.message !== 'string' || data.message.length === 0) {
+        } else if(typeof data.message !== 'string' || (data.message.trim()).length === 0) {
             socket.emit('error', getErrorMessage(data.gameId, 'Invalid message'));
             return;
         }
+
+        data.message = data.message.trim();
 
         // Get the player and the board
         const promises = [
