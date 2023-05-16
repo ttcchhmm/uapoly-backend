@@ -104,11 +104,11 @@ AppDataSource.initialize().then(async () => {
     // Initialize the socket.io server
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
-        adapter: createAdapter(redisClient),
-        connectionStateRecovery: {
-            maxDisconnectionDuration: 60 * 1000, // 1 minute
-            skipMiddlewares: true,
-        }
+        // adapter: createAdapter(redisClient),
+        // connectionStateRecovery: {
+        //     maxDisconnectionDuration: 60 * 1000, // 1 minute
+        //     skipMiddlewares: true,
+        // }
     });
 
     // Force authentication
