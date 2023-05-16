@@ -382,12 +382,12 @@ function onBuy(socket: AuthenticatedSocket) {
  * @returns A function that will be called when the socket emits a 'message' event
  */
 function onMessage(socket: AuthenticatedSocket) {
-    return async(data: { room: number, message: string, recipient: string | undefined }) => {
-        if(isNaN(data.room)) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
+    return async(data: { gameId: number, message: string, recipient: string | undefined }) => {
+        if(isNaN(data.gameId)) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid game ID'));
             return;
         } else if(typeof data.message !== 'string' || data.message.length === 0) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid message'));
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid message'));
             return;
         }
 
@@ -395,14 +395,14 @@ function onMessage(socket: AuthenticatedSocket) {
         const promises = [
             playerRepo.findOne({
                 where: {
-                    gameId: data.room,
+                    gameId: data.gameId,
                     accountLogin: socket.user.login,
                 },
                 cache: true,
             }),
             boardRepo.findOne({
                 where: {
-                    id: data.room,
+                    id: data.gameId,
                 },
                 cache: true,
             }),
@@ -412,7 +412,7 @@ function onMessage(socket: AuthenticatedSocket) {
         if(data.recipient && typeof data.recipient === 'string') {
             promises.push(playerRepo.findOne({
                 where: {
-                    gameId: data.room,
+                    gameId: data.gameId,
                     accountLogin: data.recipient,
                 },
                 cache: true,
@@ -423,11 +423,11 @@ function onMessage(socket: AuthenticatedSocket) {
 
         // If a recipient was specified, check if it exists within the game
         if(data.recipient && !recipient) {
-            socket.emit('error', getErrorMessage(data.room, `This player does not exist: ${data.recipient}`));
+            socket.emit('error', getErrorMessage(data.gameId, `This player does not exist: ${data.recipient}`));
             return;
         }
 
-        if(checkBoardAndPlayerValidity(board as Board, player as Player, socket, data.room)) {
+        if(checkBoardAndPlayerValidity(board as Board, player as Player, socket, data.gameId, false, false)) {
             const msg = new Message(board as Board, data.message, player as Player, recipient as Player);
             (board as Board).messages.push(msg);
 
@@ -436,9 +436,12 @@ function onMessage(socket: AuthenticatedSocket) {
                 messageRepo.save(msg),
             ]);
 
-            getIo().to(`game-${data.room}`).emit('message', {
+            getIo().to(`game-${data.gameId}`).emit('message', {
                 unsafe: true, // TODO: Update this when the private message functionality is actually private
-                ...msg,
+                content: msg.content,
+                sender: msg.sender.accountLogin,
+                recipient: msg.recipient ? msg.recipient.accountLogin : undefined,
+                id: msg.id,
             });
         }
     }
@@ -544,7 +547,11 @@ function onTrade(socket: AuthenticatedSocket) {
             // Send the message
             getIo().to(`game-${data.room}`).emit('message', {
                 unsafe: true, // TODO: Update this when the private message functionality is actually private
-                ...msg,
+                content: msg.content,
+                sender: msg.sender.accountLogin,
+                recipient: msg.recipient ? msg.recipient.accountLogin : undefined,
+                id: msg.id,
+                // TODO: Send the trade offer
             });
         }
     }
@@ -704,7 +711,7 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
  * @param checkTurn Whether to check if it is the player's turn
  * @returns True if the board and player are valid, false otherwise
  */
-function checkBoardAndPlayerValidity(board: Board, player: Player, socket: AuthenticatedSocket, room: number, checkTurn = true) {
+function checkBoardAndPlayerValidity(board: Board, player: Player, socket: AuthenticatedSocket, room: number, checkTurn = true, checkStarted = true) {
     if (!player) {
         socket.emit('error', getErrorMessage(room, 'You are not in this game'));
         return false;
@@ -715,7 +722,7 @@ function checkBoardAndPlayerValidity(board: Board, player: Player, socket: Authe
         return false;
     }
 
-    if (!board.started) {
+    if (checkStarted && !board.started) {
         socket.emit('error', getErrorMessage(room, 'This game has not started yet'));
         return false;
     }
@@ -735,6 +742,10 @@ function checkBoardAndPlayerValidity(board: Board, player: Player, socket: Authe
  * @param global Whether to emit the update to all players in the room or only to the socket. Defaults to true.
  */
 async function updateRoom(socket: AuthenticatedSocket, room: number, global = true) {
+    if(isNaN(room)) {
+        return;
+    }
+
     const board = await boardRepo.findOne({
         where: {
             id: room,

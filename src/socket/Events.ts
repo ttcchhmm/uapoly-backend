@@ -3,13 +3,33 @@ import { Message } from "../entity/Message";
 import { PropertyEdit } from "../game/GameManager";
 
 /**
- * Represent a message with the unsafe property.
+ * Represent a message.
  */
-interface UnsafeMessage extends Message {
+interface MessageEvent {
     /**
      * True if the message is unsafe. An unsafe message is a message that has been sent to every client, regardless of the recipient.
      */
     unsafe: boolean;
+
+    /**
+     * The content of the message.
+     */
+    content: string,
+
+    /**
+     * The sender of the message.
+     */
+    sender: string,
+
+    /**
+     * The recipient of the message. Null if the message is public.
+     */
+    recipient: string | null,
+
+    /**
+     * The ID of the message.
+     */
+    id: number,
 }
 
 /**
@@ -115,7 +135,7 @@ export interface ServerEvents {
      * A message has been sent.
      * @param message The message to send.
      */
-    message: (message: UnsafeMessage) => void;
+    message: (message: MessageEvent) => void;
 
     /**
      * A player accepted a trade.
