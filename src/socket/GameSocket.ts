@@ -87,6 +87,11 @@ function onJoin(socket: AuthenticatedSocket) {
             return;
         }
 
+        if(socket.rooms.has(`game-${room}`)) {
+            socket.emit('error', getErrorMessage(room, 'You already joined this game'));
+            return;
+        }
+
         socket.to(`game-${room}`).emit('player-connected', {gameId: room, player: player.accountLogin});
         await socket.join(`game-${room}`);
         socket.emit('joined', player.game);
