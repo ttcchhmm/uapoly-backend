@@ -46,12 +46,5 @@ const names = [
  * @returns A random name from the names array.
  */
 export function getRandomName(): string {
-    const startDate = new Date(2023, 4, 12);
-    const endDate = new Date(2023, 4, 13);
-
-    if(Date.now() >= startDate.getTime() && Date.now() <= endDate.getTime()) {
-        return 'The Legend of UApoly: Tears of the Banker Adviser';
-    } else {
-        return names[Math.floor(Math.random() * names.length)];
-    }
+    return names[Math.floor(Math.random() * names.length)];
 }
