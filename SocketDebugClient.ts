@@ -26,7 +26,7 @@ rl.question('Login: ', (login) => {
         rl.close();
 
         // Send a request to the server to get a token.
-        fetch(`http://${process.argv[2]}:${process.argv[3]}/user/login`, {
+        fetch(`http://${process.argv[2]}:${process.argv[3]}/api/user/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
