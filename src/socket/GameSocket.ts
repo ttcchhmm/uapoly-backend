@@ -26,6 +26,7 @@ const slotsRepo = AppDataSource.getRepository(BoardSlot);
  */
 export function onConnect(socket: AuthenticatedSocket) {
     // Set up the socket events
+    socket.on('disconnect', onDisconnect(socket));
     socket.on('join', onJoin(socket));
     socket.on('leave', onLeave(socket));
     socket.on('start', onStart(socket));
@@ -60,6 +61,16 @@ function getErrorMessage(room: number, message: string) {
 }
 
 // ### SOCKET EVENTS ### //
+
+function onDisconnect(socket: AuthenticatedSocket) {
+    return () => {
+        socket.rooms.forEach(room => {
+            const split = room.split('-');
+            socket.leave(`game-${split[1]}`);
+            socket.to(room).emit('player-disconnected', {gameId: parseInt(split[1]), player: socket.user.login});
+        });
+    }
+}
 
 /**
  * Get a function that will be called when the socket emits a 'join' event, to join a room.
