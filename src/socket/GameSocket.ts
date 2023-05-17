@@ -83,6 +83,11 @@ function onJoin(socket: AuthenticatedSocket) {
             socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
             return;
         }
+
+        if(socket.rooms.has(`game-${room}`)) {
+            socket.emit('error', getErrorMessage(room, 'You already joined this game'));
+            return;
+        }
         
         const player = await playerRepo.findOne({
             where: {
