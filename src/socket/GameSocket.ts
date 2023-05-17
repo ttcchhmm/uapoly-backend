@@ -264,26 +264,26 @@ function onNextPlayer(socket: AuthenticatedSocket) {
  * @returns A function that will be called when the socket emits a 'manageProperties' event
  */
 function onManageProperties(socket: AuthenticatedSocket) {
-    return async (data: { room: number, properties: PropertyEdit[] }) => {
-        if(isNaN(data.room)) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
+    return async (data: { gameId: number, properties: PropertyEdit[] }) => {
+        if(isNaN(data.gameId)) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid game ID'));
             return;
         } else if(!Array.isArray(data.properties)) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid properties'));
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid properties'));
             return;
         }
 
         const [player, board] = await Promise.all([
             playerRepo.findOne({
                 where: {
-                    gameId: data.room,
+                    gameId: data.gameId,
                     accountLogin: socket.user.login,
                 },
                 cache: true,
             }),
             boardRepo.findOne({
                 where: {
-                    id: data.room,
+                    id: data.gameId,
                 },
                 relations: ['players'],
                 cache: true,
@@ -292,16 +292,16 @@ function onManageProperties(socket: AuthenticatedSocket) {
 
         data.properties.forEach(p => {
             if(isNaN(p.position)) {
-                socket.emit('error', getErrorMessage(data.room, 'Invalid properties'));
+                socket.emit('error', getErrorMessage(data.gameId, 'Invalid properties'));
                 return;
             } else if(!player.ownedProperties.find(op => op.position === p.position)) {
-                socket.emit('error', getErrorMessage(data.room, `You do not own this property: ${p.position}`));
+                socket.emit('error', getErrorMessage(data.gameId, `You do not own this property: ${p.position}`));
                 return;
             }
         });
 
-        if(checkBoardAndPlayerValidity(board, player, socket, data.room)) {
-            Manager.games.get(data.room).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
+        if(checkBoardAndPlayerValidity(board, player, socket, data.gameId)) {
+            Manager.games.get(data.gameId).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
         }
     }
 }
@@ -455,20 +455,20 @@ function onMessage(socket: AuthenticatedSocket) {
  * @returns A function that will be called when the socket emits a 'trade' event
  */
 function onTrade(socket: AuthenticatedSocket) {
-    return async (data: { room: number, propertiesOffered: number[], moneyOffered: number, propertiesRequested: number[], moneyRequested: number, recipient: string, message: string | undefined }) => {
+    return async (data: { gameId: number, propertiesOffered: number[], moneyOffered: number, propertiesRequested: number[], moneyRequested: number, recipient: string, message: string | undefined }) => {
         // Sanity checks
-        if(!checkBody(data, 'room', 'propertiesOffered', 'moneyOffered', 'propertiesRequested', 'moneyRequested', 'recipient')) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid properties'));
+        if(!checkBody(data, 'gameId', 'propertiesOffered', 'moneyOffered', 'propertiesRequested', 'moneyRequested', 'recipient')) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid properties'));
             return;
         }
 
-        if(isNaN(data.room)) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid game ID'));
+        if(isNaN(data.gameId)) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid game ID'));
             return;
         }
 
         if(data.moneyOffered <= 0 || data.moneyRequested <= 0) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid money'));
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid money'));
             return;
         }
 
@@ -476,28 +476,28 @@ function onTrade(socket: AuthenticatedSocket) {
         const [player, board, recipient] = await Promise.all([
             playerRepo.findOne({
                 where: {
-                    gameId: data.room,
+                    gameId: data.gameId,
                     accountLogin: socket.user.login,
                 },
                 cache: true,
             }),
             boardRepo.findOne({
                 where: {
-                    id: data.room,
+                    id: data.gameId,
                 },
                 relations: ['players'],
                 cache: true,
             }),
             playerRepo.findOne({
                 where: {
-                    gameId: data.room,
+                    gameId: data.gameId,
                     accountLogin: data.recipient,
                 },
                 cache: true,
             }),
         ]);
 
-        if(checkBoardAndPlayerValidity(board, player, socket, data.room, false)) {
+        if(checkBoardAndPlayerValidity(board, player, socket, data.gameId, false)) {
             // Fetch the properties
             const offered: TradeItem[] = [];
             const requested: TradeItem[] = [];
@@ -506,7 +506,7 @@ function onTrade(socket: AuthenticatedSocket) {
                 const property = player.ownedProperties.find((p) => p.position === id);
 
                 if(!property) {
-                    socket.emit('error', getErrorMessage(data.room, `Invalid property: ${id}`));
+                    socket.emit('error', getErrorMessage(data.gameId, `Invalid property: ${id}`));
                     return;
                 }
 
@@ -517,7 +517,7 @@ function onTrade(socket: AuthenticatedSocket) {
                 const property = recipient.ownedProperties.find((p) => p.position === id);
 
                 if(!property) {
-                    socket.emit('error', getErrorMessage(data.room, `Invalid property: ${id}`));
+                    socket.emit('error', getErrorMessage(data.gameId, `Invalid property: ${id}`));
                     return;
                 }
 
@@ -547,7 +547,7 @@ function onTrade(socket: AuthenticatedSocket) {
             await Promise.all(promises);
 
             // Send the message
-            getIo().to(`game-${data.room}`).emit('message', {
+            getIo().to(`game-${data.gameId}`).emit('message', {
                 unsafe: true, // TODO: Update this when the private message functionality is actually private
                 content: msg.content,
                 sender: msg.sender.accountLogin,
@@ -565,28 +565,28 @@ function onTrade(socket: AuthenticatedSocket) {
  * @returns A function that will be called when the socket emits a 'acceptTrade' event
  */
 function onAcceptTrade(socket: AuthenticatedSocket) {
-    return async (data: { room: number, message: number }) => {
-        if(!checkBody(data, 'room', 'message')) {
-            socket.emit('error', getErrorMessage(data.room, 'Missing parameters'));
+    return async (data: { gameId: number, message: number }) => {
+        if(!checkBody(data, 'gameId', 'message')) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Missing parameters'));
             return;
         }
 
-        if(isNaN(data.room) || isNaN(data.message)) {
-            socket.emit('error', getErrorMessage(data.room, 'Invalid parameters'));
+        if(isNaN(data.gameId) || isNaN(data.message)) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid parameters'));
             return;
         }
 
         const [player, board, message] = await Promise.all([
             playerRepo.findOne({
                 where: {
-                    gameId: data.room,
+                    gameId: data.gameId,
                     accountLogin: socket.user.login,
                 },
                 cache: true,
             }),
             boardRepo.findOne({
                 where: {
-                    id: data.room,
+                    id: data.gameId,
                 },
                 relations: ['players'],
                 cache: true,
@@ -600,18 +600,18 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
             }),
         ]);
 
-        if(checkBoardAndPlayerValidity(board, player, socket, data.room, false)) {
+        if(checkBoardAndPlayerValidity(board, player, socket, data.gameId, false)) {
             if(!message) {
-                socket.emit('error', getErrorMessage(data.room, 'Invalid message ID'));
+                socket.emit('error', getErrorMessage(data.gameId, 'Invalid message ID'));
                 return;
             } else if(!message.tradeOffer) {
-                socket.emit('error', getErrorMessage(data.room, 'This message does not contain a trade offer'));
+                socket.emit('error', getErrorMessage(data.gameId, 'This message does not contain a trade offer'));
                 return;
             }
 
             // Check if the player is the recipient
             if(message.recipient.accountLogin !== player.accountLogin) {
-                socket.emit('error', getErrorMessage(data.room, 'You are not the recipient of this trade'));
+                socket.emit('error', getErrorMessage(data.gameId, 'You are not the recipient of this trade'));
                 return;
             }
 
@@ -625,7 +625,7 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
             }, 0);
 
             if(totalOfferedMoney > message.sender.money) {
-                socket.emit('error', getErrorMessage(data.room, 'The sender does not have enough money'));
+                socket.emit('error', getErrorMessage(data.gameId, 'The sender does not have enough money'));
                 return;
             }
 
@@ -638,7 +638,7 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
             }, 0);
 
             if(totalRequestedMoney > player.money) {
-                socket.emit('error', getErrorMessage(data.room, 'You do not have enough money'));
+                socket.emit('error', getErrorMessage(data.gameId, 'You do not have enough money'));
                 return;
             }
 
@@ -650,7 +650,7 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
                     return prev;
                 }
             }, false)) {
-                socket.emit('error', getErrorMessage(data.room, 'The sender does not own all the properties'));
+                socket.emit('error', getErrorMessage(data.gameId, 'The sender does not own all the properties'));
                 return;
             }
 
@@ -661,7 +661,7 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
                     return prev;
                 }
             }, false)) {
-                socket.emit('error', getErrorMessage(data.room, 'You do not own all the properties'));
+                socket.emit('error', getErrorMessage(data.gameId, 'You do not own all the properties'));
                 return;
             }
 
@@ -693,13 +693,13 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
             await Promise.all(promises);
 
             // Notify the clients
-            getIo().to(`game-${data.room}`).emit('tradeSucceeded', {
-                gameId: data.room,
+            getIo().to(`game-${data.gameId}`).emit('tradeSucceeded', {
+                gameId: data.gameId,
                 sender: message.sender.accountLogin,
                 recipient: player.accountLogin,
             });
 
-            await updateRoom(socket, data.room);
+            await updateRoom(socket, data.gameId);
         }
     }
 }
