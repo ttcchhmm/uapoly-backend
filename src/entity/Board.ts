@@ -142,4 +142,14 @@ export class Board {
             this.slots.sort((a, b) => a.position - b.position);
         }
     }
+
+    /**
+     * Sorts the players by their login.
+     */
+    @AfterLoad()
+    sortPlayers() {
+        if(this.players) {
+            this.players.sort((a, b) => a.accountLogin < b.accountLogin ? -1 : 1);
+        }
+    }
 }
