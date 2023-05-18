@@ -229,7 +229,7 @@ function onDeclareBankruptcy(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -264,7 +264,7 @@ function onNextPlayer(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -302,7 +302,7 @@ function onManageProperties(socket: AuthenticatedSocket) {
                 where: {
                     id: data.gameId,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -347,7 +347,7 @@ function onDoNotBuy(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -382,7 +382,7 @@ function onBuy(socket: AuthenticatedSocket) {
                 where: {
                     id: room,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
         ]);
@@ -400,6 +400,7 @@ function onBuy(socket: AuthenticatedSocket) {
  */
 function onMessage(socket: AuthenticatedSocket) {
     return async(data: { gameId: number, message: string, recipient: string | undefined }) => {
+        debugger;
         if(isNaN(data.gameId)) {
             socket.emit('error', getErrorMessage(data.gameId, 'Invalid game ID'));
             return;
@@ -423,7 +424,7 @@ function onMessage(socket: AuthenticatedSocket) {
                 where: {
                     id: data.gameId,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
         ];
@@ -503,7 +504,7 @@ function onTrade(socket: AuthenticatedSocket) {
                 where: {
                     id: data.gameId,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
             playerRepo.findOne({
@@ -606,7 +607,7 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
                 where: {
                     id: data.gameId,
                 },
-                relations: ['players', 'players.game'],
+                relations: ['players'],
                 cache: true,
             }),
             messageRepo.findOne({
@@ -770,7 +771,7 @@ async function updateRoom(socket: AuthenticatedSocket, room: number, global = tr
         where: {
             id: room,
         },
-        relations: ['players', 'players.game'],
+        relations: ['players'],
         cache: true,
     });
 

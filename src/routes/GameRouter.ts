@@ -314,7 +314,7 @@ GameRouter.post('/leave', authenticateRequest, async (req: AuthenticatedRequest,
     } else {
         // Check if the game started
         if(board.started) {
-            await player.bankrupt(true);
+            await player.bankrupt(board, true);
         }
 
         // Check if the player is the game master

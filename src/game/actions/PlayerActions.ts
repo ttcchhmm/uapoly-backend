@@ -22,7 +22,7 @@ export const PlayerActions = {
      * @param additionalData Additional data passed with the event.
      */
     handleDeclareBankruptcy: async (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
-        await additionalData.board.players[additionalData.board.currentPlayerIndex].bankrupt();
+        await additionalData.board.players[additionalData.board.currentPlayerIndex].bankrupt(additionalData.board);
         currentMachine.transition(Transitions.NEXT_PLAYER, additionalData);
     },
 

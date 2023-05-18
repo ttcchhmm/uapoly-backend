@@ -99,7 +99,7 @@ export class Player {
      * Bankrupt the player.
      * @param quitted Whether the bankruptcy is due to the player quitting the game.
      */
-    async bankrupt(quitted: boolean = false) {
+    async bankrupt(board: Board, quitted: boolean = false) {
         this.money = 0;
 
         const promises: Promise<any>[] = [playerRepo.save(this)];
@@ -118,13 +118,13 @@ export class Player {
         await Promise.all(promises);
 
         // Not pretty here, but a player can go bankrupt outside of the state machine and we need to notify the clients.
-        getIo().to(`game-${this.gameId}`).emit('bankrupt', {
-            gameId: this.gameId,
+        getIo().to(`game-${board.id}`).emit('bankrupt', {
+            gameId: board.id,
             accountLogin: this.accountLogin,
             quitted,
         });
 
-        getIo().to(`game-${this.gameId}`).emit('update', this.game);
+        getIo().to(`game-${board.id}`).emit('update', board);
 
         // TODO: force skip turn if it's the player's turn.
     }
@@ -140,13 +140,13 @@ export class Player {
             this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % board.slots.length;
 
             playerRepo.save(this);
-            getIo().to(`game-${this.gameId}`).emit('update', board);
+            getIo().to(`game-${board.id}`).emit('update', board);
             stateMachine.transition(GameTransitions.PASS_START, { board });
         } else {
             this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % board.slots.length;
 
             playerRepo.save(this);
-            getIo().to(`game-${this.gameId}`).emit('update', board);
+            getIo().to(`game-${board.id}`).emit('update', board);
             stateMachine.transition(GameTransitions.MOVED_PLAYER, { board });
         }
     }
@@ -156,7 +156,7 @@ export class Player {
 
         this.currentSlotIndex = slotIndex;
         await playerRepo.save(this);
-        getIo().to(`game-${this.gameId}`).emit('update', board);
+        getIo().to(`game-${board.id}`).emit('update', board);
 
         // Passed Go
         if(numberOfSlots < 0) {
