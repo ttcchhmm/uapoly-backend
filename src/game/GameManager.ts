@@ -88,6 +88,10 @@ export class GameManager {
      */
     games: Map<number, StateMachine<Transitions, States, GameEvent>>;
 
+    constructor() {
+        this.games = new Map<number, StateMachine<Transitions, States, GameEvent>>();
+    }
+
     /**
      * Start a new state machine for a game.
      * @param board The board to start the game on.
