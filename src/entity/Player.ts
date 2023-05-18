@@ -32,13 +32,13 @@ export class Player {
     /**
      * The account representing the player.
      */
-    @ManyToOne(() => Account, account => account.players, {eager: false})
+    @ManyToOne(() => Account, account => account.players, {eager: false, cascade: false})
     account: Account;
 
     /**
      * The board the player is in.
      */
-    @ManyToOne(() => Board, board => board.players, {eager: false})
+    @ManyToOne(() => Board, board => board.players, {eager: false, cascade: false})
     game: Board;
 
     /**
@@ -134,35 +134,35 @@ export class Player {
      * @param stateMachine The state machine of the game.
      * @param numberOfSlots The number of slots to move the player.
      */
-    async movePlayer(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, numberOfSlots: number) {
+    async movePlayer(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, numberOfSlots: number, board: Board) {
         // Passed Go
-        if(this.currentSlotIndex + numberOfSlots > this.game.slots.length) {
-            this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % this.game.slots.length;
+        if(this.currentSlotIndex + numberOfSlots > board.slots.length) {
+            this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % board.slots.length;
 
             playerRepo.save(this);
-            getIo().to(`game-${this.gameId}`).emit('update', this.game);
-            stateMachine.transition(GameTransitions.PASS_START, { board: this.game });
+            getIo().to(`game-${this.gameId}`).emit('update', board);
+            stateMachine.transition(GameTransitions.PASS_START, { board });
         } else {
-            this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % this.game.slots.length;
+            this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % board.slots.length;
 
             playerRepo.save(this);
-            getIo().to(`game-${this.gameId}`).emit('update', this.game);
-            stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: this.game });
+            getIo().to(`game-${this.gameId}`).emit('update', board);
+            stateMachine.transition(GameTransitions.MOVED_PLAYER, { board });
         }
     }
 
-    async movePlayerTo(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, slotIndex: number) {
+    async movePlayerTo(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, slotIndex: number, board: Board) {
         const numberOfSlots = slotIndex - this.currentSlotIndex;
 
         this.currentSlotIndex = slotIndex;
         await playerRepo.save(this);
-        getIo().to(`game-${this.gameId}`).emit('update', this.game);
+        getIo().to(`game-${this.gameId}`).emit('update', board);
 
         // Passed Go
         if(numberOfSlots < 0) {
-            stateMachine.transition(GameTransitions.PASS_START, { board: this.game });
+            stateMachine.transition(GameTransitions.PASS_START, { board });
         } else {
-            stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: this.game });
+            stateMachine.transition(GameTransitions.MOVED_PLAYER, { board });
         }
     }
 
@@ -171,17 +171,17 @@ export class Player {
      * @param stateMachine The state machine of the game.
      * @param slotType The type of slot to move the player to.
      */
-    async movePlayerToNearest<T extends new(...args: any[]) => BoardSlot>(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, slotType: T) {
+    async movePlayerToNearest<T extends new(...args: any[]) => BoardSlot>(stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, slotType: T, board: Board) {
         let i = this.currentSlotIndex + 1; // Start at the next slot
         while(i !== this.currentSlotIndex) {
             // Wrap around
-            if(i >= this.game.slots.length) {
+            if(i >= board.slots.length) {
                 i = 0;
             }
 
-            const slot = this.game.slots[i];
+            const slot = board.slots[i];
             if(slot instanceof slotType) { // If the slot is of the given type
-                await this.movePlayerTo(stateMachine, i % this.game.slots.length);
+                await this.movePlayerTo(stateMachine, i % board.slots.length, board);
                 return;
             }
 

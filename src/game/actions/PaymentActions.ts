@@ -111,7 +111,7 @@ export const PaymentActions = {
 
         // If there is a callback, execute it.
         if(additionalData.payment.callback) {
-            await additionalData.payment.callback(upperMachine, player, additionalData.payment.receiver);
+            await additionalData.payment.callback(upperMachine, player, additionalData.payment.receiver, additionalData.board);
         } else { // No callback, just end the turn.
             upperMachine.transition(Transitions.END_TURN, {
                 board: additionalData.board, // Remove the payment from the data passed to the next state.

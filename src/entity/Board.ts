@@ -14,7 +14,7 @@ export class Board {
     /**
      * The players in the board.
      */
-    @OneToMany(() => Player, player => player.game, {eager: true})
+    @OneToMany(() => Player, player => player.game, { eager: true })
     players: Player[];
 
     /**

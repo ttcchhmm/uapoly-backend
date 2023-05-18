@@ -70,7 +70,7 @@ export interface GameEvent {
          * @param sender The player making the payment.
          * @param receiver The receiver of the payment.
          */
-        callback?: (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot') => Promise<void>;
+        callback?: (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot', board: Board) => Promise<void>;
     },
 
     /**

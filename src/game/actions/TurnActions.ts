@@ -115,6 +115,6 @@ export const TurnActions = {
     
         const total = dices.reduce((acc, val) => acc + val, 0);
     
-        await player.movePlayer(currentMachine, total);
+        await player.movePlayer(currentMachine, total, additionalData.board);
     },
 }

@@ -1,4 +1,5 @@
 import { AppDataSource } from "../data-source";
+import { Board } from "../entity/Board";
 import { CardStyle } from "../entity/CardSlot";
 import { Player } from "../entity/Player";
 import { PropertySlot } from "../entity/PropertySlot";
@@ -16,7 +17,7 @@ import { StateMachine } from "../state/StateMachine";
  * @param stateMachine The state machine of the game.
  * @param player The player that drew the card.
  */
-type CardActionFunction = (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => Promise<void>;
+type CardActionFunction = (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => Promise<void>;
 
 /**
  * Represent a card.
@@ -43,37 +44,37 @@ const playerRepo = AppDataSource.getRepository(Player);
  */
 export const ChanceActions: CardActionFunction[] = [
     // Advance to Boardwalk
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        await player.movePlayerTo(stateMachine, 39);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        await player.movePlayerTo(stateMachine, 39, board);
     },
 
     // Advance to Go
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        await player.movePlayerTo(stateMachine, 0);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        await player.movePlayerTo(stateMachine, 0, board);
     },
 
     // Advance to Illinois Ave
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        await player.movePlayerTo(stateMachine, 24);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        await player.movePlayerTo(stateMachine, 24, board);
     },
 
     // Advance to St. Charles Place
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        await player.movePlayerTo(stateMachine, 11);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        await player.movePlayerTo(stateMachine, 11, board);
     },
 
     // Advance to the nearest railroad
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        await player.movePlayerToNearest(stateMachine, TrainStationSlot);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        await player.movePlayerToNearest(stateMachine, TrainStationSlot, board);
     },
 
     // Advance to the nearest utility
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        await player.movePlayerToNearest(stateMachine, UtilitySlot);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        await player.movePlayerToNearest(stateMachine, UtilitySlot, board);
     },
 
     // Bank pays you dividend of $50
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 50;
         await playerRepo.save(player);
 
@@ -82,7 +83,7 @@ export const ChanceActions: CardActionFunction[] = [
     },
 
     // Get out of jail free
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         // TODO: Limit to 2 cards max per game
 
         player.outOfJailCards++;
@@ -93,7 +94,7 @@ export const ChanceActions: CardActionFunction[] = [
     },
 
     // Go back 3 spaces
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         if(player.currentSlotIndex < 3) {
             player.currentSlotIndex = player.game.slots.length - (3 - player.currentSlotIndex);
         } else {
@@ -106,12 +107,12 @@ export const ChanceActions: CardActionFunction[] = [
     },
 
     // Go to jail
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.DREW_GO_TO_JAIL_CARD, { board: player.game });
     },
 
     // You are assessed for street repairs. $40 per house. $115 per hotel.
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         let total = 0;
 
         player.ownedProperties.forEach(property => {
@@ -134,7 +135,7 @@ export const ChanceActions: CardActionFunction[] = [
     },
 
     // Pay speeding fine of $15
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
             board: player.game,
             payment: {
@@ -145,18 +146,18 @@ export const ChanceActions: CardActionFunction[] = [
     },
 
     // Take a trip to Reading Railroad
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
-        player.movePlayerTo(stateMachine, 5);
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
+        player.movePlayerTo(stateMachine, 5, board);
     },
 
     // You have been elected chairman of the board. Pay each player $50
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
             board: player.game,
             payment: {
                 amount: 50 * (player.game.players.length - 1),
                 receiver: 'bank',
-                callback: async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+                callback: async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, receiver: Player | 'bank' | 'jackpot', board: Board) => {
                     const promises: Promise<any>[] = [];
 
                     player.game.players.forEach(async (otherPlayer) => {
@@ -168,15 +169,15 @@ export const ChanceActions: CardActionFunction[] = [
 
                     await Promise.all(promises);
 
-                    getIo().to(`game-${player.game.id}`).emit('update', player.game);
-                    stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+                    getIo().to(`game-${player.game.id}`).emit('update', board);
+                    stateMachine.transition(GameTransitions.END_TURN, { board});
                 },
             },
         });
     },
 
     // Your building and loan matures. Collect $150
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 150;
         await playerRepo.save(player);
 
@@ -193,7 +194,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     ChanceActions[1],
 
     // Bank error in your favor. Collect $200
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 200;
         await playerRepo.save(player);
 
@@ -202,7 +203,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // Doctor's fee. Pay $50
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
             board: player.game,
             payment: {
@@ -213,7 +214,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // From sale of stock you get $50
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 50;
         await playerRepo.save(player);
 
@@ -228,7 +229,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     ChanceActions[9],
 
     // Holiday fund matures. Collect $100
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 100;
         await playerRepo.save(player);
 
@@ -237,7 +238,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // Income tax refund. Collect $20
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 20;
         await playerRepo.save(player);
 
@@ -246,7 +247,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // Life insurance matures. Collect $100
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 100;
         await playerRepo.save(player);
 
@@ -255,7 +256,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
     
     // Pay hospital fees of $100
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
             board: player.game,
             payment: {
@@ -266,7 +267,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // Pay school fees of $50
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
             board: player.game,
             payment: {
@@ -277,7 +278,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // Receive $25 consultancy fee
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 25;
         await playerRepo.save(player);
 
@@ -289,7 +290,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     ChanceActions[10],
 
     // You have won second prize in a beauty contest. Collect $10
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 10;
         await playerRepo.save(player);
 
@@ -298,7 +299,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     },
 
     // You inherit $100
-    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player) => {
+    async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         player.money += 100;
         await playerRepo.save(player);
 

@@ -11,13 +11,13 @@ import { GoToJailSlot } from '../../entity/GoToJailSlot';
 import { BuyableSlot, BuyableSlotState } from '../../entity/BuyableSlot';
 import { TaxSlot } from '../../entity/TaxSlot';
 import { Board } from '../../entity/Board';
-import { Card } from '../../defaults/CardsActions';
 import { Slots } from '../../defaults/Slots';
 import { BoardSlot } from '../../entity/BoardSlot';
 import { PropertySlot } from '../../entity/PropertySlot';
 import { TrainStationSlot } from '../../entity/TrainStationSlot';
 import { UtilitySlot } from '../../entity/UtilitySlot';
 import { rollDices } from '../Dices';
+import { RestSlot } from '../../entity/RestSlot';
 
 const playerRepo = AppDataSource.getRepository(Player);
 const boardRepo = AppDataSource.getRepository(Board);
@@ -61,6 +61,8 @@ export const LandActions = {
                 currentMachine.transition(Transitions.LAND_ON_BUYABLE, additionalData);
             } else if(currentSlot instanceof TaxSlot) {
                 currentMachine.transition(Transitions.LAND_ON_TAX, additionalData);
+            } else if (currentSlot instanceof RestSlot) {
+                currentMachine.transition(Transitions.LAND_ON_REST, additionalData);
             } else {
                 throw new Error(`Unknown slot type: ${currentSlot.constructor.name}`);
             }
@@ -144,7 +146,7 @@ export const LandActions = {
                 description: card.description,
             });
     
-            await card.action(currentMachine, player);
+            await card.action(currentMachine, player, additionalData.board);
         }
     },
 
