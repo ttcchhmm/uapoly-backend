@@ -489,7 +489,7 @@ export class GameManager {
                     ]
                 }
             ),
-        ], false, undefined, { board }, doNotEnterInitialState);
+        ], false, undefined, { board }, doNotEnterInitialState, validateAdditionalData);
     }
 
     /**
@@ -499,6 +499,19 @@ export class GameManager {
     static dumpMachineGraph(filename: string) {
         writeFileSync(filename, this.createMachine(null, true).generateDot());
     }
+}
+
+/**
+ * Validate the additional data for the game.
+ * @param data The data to validate.
+ * @returns An error message if the data is invalid, otherwise an empty string.
+ */
+function validateAdditionalData(data: GameEvent): string {
+    if(!data.board) {
+        return 'Board is required';
+    }
+
+    return '';
 }
 
 /**
