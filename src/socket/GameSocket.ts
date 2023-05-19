@@ -151,7 +151,6 @@ function onLeave(socket: AuthenticatedSocket) {
  */
 function onStart(socket: AuthenticatedSocket) {
     return async (room: number) => {
-        debugger;
         if(isNaN(room)) {
             socket.emit('error', getErrorMessage(room, 'Invalid game ID'));
             return;
