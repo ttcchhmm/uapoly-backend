@@ -78,8 +78,8 @@ export const ChanceActions: CardActionFunction[] = [
         player.money += 50;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board: board });
     },
 
     // Get out of jail free
@@ -89,26 +89,26 @@ export const ChanceActions: CardActionFunction[] = [
         player.outOfJailCards++;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board: board });
     },
 
     // Go back 3 spaces
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         if(player.currentSlotIndex < 3) {
-            player.currentSlotIndex = player.game.slots.length - (3 - player.currentSlotIndex);
+            player.currentSlotIndex = board.slots.length - (3 - player.currentSlotIndex);
         } else {
             player.currentSlotIndex -= 3;
         }
 
         await playerRepo.save(player);
 
-        stateMachine.transition(GameTransitions.MOVED_PLAYER, { board: player.game });
+        stateMachine.transition(GameTransitions.MOVED_PLAYER, { board });
     },
 
     // Go to jail
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
-        stateMachine.transition(GameTransitions.DREW_GO_TO_JAIL_CARD, { board: player.game });
+        stateMachine.transition(GameTransitions.DREW_GO_TO_JAIL_CARD, { board });
     },
 
     // You are assessed for street repairs. $40 per house. $115 per hotel.
@@ -126,7 +126,7 @@ export const ChanceActions: CardActionFunction[] = [
         });
 
         stateMachine.transition(GameTransitions.PAY_BANK, {
-            board: player.game,
+            board,
             payment: {
                 amount: total,
                 receiver: 'jackpot',
@@ -137,7 +137,7 @@ export const ChanceActions: CardActionFunction[] = [
     // Pay speeding fine of $15
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
-            board: player.game,
+            board,
             payment: {
                 amount: 15,
                 receiver: 'jackpot',
@@ -153,14 +153,14 @@ export const ChanceActions: CardActionFunction[] = [
     // You have been elected chairman of the board. Pay each player $50
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
-            board: player.game,
+            board,
             payment: {
-                amount: 50 * (player.game.players.length - 1),
+                amount: 50 * (board.players.length - 1),
                 receiver: 'bank',
                 callback: async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, receiver: Player | 'bank' | 'jackpot', board: Board) => {
                     const promises: Promise<any>[] = [];
 
-                    player.game.players.forEach(async (otherPlayer) => {
+                    board.players.forEach(async (otherPlayer) => {
                         if(player !== otherPlayer) { // Don't pay yourself
                             otherPlayer.money += 50;
                             promises.push(playerRepo.save(otherPlayer));
@@ -169,8 +169,8 @@ export const ChanceActions: CardActionFunction[] = [
 
                     await Promise.all(promises);
 
-                    getIo().to(`game-${player.game.id}`).emit('update', board);
-                    stateMachine.transition(GameTransitions.END_TURN, { board});
+                    getIo().to(`game-${board.id}`).emit('update', board);
+                    stateMachine.transition(GameTransitions.END_TURN, { board });
                 },
             },
         });
@@ -181,8 +181,8 @@ export const ChanceActions: CardActionFunction[] = [
         player.money += 150;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 ];
 
@@ -198,14 +198,14 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 200;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 
     // Doctor's fee. Pay $50
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
-            board: player.game,
+            board,
             payment: {
                 amount: 50,
                 receiver: 'jackpot',
@@ -218,8 +218,8 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 50;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 
     // Get out of jail free
@@ -233,8 +233,8 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 100;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 
     // Income tax refund. Collect $20
@@ -242,8 +242,8 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 20;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 
     // Life insurance matures. Collect $100
@@ -251,14 +251,14 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 100;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
     
     // Pay hospital fees of $100
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
-            board: player.game,
+            board,
             payment: {
                 amount: 100,
                 receiver: 'jackpot',
@@ -269,7 +269,7 @@ export const CommunityChestActions: CardActionFunction[] = [
     // Pay school fees of $50
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         stateMachine.transition(GameTransitions.PAY_BANK, {
-            board: player.game,
+            board,
             payment: {
                 amount: 50,
                 receiver: 'jackpot',
@@ -282,8 +282,8 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 25;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 
     // You are assessed for street repairs. $40 per house. $115 per hotel
@@ -294,8 +294,8 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 10;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 
     // You inherit $100
@@ -303,7 +303,7 @@ export const CommunityChestActions: CardActionFunction[] = [
         player.money += 100;
         await playerRepo.save(player);
 
-        getIo().to(`game-${player.game.id}`).emit('update', player.game);
-        stateMachine.transition(GameTransitions.END_TURN, { board: player.game });
+        getIo().to(`game-${board.id}`).emit('update', board);
+        stateMachine.transition(GameTransitions.END_TURN, { board });
     },
 ];
