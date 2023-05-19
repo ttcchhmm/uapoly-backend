@@ -26,6 +26,15 @@ interface EmbedSettings<T extends string, N, D> {
 }
 
 /**
+ * A function to be called when transitioning. Used to validate the additional data.
+ * 
+ * @template D The type of the additional data that can be passed to the transition functions.
+ * 
+ * @param data The additional data.
+ */
+type ValidationFunction<D> = (data: D) => string | undefined;
+
+/**
  * Defines a state machine.
  * 
  * @template T An enum of all the possible transitions that can occur.
@@ -84,6 +93,11 @@ export class StateMachine<T extends string, N, D> {
     private transitionsHistory: T[];
 
     /**
+     * A function to validate the additional data.
+     */
+    private validationFunction: ValidationFunction<D> | undefined;
+
+    /**
      * Constructs a new state machine.
      * @param initialState The initial state of the state machine.
      * @param states The states of the state machine.
@@ -91,14 +105,16 @@ export class StateMachine<T extends string, N, D> {
      * @param embedSettings The settings to use if this state machine is embedded.
      * @param additionalData Additional data to pass to the transition functions of the initial state.
      * @param doNotEnterInitialState Whether or not to enter the initial state.
+     * @param validationFunction A function to validate the additional data.
      */
-    constructor(initialState: N, states: Stateable<T, N, D>[], throwOnInvalidTransition = true, embedSettings?: EmbedSettings<T, N, D>, additionalData?: D, doNotEnterInitialState?: boolean) {
+    constructor(initialState: N, states: Stateable<T, N, D>[], throwOnInvalidTransition = true, embedSettings?: EmbedSettings<T, N, D>, additionalData?: D, doNotEnterInitialState?: boolean, validationFunction?: ValidationFunction<D>) {
         this.initialStateName = initialState;
         this.name = undefined;
         this.isReset = false;
         this.states = states;
         this.throwOnInvalidTransition = throwOnInvalidTransition;
         this.transitionsHistory = [];
+        this.validationFunction = validationFunction;
 
         // Set the parent machine of each state
         this.states.forEach((state) => state.setParentMachine(this));
@@ -128,6 +144,15 @@ export class StateMachine<T extends string, N, D> {
      * @param additionalData Additional data to pass to the transition functions.
      */
     public transition(event: T, additionalData?: D, parentMachine?: StateMachine<T, N, D>) {
+        // Validate additional data
+        if(this.validationFunction) {
+            const validationError = this.validationFunction(additionalData);
+
+            if(validationError) {
+                throw new Error(`Invalid additional data: ${validationError}`);
+            }
+        }
+
         if(this.currentState instanceof State) { // Proper state
             // Check out transitions of current state
             if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
