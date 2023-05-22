@@ -31,11 +31,4 @@ export class TradeOffer {
      */
     @OneToMany(type => TradeItem, trade => trade.tradeOfferOffered, {eager: true})
     offered: TradeItem[];
-
-    /**
-     * Accepts the trade offer.
-     */
-    accept(): void {
-        throw new Error("Method not implemented."); // TODO: Implement this method.
-    }
 }
