@@ -153,37 +153,36 @@ export class StateMachine<T extends string, N, D> {
             }
         }
 
-        if(this.currentState instanceof State) { // Proper state
-            // Check out transitions of current state
-            if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
-                throw new Error(`Invalid transition from ${this.currentState.getName()} with event ${event}`);
-            } else {
-                // Get the new state
-                const newState = this.states.find((state) => state.getName() === this.currentState.getOutTransitions()[event]);
+        if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
+            throw new Error(`Invalid transition from ${this.currentState.getName()} with event ${event}`);
+        } else {
+            // Get the new state
+            const newState = this.states.find((state) => state.getName() === this.currentState.getOutTransitions()[event]);
 
-                // Check if new state is defined
-                if(this.currentState === undefined) {
-                    throw new Error(`State ${this.currentState.getName()} is not defined.`);
-                }
-
-                // Check in transitions of new state
-                if(!newState.getInTransitions().includes(event) && this.throwOnInvalidTransition) {
-                    throw new Error(`Invalid transition from ${this.currentState.getName()} to ${newState.getName()} with event ${event}`);
-                } else {
-                    this.transitionsHistory.push(event);
-
-                    if(!this.isReset) {
-                        this.currentState.exit(event, additionalData, parentMachine);
-                    } else {
-                        this.isReset = false;
-                    }
-
-                    this.currentState = newState;
-                    this.currentState.enter(event, additionalData, parentMachine);
-                }
+            if(!newState) {
+                throw new Error(`Target state for event ${event} is not defined.`);
             }
-        } else { // Embedded state machine
-            this.currentState.transition(event, additionalData, this.parentMachine);
+
+            // Check if new state is defined
+            if(this.currentState === undefined) {
+                throw new Error(`State ${this.currentState.getName()} is not defined.`);
+            }
+
+            // Check in transitions of new state
+            if(!newState.getInTransitions().includes(event) && this.throwOnInvalidTransition) {
+                throw new Error(`Invalid transition from ${this.currentState.getName()} to ${newState.getName()} with event ${event}`);
+            } else {
+                this.transitionsHistory.push(event);
+
+                if(!this.isReset && this.currentState instanceof State) {
+                    this.currentState.exit(event, additionalData, parentMachine);
+                } else {
+                    this.isReset = false;
+                }
+
+                this.currentState = newState;
+                this.currentState.enter(event, additionalData, parentMachine);
+            }
         }
     }
 
@@ -241,6 +240,10 @@ export class StateMachine<T extends string, N, D> {
      */
     public setParentMachine(parentMachine: StateMachine<T, N, D>) {
         this.parentMachine = parentMachine;
+    }
+
+    public getParentMachine(): StateMachine<T, N, D> | undefined {
+        return this.parentMachine;
     }
 
     /**
