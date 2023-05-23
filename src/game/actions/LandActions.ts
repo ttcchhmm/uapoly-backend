@@ -342,6 +342,12 @@ export const LandActions = {
         const slot = additionalData.board.slots[player.currentSlotIndex];
 
         if(slot instanceof TaxSlot) {
+            getIo().to(`game-${additionalData.board.id}`).emit('tax', {
+                gameId: additionalData.board.id,
+                accountLogin: player.accountLogin,
+                amount: slot.amount
+            });
+
             currentMachine.transition(Transitions.PAY_BANK, {
                 payment: {
                     receiver: 'jackpot',

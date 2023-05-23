@@ -148,6 +148,12 @@ export interface ServerEvents {
      * @param data The payload of the event.
      */
     endOfTurn: (data: { gameId: number, accountLogin: string }) => void;
+
+    /**
+     * A player must pay a tax.
+     * @param data The payload of the event.
+     */
+    tax: (data: { gameId: number, accountLogin: string, amount: number }) => void;
 }
 
 /**
