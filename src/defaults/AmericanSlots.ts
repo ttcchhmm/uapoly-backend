@@ -20,7 +20,7 @@ export function getAmericanSlots() {
         new PropertySlot("Mediterranean Avenue", "Buy this property for $60.", "brown", position++, 60, "brown", 50, rents.next().value),
         new CardSlot(CardStyle.COMMUNITY, "Draw a card.", CardStyle.COMMUNITY, position++),
         new PropertySlot("Baltic Avenue", "Buy this property for $60.", "brown", position++, 60, "brown", 50, rents.next().value),
-        new TaxSlot("Tax", "Pay $200 in taxes.", 200, position++),
+        new TaxSlot("Income Tax", "Pay $200 in taxes.", 200, position++),
         new TrainStationSlot("Reading Railroad", "Buy this property for $200.", "railroad", position++, 200, rents.next().value),
         new PropertySlot("Oriental Avenue", "Buy this property for $100.", "lightblue", position++, 100, "lightblue", 50, rents.next().value),
         new CardSlot(CardStyle.CHANCE, "Draw a card.", CardStyle.CHANCE, position++),
@@ -54,7 +54,7 @@ export function getAmericanSlots() {
         new TrainStationSlot("Short Line", "Buy this property for $200.", "railroad", position++, 200, rents.next().value),
         new CardSlot(CardStyle.CHANCE, "Draw a card.", CardStyle.CHANCE, position++),
         new PropertySlot("Park Place", "Buy this property for $350.", "darkblue", position++, 350, "darkblue", 200, rents.next().value),
-        new TaxSlot("Tax", "Pay $200 in taxes", 100, position++),
+        new TaxSlot("Luxury Tax", "Pay $200 in taxes", 100, position++),
         new PropertySlot("Boardwalk", "Buy this property for $400.", "darkblue", position++, 400, "darkblue", 200, rents.next().value),
     ];
 }

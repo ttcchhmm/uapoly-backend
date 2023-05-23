@@ -20,7 +20,7 @@ export function getFrenchSlots() {
         new PropertySlot("Boulevard de Belleville", "Achetez cette propriété pour $60.", "brown", position++, 60, "brown", 50, rents.next().value),
         new CardSlot("Caisse de communauté", "Piochez une carte.", CardStyle.COMMUNITY, position++),
         new PropertySlot("Rue Lecourbe", "Achetez cette propriété pour $60.", "brown", position++, 60, "brown", 50, rents.next().value),
-        new TaxSlot("Impôts", "Payez $200 d'impôts", 200, position++),
+        new TaxSlot("Impôts sur le revenu", "Payez $200 d'impôts", 200, position++),
         new TrainStationSlot("Gare Montparnasse", "Achetez cette propriété pour $200.", "railroad", position++, 200, rents.next().value),
         new PropertySlot("Rue de Vaugirard", "Achetez cette propriété pour $100.", "lightblue", position++, 100, "lightblue", 50, rents.next().value),
         new CardSlot("Chance", "Piochez une carte.", CardStyle.CHANCE, position++),
@@ -54,7 +54,7 @@ export function getFrenchSlots() {
         new TrainStationSlot("Gare Saint-Lazare", "Achetez cette propriété pour $200.", "railroad", position++, 200, rents.next().value),
         new CardSlot("Chance", "Piochez une carte.", CardStyle.CHANCE, position++),
         new PropertySlot("Avenue des Champs-Élysées", "Achetez cette propriété pour $350.", "darkblue", position++, 350, "darkblue", 200, rents.next().value),
-        new TaxSlot("Impôts", "Payez $100 d'impôts", 100, position++),
+        new TaxSlot("Taxe de luxe", "Payez $100 d'impôts", 100, position++),
         new PropertySlot("Rue de la Paix", "Achetez cette propriété pour $400.", "darkblue", position++, 400, "darkblue", 200, rents.next().value),
     ];
 }
