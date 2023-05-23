@@ -166,12 +166,20 @@ export class StateMachine<T extends string, N, D> {
             const newState = this.states.find((state) => state.getName() === this.currentState.getOutTransitions()[event]);
 
             if(!newState) {
-                throw new Error(`Target state for event ${event} is not defined.`);
+                if(this.throwOnInvalidTransition) {
+                    throw new Error(`Target state for event ${event} is not defined.`);
+                } else {
+                    return;
+                }
             }
 
             // Check if new state is defined
             if(this.currentState === undefined) {
-                throw new Error(`State ${this.currentState.getName()} is not defined.`);
+                if(this.throwOnInvalidTransition) {
+                    throw new Error(`State ${this.currentState.getName()} is not defined.`);
+                } else {
+                    return;
+                }
             }
 
             // Check in transitions of new state
