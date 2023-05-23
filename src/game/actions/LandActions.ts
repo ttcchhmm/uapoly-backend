@@ -232,7 +232,7 @@ export const LandActions = {
                         await slotsRepo.save(slot);
 
                         stateMachine.transition(Transitions.END_TURN, {
-                            board: sender.game,
+                            board: additionalData.board,
                         });
                     }
                 },
