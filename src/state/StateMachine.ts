@@ -154,7 +154,13 @@ export class StateMachine<T extends string, N, D> {
         }
 
         if (!this.currentState.getOutTransitions()[event] && this.throwOnInvalidTransition) {
-            throw new Error(`Invalid transition from ${this.currentState.getName()} with event ${event}`);
+            const errorMessage = `Invalid transition from ${this.currentState.getName()} with event ${event}`;
+
+            if(this.throwOnInvalidTransition) {
+                throw new Error(errorMessage);
+            } else {
+                console.error(errorMessage);
+            }
         } else {
             // Get the new state
             const newState = this.states.find((state) => state.getName() === this.currentState.getOutTransitions()[event]);
