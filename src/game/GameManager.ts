@@ -334,6 +334,7 @@ export class GameManager {
                     [Transitions.DREW_GO_TO_JAIL_CARD]: States.GO_TO_JAIL,
                     [Transitions.MOVED_PLAYER]: States.LANDED_ON_SLOT,
                     [Transitions.PASS_START]: States.LANDED_ON_SLOT,
+                    [Transitions.PAY_BANK]: States.PAY,
                 },
                 [LandActions.handleDrawCard],
                 []
