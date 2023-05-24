@@ -37,7 +37,7 @@ export abstract class BuyableSlot extends BoardSlot {
     /**
      * The player that owns the slot.
      */
-    @ManyToOne(type => Player, player => player.ownedProperties, {eager: false})
+    @ManyToOne(type => Player, player => player.ownedProperties, {eager: true})
     owner: Player | null;
 
     /**

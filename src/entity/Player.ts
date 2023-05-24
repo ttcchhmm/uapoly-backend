@@ -80,7 +80,7 @@ export class Player {
     /**
      * The properties owned by the player.
      */
-    @OneToMany(() => BuyableSlot, property => property.owner, {eager: true})
+    @OneToMany(() => BuyableSlot, property => property.owner, {eager: false})
     ownedProperties: BuyableSlot[];
 
     /**
