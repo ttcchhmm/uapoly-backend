@@ -399,7 +399,6 @@ function onBuy(socket: AuthenticatedSocket) {
  */
 function onMessage(socket: AuthenticatedSocket) {
     return async(data: { gameId: number, message: string, recipient: string | undefined }) => {
-        debugger;
         if(isNaN(data.gameId)) {
             socket.emit('error', getErrorMessage(data.gameId, 'Invalid game ID'));
             return;
