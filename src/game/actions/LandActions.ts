@@ -194,7 +194,7 @@ export const LandActions = {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
         const slot = additionalData.board.slots[player.currentSlotIndex];
 
-        if(slot instanceof BuyableSlot && slot.owner.inJail) {
+        if(slot instanceof BuyableSlot && (slot.owner.inJail || slot.owner.accountLogin === player.accountLogin)) {
             currentMachine.transition(Transitions.END_TURN, additionalData);
         } else {
             currentMachine.transition(Transitions.OWNER_NOT_IN_JAIL, additionalData);
