@@ -1616,15 +1616,34 @@ components:
             price:
               type: integer
               minimum: 1
+              description: The price of the slot
+            owner:
+              type: string
+              description: The owner of the slot
+              pattern: '^([a-zA-Z]|[0-9]|-|_){4,15}'
+              minLength: 4
+              maxLength: 15
+            state:
+              type: string
+              description: The current state of the slot
+              enum:
+                - OWNED
+                - MORTGAGED
+                - AVAILABLE
+            mortgageValue:
+              type: integer
+              minimum: 0
+              description: The amount of money the player will get by mortgaging this property
+            unmortgagePrice:
+              type: integer
+              minimum: 1
+              description: The price to pay to unmortgage this property
           required:
             - price
-      examples:
-        - price: 60
-          name: Mediterranean Avenue
-          description: Buy this property for $60.
-          iconStyle: brown
-          position: 1
-      description: A representation of a buyable slot
+            - state
+            - mortgageValue
+            - unmortgagePrice
+      description: Represents a buyable slot on the board
     CardSlot:
       allOf:
         - $ref: '#/components/schemas/BaseSlot'

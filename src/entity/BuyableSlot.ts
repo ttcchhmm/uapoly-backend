@@ -61,6 +61,10 @@ export abstract class BuyableSlot extends BoardSlot {
     override getSimplified() {
         return {
             price: this.price,
+            owner: this.owner?.accountLogin,
+            state: this.state,
+            mortgageValue: this.getMortgageValue(),
+            unmortgagePrice: this.getUnmortgagePrice(),
             ...super.getSimplified(),
         };
     }

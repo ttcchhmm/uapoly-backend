@@ -130,6 +130,7 @@ export class Board {
             private: this.password !== null,
             started: this.started,
             friendsOnly: this.friendsOnly,
+            slots: this.slots?.map(slot => slot.getSimplified())
         }
     }
 
