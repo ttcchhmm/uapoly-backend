@@ -6,7 +6,7 @@ info:
   version: '1.0'
   description: The API specification for interacting with the UApoly backend.
   x-logo:
-    url: /docs/Logo.webp
+    url: /api/docs/Logo.webp
 servers:
   - url: 'http://localhost:{port}'
     description: Local instance
