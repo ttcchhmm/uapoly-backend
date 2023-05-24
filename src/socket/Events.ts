@@ -242,5 +242,5 @@ export interface ClientEvents {
      * Make the player roll the dices.
      * @param room The game ID to process.
      */
-    rollDice: (room: number) => void;
+    rollDices: (room: number) => void;
 }

@@ -39,7 +39,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('message', onMessage(socket));
     socket.on('trade', onTrade(socket));
     socket.on('acceptTrade', onAcceptTrade(socket));
-    socket.on('rollDice', onRollDices(socket));
+    socket.on('rollDices', onRollDices(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
