@@ -41,6 +41,8 @@ The client can emit the following events:
 - `acceptTrade`: Accept a trade. The client must send the following data:
   - `room`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `message`: An integer representing the message ID with the trade.
+- `rollDices`: Roll the dices. The client must send the following data:
+  - An integer representing the game ID. This is the same as the game ID in the REST API.
 
 ### Server events
 The server can emit the following events:

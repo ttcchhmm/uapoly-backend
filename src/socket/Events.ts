@@ -231,4 +231,10 @@ export interface ClientEvents {
      * @param data The payload of the event.
      */
     acceptTrade: (data: { room: number, message: number }) => void;
+
+    /**
+     * Make the player roll the dices.
+     * @param room The game ID to process.
+     */
+    rollDice: (room: number) => void;
 }

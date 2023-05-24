@@ -39,6 +39,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('message', onMessage(socket));
     socket.on('trade', onTrade(socket));
     socket.on('acceptTrade', onAcceptTrade(socket));
+    socket.on('rollDice', onRollDices(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -717,6 +718,41 @@ function onAcceptTrade(socket: AuthenticatedSocket) {
             });
 
             await updateRoom(socket, data.gameId);
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'declineTrade' event, to decline a trade offer.
+ * @param socket The socket to bind to.
+ * @returns A function that will be called when the socket emits a 'rollDices' event.
+ */
+function onRollDices(socket: AuthenticatedSocket) {
+    return async (gameId: number) => {
+        if(isNaN(gameId)) {
+            socket.emit('error', getErrorMessage(gameId, 'Invalid parameters'));
+            return;
+        }
+
+        const [board, player] = await Promise.all([
+            boardRepo.findOne({
+                where: {
+                    id: gameId,
+                },
+                relations: ['players'],
+                cache: true,
+            }),
+            playerRepo.findOne({
+                where: {
+                    gameId,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, gameId)) {
+            Manager.getMachine(gameId).transition(GameTransitions.IS_NOT_IN_JAIL, { board });
         }
     }
 }

@@ -35,8 +35,6 @@ export const TurnActions = {
     
             if(player.inJail) {
                 currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
-            } else {
-                currentMachine.transition(Transitions.IS_NOT_IN_JAIL, additionalData);
             }
         }
     },
