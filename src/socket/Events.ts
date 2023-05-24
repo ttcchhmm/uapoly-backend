@@ -154,6 +154,12 @@ export interface ServerEvents {
      * @param data The payload of the event.
      */
     tax: (data: { gameId: number, accountLogin: string, amount: number }) => void;
+
+    /**
+     * A player should roll the dices.
+     * @param data The payload of the event.
+     */
+    shouldRollDices: (data: { gameId: number, accountLogin: string }) => void;
 }
 
 /**

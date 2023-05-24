@@ -109,6 +109,9 @@ The server can emit the following events:
   - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `accountLogin`: A string representing the player name.
   - `amount`: An integer representing the amount of the tax.
+- `shouldRollDices`: The player must roll the dices. The client should emit a `rollDices` event to proceed. The data sent by the server will be a JSON object with the following properties:
+  - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
+  - `accountLogin`: A string representing the player name.
 
 ### Schemas
 The following schemas are used by the Socket.IO API:

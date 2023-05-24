@@ -35,6 +35,11 @@ export const TurnActions = {
     
             if(player.inJail) {
                 currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
+            } else {
+                getIo().to(`game-${additionalData.board.id}`).emit('shouldRollDices', {
+                    gameId: additionalData.board.id,
+                    accountLogin: player.accountLogin,
+                });
             }
         }
     },
