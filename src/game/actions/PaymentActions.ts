@@ -80,6 +80,7 @@ export const PaymentActions = {
             // A bit hacky, but it makes the TypeScript compiler happy.
             const target = additionalData.payment.receiver;
             if(target instanceof Player) {
+                debugger;
                 const receiver = additionalData.board.players.find(player => player.accountLogin === target.accountLogin);
 
                 if(receiver) {

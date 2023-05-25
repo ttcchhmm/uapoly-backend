@@ -40,8 +40,9 @@ export const PlayerActions = {
             let debt = 0;
     
             const promises: Promise<any>[] = [];
-            additionalData.propertiesEdit.forEach(propertyEdit => {
-                const property = player.ownedProperties.find(p => p.position === propertyEdit.position);
+
+            for(const propertyEdit of additionalData.propertiesEdit) {
+                const property = (await player.ownedProperties).find(p => p.position === propertyEdit.position);
     
                 if(property) {
                     if(propertyEdit.newState === BuyableSlotState.MORTGAGED && property.state === BuyableSlotState.OWNED) {
@@ -59,7 +60,7 @@ export const PlayerActions = {
     
                     promises.push(slotsRepo.save(property));
                 }
-            });
+            }
     
             await Promise.all(promises);
     

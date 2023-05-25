@@ -80,6 +80,8 @@ export const LandActions = {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
         const slot = additionalData.board.slots[player.currentSlotIndex];
     
+        debugger;
+
         if(slot instanceof BuyableSlot && slot.state !== BuyableSlotState.AVAILABLE) {
             currentMachine.transition(Transitions.BOUGHT, additionalData);
         } else {
@@ -194,7 +196,7 @@ export const LandActions = {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
         const slot = additionalData.board.slots[player.currentSlotIndex];
 
-        if(slot instanceof BuyableSlot && (slot.owner?.inJail || slot.owner?.accountLogin === player.accountLogin)) {
+        if(slot instanceof BuyableSlot && (slot.owner.inJail || slot.owner.accountLogin === player.accountLogin)) {
             currentMachine.transition(Transitions.END_TURN, additionalData);
         } else {
             currentMachine.transition(Transitions.OWNER_NOT_IN_JAIL, additionalData);
@@ -249,7 +251,7 @@ export const LandActions = {
      * @param event The event that triggered the transition.
      * @param additionalData Additional data passed with the event.
      */
-    handleRent: (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
+    handleRent: async (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
         const property = additionalData.board.slots[player.currentSlotIndex];
 
@@ -290,7 +292,7 @@ export const LandActions = {
                         break;
                 }
             } else if(property instanceof TrainStationSlot) {
-                const numberOfTrainStations = property.owner.ownedProperties.filter(slot => slot instanceof TrainStationSlot).length;
+                const numberOfTrainStations = (await property.owner.ownedProperties).filter(slot => slot instanceof TrainStationSlot).length;
 
                 switch(numberOfTrainStations) {
                     case 1:
@@ -315,7 +317,7 @@ export const LandActions = {
                     dices,
                 });
 
-                const numberOfUtilities = property.owner.ownedProperties.filter(slot => slot instanceof UtilitySlot).length;
+                const numberOfUtilities = (await property.owner.ownedProperties).filter(slot => slot instanceof UtilitySlot).length;
 
                 if(numberOfUtilities === 1) {
                     data.payment.amount = (dices[0] + dices[1]) * 4;

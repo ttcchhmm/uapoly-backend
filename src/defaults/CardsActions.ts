@@ -115,7 +115,7 @@ export const ChanceActions: CardActionFunction[] = [
     async (stateMachine: StateMachine<GameTransitions, GameStates, GameEvent>, player: Player, board: Board) => {
         let total = 0;
 
-        player.ownedProperties.forEach(property => {
+        (await player.ownedProperties).forEach(property => {
             if(property instanceof PropertySlot) {
                 if(property.numberOfBuildings <= 4) {
                     total += property.numberOfBuildings * 40;

@@ -81,7 +81,7 @@ export class Player {
      * The properties owned by the player.
      */
     @OneToMany(() => BuyableSlot, property => property.owner, {eager: false})
-    ownedProperties: BuyableSlot[];
+    ownedProperties: Promise<BuyableSlot[]>;
 
     /**
      * The private messages the player has received.
@@ -103,7 +103,7 @@ export class Player {
         this.money = 0;
 
         const promises: Promise<any>[] = [playerRepo.save(this)];
-        this.ownedProperties.forEach(property => {
+        (await this.ownedProperties).forEach(property => {
             property.owner = null;
             property.state = BuyableSlotState.AVAILABLE;
             

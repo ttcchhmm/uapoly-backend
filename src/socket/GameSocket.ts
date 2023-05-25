@@ -307,15 +307,15 @@ function onManageProperties(socket: AuthenticatedSocket) {
             }),
         ]);
 
-        data.properties.forEach(p => {
+        for(const p of data.properties) {
             if(isNaN(p.position)) {
                 socket.emit('error', getErrorMessage(data.gameId, 'Invalid properties'));
                 return;
-            } else if(!player.ownedProperties.find(op => op.position === p.position)) {
+            } else if(!(await player.ownedProperties).find(op => op.position === p.position)) {
                 socket.emit('error', getErrorMessage(data.gameId, `You do not own this property: ${p.position}`));
                 return;
             }
-        });
+        }
 
         if(checkBoardAndPlayerValidity(board, player, socket, data.gameId)) {
             Manager.games.get(data.gameId).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
@@ -520,8 +520,8 @@ function onTrade(socket: AuthenticatedSocket) {
             const offered: TradeItem[] = [];
             const requested: TradeItem[] = [];
 
-            data.propertiesOffered.forEach((id) => {
-                const property = player.ownedProperties.find((p) => p.position === id);
+            for(const id of data.propertiesOffered) {
+                const property = (await player.ownedProperties).find((p) => p.position === id);
 
                 if(!property) {
                     socket.emit('error', getErrorMessage(data.gameId, `Invalid property: ${id}`));
@@ -529,10 +529,10 @@ function onTrade(socket: AuthenticatedSocket) {
                 }
 
                 offered.push(new BuyableSlotTrade(property));
-            });
+            }
 
-            data.propertiesRequested.forEach((id) => {
-                const property = recipient.ownedProperties.find((p) => p.position === id);
+            for(const id of data.propertiesRequested) {
+                const property = (await recipient.ownedProperties).find((p) => p.position === id);
 
                 if(!property) {
                     socket.emit('error', getErrorMessage(data.gameId, `Invalid property: ${id}`));
@@ -540,7 +540,7 @@ function onTrade(socket: AuthenticatedSocket) {
                 }
 
                 requested.push(new BuyableSlotTrade(property));
-            });
+            }
 
             // Add money trades
             offered.push(new MoneyTrade(data.moneyOffered));
