@@ -803,6 +803,10 @@ function onEscapeJail(socket: AuthenticatedSocket) {
                 case MeansOfEscape.ROLL:
                     machine.transition(GameTransitions.ESCAPE_WITH_DICE, { board });
                     break;
+
+                default:
+                    socket.emit('error', getErrorMessage(data.gameId, 'Invalid parameters'));
+                    break;
             }
         }
     }
