@@ -42,8 +42,10 @@ export const JailActions = {
     
             await playerRepo.save(player);
     
+            getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
             currentMachine.transition(Transitions.ROLL_DICE, additionalData);
         } else {
+            getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
             currentMachine.transition(Transitions.IS_IN_JAIL, additionalData);
         }
     },
@@ -67,10 +69,13 @@ export const JailActions = {
     
         if(dices[0] === dices[1]) {
             player.inJail = false;
-    
+
             await playerRepo.save(player);
+
+            getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
             currentMachine.transition(Transitions.ROLL_DICE, additionalData);
         } else {
+            getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
             currentMachine.transition(Transitions.END_TURN, additionalData);
         }
     },
@@ -88,6 +93,7 @@ export const JailActions = {
         player.inJail = false;
         await playerRepo.save(player);
 
+        getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
         currentMachine.transition(Transitions.PAY_BANK, {
             payment: {
                 amount: 50,
