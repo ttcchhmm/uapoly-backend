@@ -11,6 +11,7 @@ import { TradeOffer } from "../entity/TradeOffer";
 import { Manager, PropertyEdit } from "../game/GameManager";
 import { GameTransitions } from "../game/GameTransitions";
 import { checkBody } from "../utils/CheckBody";
+import { MeansOfEscape } from "./Events";
 import { getIo } from "./IoGlobal";
 
 const playerRepo = AppDataSource.getRepository(Player);
@@ -40,6 +41,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('trade', onTrade(socket));
     socket.on('acceptTrade', onAcceptTrade(socket));
     socket.on('rollDices', onRollDices(socket));
+    socket.on('escapeJail', onEscapeJail(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -753,6 +755,55 @@ function onRollDices(socket: AuthenticatedSocket) {
 
         if(checkBoardAndPlayerValidity(board, player, socket, gameId)) {
             Manager.getMachine(gameId).transition(GameTransitions.IS_NOT_IN_JAIL, { board });
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'escapeJail' event, to escape jail.
+ * @param socket The socket to bind to.
+ * @returns A function that will be called when the socket emits a 'escapeJail' event.
+ */
+function onEscapeJail(socket: AuthenticatedSocket) {
+    return async (data: { gameId: number, meanOfEscape: MeansOfEscape }) => {
+        if(isNaN(data.gameId)) {
+            socket.emit('error', getErrorMessage(data.gameId, 'Invalid parameters'));
+            return;
+        }
+
+        const [board, player] = await Promise.all([
+            boardRepo.findOne({
+                where: {
+                    id: data.gameId,
+                },
+                relations: ['players'],
+                cache: true,
+            }),
+            playerRepo.findOne({
+                where: {
+                    gameId: data.gameId,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, data.gameId)) {
+            const machine = Manager.getMachine(data.gameId);
+
+            switch(data.meanOfEscape) {
+                case MeansOfEscape.PAY:
+                    machine.transition(GameTransitions.PAY_BAIL, { board });
+                    break;
+
+                case MeansOfEscape.USE_CARD:
+                    machine.transition(GameTransitions.USE_OUT_OF_JAIL_CARD, { board });
+                    break;
+
+                case MeansOfEscape.ROLL:
+                    machine.transition(GameTransitions.ESCAPE_WITH_DICE, { board });
+                    break;
+            }
         }
     }
 }

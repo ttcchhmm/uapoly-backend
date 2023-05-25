@@ -33,6 +33,26 @@ interface MessageEvent {
 }
 
 /**
+ * Represent ways to escape jail.
+ */
+export enum MeansOfEscape {
+    /**
+     * The player paid to escape jail.
+     */
+    PAY = 'PAY',
+
+    /**
+     * The player used a card to escape jail.
+     */
+    USE_CARD = 'USE_CARD',
+
+    /**
+     * The player rolled the dices to escape jail.
+     */
+    ROLL = 'ROLL',
+}
+
+/**
  * Events that can be emitted by the server.
  */
 export interface ServerEvents {
@@ -243,4 +263,10 @@ export interface ClientEvents {
      * @param room The game ID to process.
      */
     rollDices: (room: number) => void;
+
+    /**
+     * The player is in jail and should try to escape.
+     * @param data The payload of the event.
+     */
+    escapeJail: (data: { room: number, meanOfEscape: MeansOfEscape }) => void;
 }
