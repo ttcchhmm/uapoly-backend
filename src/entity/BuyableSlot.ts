@@ -56,6 +56,7 @@ export abstract class BuyableSlot extends BoardSlot {
         super(name, description, iconStyle, position);
         this.price = price;
         this.owner = null;
+        this.state = BuyableSlotState.AVAILABLE;
     }
 
     override getSimplified() {
