@@ -82,7 +82,12 @@ export const JailActions = {
      * @param event The event that triggered the transition.
      * @param additionalData Additional data passed with the event.
      */
-    handlePayBail: (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
+    handlePayBail: async (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
+        const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+        
+        player.inJail = false;
+        await playerRepo.save(player);
+
         currentMachine.transition(Transitions.PAY_BANK, {
             payment: {
                 amount: 50,
