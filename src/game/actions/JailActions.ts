@@ -95,7 +95,7 @@ export const JailActions = {
         await playerRepo.save(player);
 
         getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
-        currentMachine.transition(Transitions.PAY_BANK, {
+        currentMachine.transition(Transitions.PAY_BAIL, {
             payment: {
                 amount: 50,
                 receiver: 'bank',
