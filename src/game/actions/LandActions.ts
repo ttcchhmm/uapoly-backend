@@ -79,8 +79,6 @@ export const LandActions = {
     handleLandedOnBuyableSlot: (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
         const slot = additionalData.board.slots[player.currentSlotIndex];
-    
-        debugger;
 
         if(slot instanceof BuyableSlot && slot.state !== BuyableSlotState.AVAILABLE) {
             currentMachine.transition(Transitions.BOUGHT, additionalData);
