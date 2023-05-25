@@ -36,6 +36,7 @@ export class PropertySlot extends BuyableSlot {
         this.color = color;
         this.propertyRent = propertyRent;
         this.buildingPrice = buildingPrice;
+        this.numberOfBuildings = 0;
     }
 
     override getSimplified() {
