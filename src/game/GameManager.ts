@@ -482,6 +482,7 @@ export class GameManager {
                         [Transitions.DECLARE_BANKRUPTCY]: States.DECLARE_BANKRUPTCY,
                         [Transitions.END_TURN]: States.END_TURN,
                         [Transitions.PAY_BAIL]: States.ROLL_DICE,
+                        [Transitions.ROLL_DICE]: States.ROLL_DICE,
                     },
                     inTransitions: [
                         Transitions.PAY_BAIL,
