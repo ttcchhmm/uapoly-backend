@@ -6,6 +6,7 @@ import { getIo } from '../../socket/IoGlobal';
 import { Player } from '../../entity/Player';
 import { AppDataSource } from '../../data-source';
 import { rollDices } from '../Dices';
+import { Board } from '../../entity/Board';
 
 const playerRepo = AppDataSource.getRepository(Player);
 
@@ -98,6 +99,12 @@ export const JailActions = {
             payment: {
                 amount: 50,
                 receiver: 'bank',
+                callback: async (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot', board: Board) => {
+                    getIo().to(`game-${additionalData.board.id}`).emit('shouldRollDices', {
+                        gameId: additionalData.board.id,
+                        accountLogin: player.accountLogin,
+                    });
+                }
             },
     
             ...additionalData,
