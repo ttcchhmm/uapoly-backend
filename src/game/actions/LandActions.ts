@@ -80,7 +80,7 @@ export const LandActions = {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
         const slot = additionalData.board.slots[player.currentSlotIndex];
     
-        if(slot instanceof BuyableSlot && slot.state === BuyableSlotState.AVAILABLE) {
+        if(slot instanceof BuyableSlot && slot.state !== BuyableSlotState.AVAILABLE) {
             currentMachine.transition(Transitions.BOUGHT, additionalData);
         } else {
             currentMachine.transition(Transitions.NOT_BOUGHT, additionalData);
