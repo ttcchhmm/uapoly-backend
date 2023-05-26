@@ -139,13 +139,13 @@ export class Player {
         if(this.currentSlotIndex + numberOfSlots > board.slots.length) {
             this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % board.slots.length;
 
-            playerRepo.save(this);
+            await playerRepo.save(this);
             getIo().to(`game-${board.id}`).emit('update', board);
             stateMachine.transition(GameTransitions.PASS_START, { board });
         } else {
             this.currentSlotIndex = (this.currentSlotIndex + numberOfSlots) % board.slots.length;
 
-            playerRepo.save(this);
+            await playerRepo.save(this);
             getIo().to(`game-${board.id}`).emit('update', board);
             stateMachine.transition(GameTransitions.MOVED_PLAYER, { board });
         }
