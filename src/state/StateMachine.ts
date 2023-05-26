@@ -144,6 +144,8 @@ export class StateMachine<T extends string, N, D> {
      * @param additionalData Additional data to pass to the transition functions.
      */
     public transition(event: T, additionalData?: D, parentMachine?: StateMachine<T, N, D>) {
+        console.log(`[${this.getName()}]: Transitioning from ${this.currentState.getName()} with event ${event}`);
+
         // Validate additional data
         if(this.validationFunction) {
             const validationError = this.validationFunction(additionalData);
