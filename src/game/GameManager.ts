@@ -483,6 +483,7 @@ export class GameManager {
                         [Transitions.END_TURN]: States.END_TURN,
                         [Transitions.PAY_BAIL]: States.ROLL_DICE,
                         [Transitions.ROLL_DICE]: States.ROLL_DICE,
+                        [Transitions.IS_NOT_IN_JAIL]: States.ROLL_DICE,
                     },
                     inTransitions: [
                         Transitions.PAY_BAIL,
