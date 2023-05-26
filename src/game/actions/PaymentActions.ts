@@ -100,6 +100,8 @@ export const PaymentActions = {
 
         await Promise.all(promises);
 
+        currentMachine.reset();
+
         getIo().to(`game-${additionalData.board.id}`).emit('paymentSucceeded', {
             gameId: additionalData.board.id,
             sender: player.accountLogin,
