@@ -233,6 +233,8 @@ export const LandActions = {
 
                         await slotsRepo.save(slot);
 
+                        getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
+
                         stateMachine.transition(Transitions.END_TURN, {
                             board: additionalData.board,
                         });
