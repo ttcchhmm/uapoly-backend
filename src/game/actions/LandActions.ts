@@ -18,6 +18,7 @@ import { TrainStationSlot } from '../../entity/TrainStationSlot';
 import { UtilitySlot } from '../../entity/UtilitySlot';
 import { rollDices } from '../Dices';
 import { RestSlot } from '../../entity/RestSlot';
+import { random } from '../../utils/RiggedRandom';
 
 const playerRepo = AppDataSource.getRepository(Player);
 const boardRepo = AppDataSource.getRepository(Board);
@@ -138,7 +139,8 @@ export const LandActions = {
         
         if(slot instanceof CardSlot) {
             const deck = Slots.get(additionalData.board.locale).deck[slot.cardStyle];
-            const card = deck[Math.floor(Math.random() * deck.length)];
+            // const card = deck[Math.floor(Math.random() * deck.length)];
+            const card = deck[random(0, deck.length - 1)];
     
             getIo().to(`game-${additionalData.board.id}`).emit('cardDrawn', {
                 gameId: additionalData.board.id,
