@@ -42,9 +42,9 @@ export const PlayerActions = {
             const promises: Promise<any>[] = [];
 
             for(const propertyEdit of additionalData.propertiesEdit) {
-                const property = (await player.ownedProperties).find(p => p.position === propertyEdit.position);
+                const property = additionalData.board.slots.find(p => p.position === propertyEdit.position);
     
-                if(property) {
+                if(property instanceof BuyableSlot && property.owner.accountLogin === player.accountLogin) {
                     if(propertyEdit.newState === BuyableSlotState.MORTGAGED && property.state === BuyableSlotState.OWNED) {
                         debt -= property.getMortgageValue();
                         property.state = BuyableSlotState.MORTGAGED;
