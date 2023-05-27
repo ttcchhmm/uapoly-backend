@@ -92,7 +92,7 @@ export class Board {
     /**
      * The slots in the board.
      */
-    @OneToMany(() => BoardSlot, slot => slot.board, {eager: true, cascade: true})
+    @OneToMany(() => BoardSlot, slot => slot.board, { eager: true })
     slots: BoardSlot[];
 
     /**

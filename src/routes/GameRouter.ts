@@ -119,7 +119,11 @@ GameRouter.post('/create', authenticateRequest, async (req: AuthenticatedRequest
 
     // Save the new game in the database
     await boardRepo.save(board);
-    await playerRepo.save(player);
+
+    const promises: Promise<any>[] = board.slots.map((slot) => slotsRepo.save(slot));
+    promises.push(playerRepo.save(player));
+    
+    await Promise.all(promises);
 
     return res.status(200).json(board.getSimplified());
 });
