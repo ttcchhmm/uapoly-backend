@@ -3,7 +3,7 @@ import { GameStates as States } from "../GameStates";
 import { GameTransitions as Transitions } from "../GameTransitions";
 import { GameEvent } from '../GameManager';
 import { getIo } from '../../socket/IoGlobal';
-import { BuyableSlotState } from '../../entity/BuyableSlot';
+import { BuyableSlot, BuyableSlotState } from '../../entity/BuyableSlot';
 import { PropertySlot } from '../../entity/PropertySlot';
 import { AppDataSource } from '../../data-source';
 import { BoardSlot } from '../../entity/BoardSlot';
@@ -54,7 +54,7 @@ export const PlayerActions = {
                     }
     
                     if(propertyEdit.newNumberOfBuildings >= 0 && propertyEdit.newNumberOfBuildings <= 5 && property instanceof PropertySlot) {
-                        debt += (property.numberOfBuildings - propertyEdit.newNumberOfBuildings) * property.buildingPrice;
+                        debt += (propertyEdit.newNumberOfBuildings - property.numberOfBuildings) * property.buildingPrice;
                         property.numberOfBuildings = propertyEdit.newNumberOfBuildings;
                     }
     
