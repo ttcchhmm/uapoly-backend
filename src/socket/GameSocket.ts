@@ -322,7 +322,10 @@ function onManageProperties(socket: AuthenticatedSocket) {
         }
 
         if(checkBoardAndPlayerValidity(board, player, socket, data.gameId)) {
-            Manager.games.get(data.gameId).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties });
+            const payment = PendingPayments.get(data.gameId);
+            PendingPayments.delete(data.gameId);
+
+            Manager.games.get(data.gameId).transition(GameTransitions.MANAGE_PROPERTIES, { board: board, propertiesEdit: data.properties, payment });
         }
     }
 }
