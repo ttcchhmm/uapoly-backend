@@ -23,31 +23,31 @@ def main():
 
     print('--- /user/register ---')
     tokens, register_latencies = create_users(base_url)
-    display_latencies(register_latencies, '/user/register')
+    display_latencies(register_latencies, '/api/user/register')
     del register_latencies
 
     print('--- /user/login ---')
     tokens, login_latencies = login_users(base_url)
-    display_latencies(login_latencies, '/user/login')
+    display_latencies(login_latencies, '/api/user/login')
     del login_latencies
 
     print('--- /user/me ---')
-    display_latencies(me(base_url, tokens), '/user/me')
+    display_latencies(me(base_url, tokens), '/api/user/me')
 
     print('--- /user/search ---')
-    display_latencies(search(base_url, tokens['User0']), '/user/search')
+    display_latencies(search(base_url, tokens['User0']), '/api/user/search')
 
     print('--- /game/boards (GET) ---')
-    display_latencies(get_boards(base_url), '/game/boards')
+    display_latencies(get_boards(base_url), '/api/game/boards')
 
     print('--- /game/boards (POST) ---')
-    display_latencies(post_boards(base_url), '/game/boards')
+    display_latencies(post_boards(base_url), '/api/game/boards')
 
     print('--- /game/create (passwordless) ---')
-    display_latencies(create_passwordless_game(base_url, tokens), '/game/create (passwordless)')
+    display_latencies(create_passwordless_game(base_url, tokens), '/api/game/create (passwordless)')
 
     print('--- /game/create (with password) ---')
-    display_latencies(create_password_game(base_url, tokens), '/game/create (with password)')
+    display_latencies(create_password_game(base_url, tokens), '/api/game/create (with password)')
 
 
 def display_latencies(latencies, route):
@@ -84,7 +84,7 @@ def create_passwordless_game(base_url, tokens):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for response in executor.map(query, [(datetime.now(), base_url, '/game/create', 'POST', {
+        for response in executor.map(query, [(datetime.now(), base_url, '/api/game/create', 'POST', {
             "maxPlayers": 4,
             "name": "UApoly game",
             "salary": 200,
@@ -102,7 +102,7 @@ def create_password_game(base_url, tokens):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for response in executor.map(query, [(datetime.now(), base_url, '/game/create', 'POST', {
+        for response in executor.map(query, [(datetime.now(), base_url, '/api/game/create', 'POST', {
             "maxPlayers": 4,
             "name": "UApoly game",
             "salary": 200,
@@ -123,7 +123,7 @@ def search(base_url, token):
     base_string = 'azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJLMWXCVBN0123456789-_'
 
     with ProcessPoolExecutor() as executor:
-        for response in executor.map(query, [(datetime.now(), base_url, '/user/search', 'POST', [{'login': base_string[int(i/len(base_string))]} for i in range(NUMBER_OF_REQUESTS)], {'Authorization': f'Bearer {token}'}) for _ in range(NUMBER_OF_REQUESTS)]):
+        for response in executor.map(query, [(datetime.now(), base_url, '/api/user/search', 'POST', [{'login': base_string[int(i/len(base_string))]} for i in range(NUMBER_OF_REQUESTS)], {'Authorization': f'Bearer {token}'}) for _ in range(NUMBER_OF_REQUESTS)]):
             latencies = process_response(response, latencies)
 
     return latencies
@@ -135,7 +135,7 @@ def post_boards(base_url):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for response in executor.map(query, [(datetime.now(), base_url, '/game/boards', 'POST', {'locale': 'en-US' if i % 2 == 0 else 'fr-FR'}, {}) for i in range(NUMBER_OF_REQUESTS)]):
+        for response in executor.map(query, [(datetime.now(), base_url, '/api/game/boards', 'POST', {'locale': 'en-US' if i % 2 == 0 else 'fr-FR'}, {}) for i in range(NUMBER_OF_REQUESTS)]):
             latencies = process_response(response, latencies)
 
     return latencies
@@ -147,7 +147,7 @@ def get_boards(base_url):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for response in executor.map(query, [(datetime.now(), base_url, '/game/boards', 'GET', {}, {}) for _ in range(NUMBER_OF_REQUESTS)]):
+        for response in executor.map(query, [(datetime.now(), base_url, '/api/game/boards', 'GET', {}, {}) for _ in range(NUMBER_OF_REQUESTS)]):
             latencies = process_response(response, latencies)
 
     return latencies
@@ -161,7 +161,7 @@ def create_users(base_url):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for user, response in zip(users, executor.map(query, [(datetime.now(), base_url, '/user/register', 'POST', user, {}) for user in users])):
+        for user, response in zip(users, executor.map(query, [(datetime.now(), base_url, '/api/user/register', 'POST', user, {}) for user in users])):
             start, elapsed, body = response
             tokens[user['login']] = body['token']
             latencies = pd.concat([latencies, pd.DataFrame({'start': [start], 'latency': [elapsed.total_seconds() * 1000]})])
@@ -177,7 +177,7 @@ def login_users(base_url):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for user, response in zip(users, executor.map(query, [(datetime.now(), base_url, '/user/login', 'POST', user, {}) for user in users])):
+        for user, response in zip(users, executor.map(query, [(datetime.now(), base_url, '/api/user/login', 'POST', user, {}) for user in users])):
             start, elapsed, body = response
             tokens[user['login']] = body['token']
             latencies = pd.concat([latencies, pd.DataFrame({'start': [start], 'latency': [elapsed.total_seconds() * 1000]})])
@@ -191,7 +191,7 @@ def me(base_url, tokens):
     latencies = pd.DataFrame(columns=['start', 'latency'])
 
     with ProcessPoolExecutor() as executor:
-        for response in executor.map(query, [(datetime.now(), base_url, '/user/me', 'GET', {}, {'Authorization': f'Bearer {token}'}) for token in tokens.values()]):
+        for response in executor.map(query, [(datetime.now(), base_url, '/api/user/me', 'GET', {}, {'Authorization': f'Bearer {token}'}) for token in tokens.values()]):
             latencies = process_response(response, latencies)
 
     return latencies
