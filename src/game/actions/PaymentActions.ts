@@ -31,6 +31,8 @@ export const PaymentActions = {
 
         PendingPayments.set(additionalData.board.id, additionalData.payment);
 
+        currentMachine.reset();
+
         getIo().to(`game-${additionalData.board.id}`).emit('playerInDebt', {
             gameId: additionalData.board.id,
             accountLogin: player.accountLogin,

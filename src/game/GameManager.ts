@@ -489,6 +489,7 @@ export class GameManager {
                         [Transitions.PAY_BAIL]: States.ROLL_DICE,
                         [Transitions.ROLL_DICE]: States.ROLL_DICE,
                         [Transitions.IS_NOT_IN_JAIL]: States.ROLL_DICE,
+                        [Transitions.MANAGE_PROPERTIES]: States.MANAGE_PROPERTIES,
                     },
                     inTransitions: [
                         Transitions.PAY_BAIL,
