@@ -490,11 +490,13 @@ export class GameManager {
                         [Transitions.ROLL_DICE]: States.ROLL_DICE,
                         [Transitions.IS_NOT_IN_JAIL]: States.ROLL_DICE,
                         [Transitions.MANAGE_PROPERTIES]: States.MANAGE_PROPERTIES,
+                        [Transitions.CAN_PAY]: States.PAY, // Retry payment
                     },
                     inTransitions: [
                         Transitions.PAY_BAIL,
                         Transitions.PAY_BANK,
                         Transitions.PAY_PLAYER,
+                        Transitions.CAN_PAY, // Retry payment
                     ]
                 }
             ),
