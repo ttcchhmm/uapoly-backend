@@ -7,8 +7,10 @@ import { BuyableSlot, BuyableSlotState } from '../../entity/BuyableSlot';
 import { PropertySlot } from '../../entity/PropertySlot';
 import { AppDataSource } from '../../data-source';
 import { BoardSlot } from '../../entity/BoardSlot';
+import { Player } from '../../entity/Player';
 
 const slotsRepo = AppDataSource.getRepository(BoardSlot);
+const playerRepo = AppDataSource.getRepository(Player);
 
 /**
  * Actions for player management.
@@ -63,12 +65,15 @@ export const PlayerActions = {
             }
     
             await Promise.all(promises);
-    
-            getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
-    
+        
             if(debt < 0) { // The bank owes the player money
                 player.money -= debt;
+                await playerRepo.save(player);
+
+                getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
             } else { // The player owes the bank money
+                getIo().to(`game-${additionalData.board.id}`).emit('update', additionalData.board);
+
                 currentMachine.transition(Transitions.PAY_BANK, {
                     board: additionalData.board,
                     payment: {
@@ -76,6 +81,8 @@ export const PlayerActions = {
                         amount: debt,
                     },
                 });
+                
+                return;
             }
         }
     
