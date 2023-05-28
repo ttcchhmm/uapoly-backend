@@ -81,8 +81,6 @@ export const PlayerActions = {
                         amount: debt,
                     },
                 });
-                
-                return;
             }
         }
     
