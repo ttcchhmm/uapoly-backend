@@ -10,6 +10,7 @@ import { TradeItem } from "../entity/TradeItem";
 import { TradeOffer } from "../entity/TradeOffer";
 import { Manager, PropertyEdit } from "../game/GameManager";
 import { GameTransitions } from "../game/GameTransitions";
+import { PendingPayments } from "../game/actions/PaymentActions";
 import { checkBody } from "../utils/CheckBody";
 import { MeansOfEscape } from "./Events";
 import { getIo } from "./IoGlobal";
@@ -42,6 +43,7 @@ export function onConnect(socket: AuthenticatedSocket) {
     socket.on('acceptTrade', onAcceptTrade(socket));
     socket.on('rollDices', onRollDices(socket));
     socket.on('escapeJail', onEscapeJail(socket));
+    socket.on('retryPayement', onRetryPayement(socket));
 
     // Resend the state of the game if the socket was disconnected
     if(socket.recovered) {
@@ -808,6 +810,44 @@ function onEscapeJail(socket: AuthenticatedSocket) {
                     socket.emit('error', getErrorMessage(data.gameId, 'Invalid parameters'));
                     break;
             }
+        }
+    }
+}
+
+/**
+ * Get a function that will be called when the socket emits a 'retryPayement' event, to retry a payement.
+ * @param socket The socket to bind to.
+ * @returns A function that will be called when the socket emits a 'retryPayement' event.
+ */
+function onRetryPayement(socket: AuthenticatedSocket) {
+    return async (gameId: number) => {
+        if(isNaN(gameId)) {
+            socket.emit('error', getErrorMessage(gameId, 'Invalid parameters'));
+            return;
+        }
+
+        const [board, player] = await Promise.all([
+            boardRepo.findOne({
+                where: {
+                    id: gameId,
+                },
+                relations: ['players'],
+                cache: true,
+            }),
+            playerRepo.findOne({
+                where: {
+                    gameId,
+                    accountLogin: socket.user.login,
+                },
+                cache: true,
+            }),
+        ]);
+
+        if(checkBoardAndPlayerValidity(board, player, socket, gameId)) {
+            const payment = PendingPayments.get(gameId);
+            PendingPayments.delete(gameId);
+
+            Manager.getMachine(gameId).transition(GameTransitions.CAN_PAY, { board, payment });
         }
     }
 }

@@ -1,7 +1,7 @@
 import { StateMachine } from '../../state/StateMachine';
 import { GameStates as States } from "../GameStates";
 import { GameTransitions as Transitions } from "../GameTransitions";
-import { GameEvent } from '../GameManager';
+import { GameEvent, Payment } from '../GameManager';
 import { getIo } from '../../socket/IoGlobal';
 import { Player } from '../../entity/Player';
 import { Board } from '../../entity/Board';
@@ -9,6 +9,11 @@ import { AppDataSource } from '../../data-source';
 
 const boardRepo = AppDataSource.getRepository(Board);
 const playerRepo = AppDataSource.getRepository(Player);
+
+/**
+ * Map of payments that are waiting for the player to repay them.
+ */
+export const PendingPayments: Map<number, Payment> = new Map();
 
 /**
  * Actions for general payment management.
@@ -23,6 +28,8 @@ export const PaymentActions = {
      */
     handlePlayerInDebt: (currentMachine: StateMachine<Transitions, States, GameEvent>, upperMachine: StateMachine<Transitions, States, GameEvent> | undefined, event: Transitions, additionalData?: GameEvent) => {
         const player = additionalData.board.players[additionalData.board.currentPlayerIndex];
+
+        PendingPayments.set(additionalData.board.id, additionalData.payment);
 
         getIo().to(`game-${additionalData.board.id}`).emit('playerInDebt', {
             gameId: additionalData.board.id,

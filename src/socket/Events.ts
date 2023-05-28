@@ -269,4 +269,10 @@ export interface ClientEvents {
      * @param data The payload of the event.
      */
     escapeJail: (data: { room: number, meanOfEscape: MeansOfEscape }) => void;
+
+    /**
+     * The player is retrying to pay a debt.
+     * @param room The game ID to process.
+     */
+    retryPayement(room: number): void;
 }

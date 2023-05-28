@@ -46,6 +46,8 @@ The client can emit the following events:
 - `escapeJail` : Try to escape jail. The client must send the following data:
   - `gameId`: An integer representing the game ID. This is the same as the game ID in the REST API.
   - `meanOfEscape`: A string representing the mean of escape. Can be `PAY`, `ROLL` or `USE_CARD`.
+- `retryPayement`: Retry a payement to pay a debt. The client must send the following data:
+  - An integer representing the game ID. This is the same as the game ID in the REST API.
 
 ### Server events
 The server can emit the following events:

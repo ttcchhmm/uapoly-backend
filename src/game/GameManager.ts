@@ -42,6 +42,29 @@ export interface PropertyEdit {
 }
 
 /**
+ * Represents a payment.
+ */
+export interface Payment {
+    /**
+     * The player making the payment.
+     */
+    receiver: Player | 'bank' | 'jackpot',
+
+    /**
+     * The amount being paid.
+     */
+    amount: number,
+
+    /**
+     * A callback to be called after the payment has been made. If undefined, the turn will end.
+     * @param stateMachine The state machine for the game.
+     * @param sender The player making the payment.
+     * @param receiver The receiver of the payment.
+     */
+    callback?: (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot', board: Board) => Promise<void>;
+}
+
+/**
  * Additional data to pass to each transition function.
  */
 export interface GameEvent {
@@ -53,25 +76,7 @@ export interface GameEvent {
     /**
      * If a payment is being made, the details of the payment. Undefined otherwise.
      */
-    payment?: {
-        /**
-         * The player making the payment.
-         */
-        receiver: Player | 'bank' | 'jackpot',
-
-        /**
-         * The amount being paid.
-         */
-        amount: number,
-
-        /**
-         * A callback to be called after the payment has been made. If undefined, the turn will end.
-         * @param stateMachine The state machine for the game.
-         * @param sender The player making the payment.
-         * @param receiver The receiver of the payment.
-         */
-        callback?: (stateMachine: StateMachine<Transitions, States, GameEvent>, sender: Player, receiver: Player | 'bank' | 'jackpot', board: Board) => Promise<void>;
-    },
+    payment?: Payment,
 
     /**
      * If modifications are being made to the properties of a player, the details of the modifications. Undefined otherwise.
@@ -444,7 +449,7 @@ export class GameManager {
                             [Transitions.DECLARE_BANKRUPTCY]: States.DECLARE_BANKRUPTCY,
                             [Transitions.TRADE]: States.TRADE,
                             [Transitions.MANAGE_PROPERTIES]: States.MANAGE_PROPERTIES,
-                            [Transitions.CAN_PAY]: States.TRANSFER_MONEY,
+                            [Transitions.CAN_PAY]: States.CHECK_IF_PLAYER_CAN_AFFORD,
                         },
                         [PaymentActions.handlePlayerInDebt],
                         []
