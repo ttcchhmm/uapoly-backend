@@ -131,8 +131,8 @@ export class GameManager {
         });
         await Promise.all(promises);
 
-        await playerRepo.delete({ gameId: board.id });
         await slotsRepo.delete({ boardId: board.id });
+        await playerRepo.delete({ gameId: board.id });
         await boardRepo.remove(board);
     }
 
